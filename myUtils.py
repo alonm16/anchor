@@ -30,7 +30,7 @@ class TabularUtils:
         exps_names = [' AND '.join(exp.names) for exp in explanations]
         seen = set()
         saved_exps = list()
-        for i, exp in enumerate(explenations):
+        for i, exp in enumerate(explanations):
             if exps_names[i] not in seen:
                 saved_exps.append(exp)
             seen.add(exps_names[i])
@@ -74,7 +74,7 @@ class TextUtils:
         exps_names = [' AND '.join(exp.names) for exp in explanations]
         seen = set()
         saved_exps = list()
-        for i, exp in enumerate(explenations):
+        for i, exp in enumerate(explanations):
             if exps_names[i] not in seen:
                 saved_exps.append(exp)
             seen.add(exps_names[i])
