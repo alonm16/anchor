@@ -36,11 +36,11 @@ class Utils:
 
         return saved_exps
 
-    def compute_explenations(self, indices):
+    def compute_explanations(self, indices):
         length = len(indices)
         explenations = list()
         for i, index in enumerate(indices):
-            if i % 10 == 0:
+            if i % 50 == 0:
                 print(i)
             cur_exp = self.get_exp(index)
             cur_fit = self.get_fit_examples(cur_exp, index)
