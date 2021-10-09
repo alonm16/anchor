@@ -85,7 +85,8 @@ class TextUtils:
     def compute_explanations(self, indices):
         explanations = list()
         for i, index in enumerate(indices):
-            print(i)
+            if i % 10 == 0:
+                print(i)
             cur_exp = self.get_exp(index)
             cur_fit = self.get_fit_examples(cur_exp)
             cur_test_cov = self.get_test_cov(cur_fit)
