@@ -1,5 +1,4 @@
 import numpy as np
-import time
 
 class MyExplanation:
     def __init__(self, index, fit_examples, test_cov, exp):
@@ -47,19 +46,21 @@ class TabularUtils:
             cur_test_cov = self.get_test_cov(cur_fit)
 
             explanations.append(MyExplanation(index, cur_fit, cur_test_cov, cur_exp))
-
-        return self.remove_duplicates(explanations)
+        
+        explanations = self.remove_duplicates(explanations)
+        explanations.sort(key=lambda exp: exp.test_cov)
+        
+        return explanations
     
     
 class TextUtils:
     
     def __init__(self, dataset, explainer, predict_fn):
-        self.dataset = [example.decode('utf-8') for example in dataset]
+        self.dataset = dataset
         self.explainer = explainer
         self.predict_fn = predict_fn
 
     def get_exp(self,idx):
-        print(self.dataset[idx])
         return self.explainer.explain_instance(self.dataset[idx], self.predict_fn, threshold=0.95, verbose=False, onepass=True)
 
     def get_fit_examples(self,exp):
@@ -85,14 +86,13 @@ class TextUtils:
         explanations = list()
         for i, index in enumerate(indices):
             print(i)
-            b = time.time()
             cur_exp = self.get_exp(index)
-            print('Time: %s' % (time.time() - b))
-            print('after exp')
             cur_fit = self.get_fit_examples(cur_exp)
-            print('after fit')
             cur_test_cov = self.get_test_cov(cur_fit)
 
             explanations.append(MyExplanation(index, cur_fit, cur_test_cov, cur_exp))
 
-        return self.remove_duplicates(explanations)
+        explanations = self.remove_duplicates(explanations)
+        explanations.sort(key=lambda exp: exp.test_cov)
+        
+        return explanations
