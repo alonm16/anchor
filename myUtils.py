@@ -55,21 +55,22 @@ class TabularUtils:
     
 class TextUtils:
     
-    def __init__(self, dataset, explainer, predict_fn):
+    def __init__(self, dataset, test, explainer, predict_fn):
         self.dataset = dataset
         self.explainer = explainer
         self.predict_fn = predict_fn
+        self.test = test
 
     def get_exp(self,idx):
         return self.explainer.explain_instance(self.dataset[idx], self.predict_fn, threshold=0.95, verbose=False, onepass=True)
 
     def get_fit_examples(self,exp):
         exp_words = exp.names()
-        is_holding = [all(word in example for word in exp_words) for example in self.dataset]
+        is_holding = [all(word in example for word in exp_words) for example in self.test]
         return np.where(is_holding)[0]
 
     def get_test_cov(self,fit_anchor):
-        return (len(fit_anchor) / float(len(self.dataset)))
+        return (len(fit_anchor) / float(len(self.test)))
 
     def remove_duplicates(self,explanations):
         exps_names = [' AND '.join(exp.names) for exp in explanations]
