@@ -1,9 +1,6 @@
 
 # In[1]:
 
-
-get_ipython().run_line_magic('load_ext', 'autoreload')
-get_ipython().run_line_magic('autoreload', '2')
 import os
 import os.path
 import numpy as np

@@ -1,0 +1,4 @@
+Traceback (most recent call last):
+  File "text_experiment.py", line 5, in <module>
+    get_ipython().run_line_magic('load_ext', 'autoreload')
+NameError: name 'get_ipython' is not defined
