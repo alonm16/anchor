@@ -1,4 +1,5 @@
 import numpy as np
+import pickle
 
 class MyExplanation:
     def __init__(self, index, fit_examples, test_cov, exp):
@@ -85,14 +86,19 @@ class TextUtils:
 
     def compute_explanations(self, indices):
         explanations = list()
-        for i, index in enumerate(indices):
-            if i % 10 == 0:
-                print(i)
-            cur_exp = self.get_exp(index)
-            cur_fit = self.get_fit_examples(cur_exp)
-            cur_test_cov = self.get_test_cov(cur_fit)
+        filename="results/text_exps.pickle"
+        with open(filename, 'wb') as fp:
 
-            explanations.append(MyExplanation(index, cur_fit, cur_test_cov, cur_exp))
+            for i, index in enumerate(indices):
+    
+                print(i)
+                cur_exp = self.get_exp(index)
+                cur_fit = self.get_fit_examples(cur_exp)
+                cur_test_cov = self.get_test_cov(cur_fit)
+                
+                explanation = MyExplanation(index, cur_fit, cur_test_cov, cur_exp)
+                explanations.append(explanation)
+                pickle.dump(explanation, fp)
 
         explanations = self.remove_duplicates(explanations)
         explanations.sort(key=lambda exp: exp.test_cov)
