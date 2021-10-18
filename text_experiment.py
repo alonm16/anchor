@@ -100,29 +100,33 @@ def predict_lr(texts):
 explainer = anchor_text.AnchorText(nlp, ['negative', 'positive'], use_unk_distribution=False)
 
 
-# In[10]:
+# In[8]:
 
 
 test = [example.decode('utf-8') for example in test]
 anchor_examples = [example.decode('utf-8') for example in train]
-anchor_examples = [example for example in anchor_examples if 20< len(example) < 70 and len(example)>20]
+anchor_examples = [example for example in anchor_examples if 20< len(example) < 70 and len(example)>20][:500]
 
 
-# In[13]:
+# In[9]:
+
+
+pickle.dump( test, open( "results/text_test.pickle", "wb" ))
+pickle.dump( test_labels, open( "results/text_test_labels.pickle", "wb" ))
+
+
+# In[ ]:
 
 
 my_utils = TextUtils(anchor_examples, test, explainer, predict_lr)
-exps_num = 4000
 #explanations = my_utils.compute_explanations(np.random.choice(len(test), exps_num))
 explanations = my_utils.compute_explanations(list(range(0, len(anchor_examples))))
 
 
-# In[10]:
+# In[ ]:
 
 
 pickle.dump( explanations, open( "results/text_exps.pickle", "wb" ))
-pickle.dump( test, open( "results/text_test.pickle", "wb" ))
-pickle.dump( test_labels, open( "results/text_test_labels.pickle", "wb" ))
 
 
 # In[ ]:
@@ -154,7 +158,7 @@ for exp in best:
     print('Anchor test REAL precision: %.2f' % real_percentage)
 
 
-# In[20]:
+# In[ ]:
 
 
 exps = explanations[-len(explanations)//2:]
@@ -164,7 +168,7 @@ test_precisions = [np.mean(predict_lr(test[exp.fit_examples]) == predict_lr([tes
                    for exp in exps]
 
 
-# In[21]:
+# In[ ]:
 
 
 plt.scatter(test_precisions, real_precisions, s = range(len(exps)), alpha = 0.9)
@@ -174,7 +178,7 @@ plt.title('text anchor experiment')
 plt.savefig("results/text.png")
 
 
-# In[40]:
+# In[ ]:
 
 
 img = plt.imread("results/text.png")
@@ -183,7 +187,7 @@ plt.axis('off')
 _ = plt.imshow(img)
 
 
-# In[16]:
+# In[ ]:
 
 
 np.random.seed(1)
@@ -196,7 +200,7 @@ exp = explainer.explain_instance(text, predict_lr, threshold=0.95, verbose=False
 print('Time: %s' % (time.time() - b))
 
 
-# In[17]:
+# In[ ]:
 
 
 print('Anchor: %s' % (' AND '.join(exp.names())))
@@ -214,7 +218,7 @@ print('\n'.join([x[0] for x in exp.examples(only_different_prediction=True)]))
 # Let's take a look at the partial anchor 'good' to see why it's not sufficient in this case
 # 
 
-# In[18]:
+# In[ ]:
 
 
 print('Partial anchor: %s' % (' AND '.join(exp.names(0))))
@@ -233,7 +237,7 @@ print('\n'.join([x[0] for x in exp.examples(partial_index=0, only_different_pred
 
 # ## See a visualization of the anchor with examples and etc (won't work if you're seeing this on github)
 
-# In[19]:
+# In[ ]:
 
 
 exp.show_in_notebook()
