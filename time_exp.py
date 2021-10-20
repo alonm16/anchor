@@ -58,9 +58,9 @@ explainer = anchor_text.AnchorText(nlp, ['negative', 'positive'], use_unk_distri
 
 train.sort(key=lambda example: len(example))
 
-with open("times.csv", "w") as time_file:
+with open("times2.csv", "w") as time_file:
     writer = csv.writer(time_file)
-    for i in range(0, len(train), 100):
+    for i in range(1, len(train), 100):
         print(i)
         b = time.time()
         exp = explainer.explain_instance(train[i], predict_lr, threshold=0.95, verbose=False)
