@@ -56,11 +56,12 @@ class TabularUtils:
     
 class TextUtils:
     
-    def __init__(self, dataset, test, explainer, predict_fn):
+    def __init__(self, dataset, test, explainer, predict_fn, result_path = 'results/text_exps_bert.pickle'):
         self.dataset = dataset
         self.explainer = explainer
         self.predict_fn = predict_fn
         self.test = test
+        self.path = result_path
 
     def get_exp(self,idx):
         return self.explainer.explain_instance(self.dataset[idx], self.predict_fn, threshold=0.95, verbose=False, onepass=True)
@@ -86,8 +87,7 @@ class TextUtils:
 
     def compute_explanations(self, indices):
         explanations = list()
-        filename="results/text_exps2.pickle"
-        with open(filename, 'wb') as fp:
+        with open(self.path, 'wb') as fp:
 
             for i, index in enumerate(indices):
     
