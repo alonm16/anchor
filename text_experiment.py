@@ -105,14 +105,14 @@ explainer = anchor_text.AnchorText(nlp, ['negative', 'positive'], use_unk_distri
 
 test = [example.decode('utf-8') for example in test]
 anchor_examples = [example.decode('utf-8') for example in train]
-anchor_examples = [example for example in anchor_examples if 20< len(example) < 70 and len(example)>20][:500]
+anchor_examples = [example for example in anchor_examples if 20< len(example) < 70 and len(example)>20][500:]
 
 
 # In[9]:
 
 
-pickle.dump( test, open( "results/text_test.pickle", "wb" ))
-pickle.dump( test_labels, open( "results/text_test_labels.pickle", "wb" ))
+pickle.dump( test, open( "results/text_test2.pickle", "wb" ))
+pickle.dump( test_labels, open( "results/text_test_labels2.pickle", "wb" ))
 
 
 # In[ ]:
@@ -126,7 +126,7 @@ explanations = my_utils.compute_explanations(list(range(0, len(anchor_examples))
 # In[ ]:
 
 
-pickle.dump( explanations, open( "results/text_exps.pickle", "wb" ))
+pickle.dump( explanations, open( "results/text_exps3.pickle", "wb" ))
 
 
 # In[ ]:

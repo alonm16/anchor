@@ -86,7 +86,7 @@ class TextUtils:
 
     def compute_explanations(self, indices):
         explanations = list()
-        filename="results/text_exps.pickle"
+        filename="results/text_exps2.pickle"
         with open(filename, 'wb') as fp:
 
             for i, index in enumerate(indices):
