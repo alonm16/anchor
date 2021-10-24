@@ -99,6 +99,7 @@ class TextUtils:
                 explanation = MyExplanation(index, cur_fit, cur_test_cov, cur_exp)
                 explanations.append(explanation)
                 pickle.dump(explanation, fp)
+                fp.flush()
 
         explanations = self.remove_duplicates(explanations)
         explanations.sort(key=lambda exp: exp.test_cov)
