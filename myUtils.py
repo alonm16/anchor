@@ -88,20 +88,18 @@ class TextUtils:
     def compute_explanations(self, indices):
         explanations = list()
         with open(self.path, 'wb') as fp:
-            with open ('check.txt', 'w+') as f:
-                for i, index in enumerate(indices):
+            for i, index in enumerate(indices):
 
-                    print(i)
-                    cur_exp = self.get_exp(index)
-                    cur_fit = self.get_fit_examples(cur_exp)
-                    cur_test_cov = self.get_test_cov(cur_fit)
+                print('number '+str(i))
+                cur_exp = self.get_exp(index)
+                cur_fit = self.get_fit_examples(cur_exp)
+                cur_test_cov = self.get_test_cov(cur_fit)
 
-                    explanation = MyExplanation(index, cur_fit, cur_test_cov, cur_exp)
-                    explanations.append(explanation)
-                    pickle.dump(explanation, fp)
-                    fp.flush()
-                    f.write(str(i) + '\n')
-                    f.flush()
+                explanation = MyExplanation(index, cur_fit, cur_test_cov, cur_exp)
+                explanations.append(explanation)
+                pickle.dump(explanation, fp)
+                fp.flush()
+
 
         explanations = self.remove_duplicates(explanations)
         explanations.sort(key=lambda exp: exp.test_cov)

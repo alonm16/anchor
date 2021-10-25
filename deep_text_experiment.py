@@ -3,6 +3,7 @@
 
 # In[1]:
 
+
 import os
 import os.path
 import numpy as np
@@ -15,6 +16,9 @@ import pickle
 import matplotlib.pyplot as plt
 import pandas as pd
 from simpletransformers.classification import ClassificationModel
+import torch
+
+device = torch.device("cuda")
 
 
 # In[2]:
@@ -95,6 +99,7 @@ load_trained = True
 
 
 model = ClassificationModel('bert',  'outputs') if load_trained else get_and_train()
+model.args.silent = True
 
 
 # In[10]:
@@ -113,7 +118,7 @@ explainer = anchor_text.AnchorText(nlp, ['negative', 'positive'], use_unk_distri
 # In[12]:
 
 
-anchor_examples = [example for example in train if 20< len(example) < 70 and len(example)>20][:400]
+anchor_examples = [example for example in train if 20< len(example) < 70 and len(example)>20][23:300]
 
 
 # In[13]:
