@@ -113,7 +113,7 @@ explainer = anchor_text.AnchorText(nlp, ['negative', 'positive'], use_unk_distri
 # In[12]:
 
 
-anchor_examples = [example for example in train if 20< len(example) < 70 and len(example)>20][:500]
+anchor_examples = [example for example in train if 20< len(example) < 70 and len(example)>20][:400]
 
 
 # In[13]:
