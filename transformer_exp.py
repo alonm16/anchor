@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# Setup
+# In[1]:
 
+
+# Setup
 import os
 import sys
 import time
@@ -14,13 +16,14 @@ import spacy
 from anchor import anchor_text
 import pickle
 from myUtils import *
+import transformerUtils.models as models
 
 SEED = 84
 torch.manual_seed(SEED)
 warnings.simplefilter("ignore")
 
 
-# In[ ]:
+# In[2]:
 
 
 plt.rcParams['font.size'] = 20
@@ -29,7 +32,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(device)
 
 
-# In[ ]:
+# In[3]:
 
 
 type_dataset = 'binary' # What kind of dataset to train on trinary, fine_grained or binary
@@ -37,14 +40,14 @@ type_dataset = 'binary' # What kind of dataset to train on trinary, fine_grained
 
 # # Preparing the Datasets
 
-# In[ ]:
+# In[4]:
 
 
 import torchtext.data
 import torchtext.datasets
 
 
-# In[ ]:
+# In[5]:
 
 
 def load_dataset(fine_grained = False):
@@ -73,7 +76,7 @@ def load_dataset(fine_grained = False):
     return review_parser, label_parser, ds_train, ds_valid, ds_test
 
 
-# In[ ]:
+# In[6]:
 
 
 def build_vocabulary(review_parser, label_parser, ds_train, min_freq):
@@ -85,7 +88,7 @@ def build_vocabulary(review_parser, label_parser, ds_train, min_freq):
     return review_parser, label_parser
 
 
-# In[ ]:
+# In[7]:
 
 
 def print_dataset(ds, classes, type_ds):
@@ -98,14 +101,14 @@ def print_dataset(ds, classes, type_ds):
 
 # # Creating Binary Dataset
 
-# In[ ]:
+# In[8]:
 
 
 def filter_neutral(ds):
     ds.examples = [example for example in ds.examples if example.label != 'neutral']
 
 
-# In[ ]:
+# In[9]:
 
 
 def create_binary_dataset():
@@ -120,7 +123,7 @@ def create_binary_dataset():
     return review_parser, label_parser, ds_train, ds_valid, ds_test
 
 
-# In[66]:
+# In[10]:
 
 
 review_parser = None
@@ -132,10 +135,47 @@ ds_test = None
 review_parser, label_parser, ds_train, ds_valid, ds_test = create_binary_dataset()
 
 
+# ## Forward Function For Getting Accuracy
+
+# In[11]:
+
+
+import tqdm
+def forward_dl(model, dl, device, type_dl):
+    model.train(False)
+    num_samples = len(dl) * dl.batch_size
+    num_batches = len(dl)  
+    pbar_name = type(model).__name__
+    list_y_real = []
+    list_y_pred = []
+    pbar_file = sys.stdout
+    num_correct = 0
+    dl_iter = iter(dl)
+    for batch_idx in range(num_batches):
+        data = next(dl_iter)
+        x, y = data.text, data.label
+        list_y_real.append(y)
+        x = x.to(device)  # (S, B, E)
+        y = y.to(device)  # (B,)
+        with torch.no_grad():
+            if isinstance(model, models.VanillaGRU):
+                y_pred_log_proba = model(x)
+            elif isinstance(model, models.MultiHeadAttentionNet):
+                y_pred_log_proba, _ = model(x)
+            y_pred = torch.argmax(y_pred_log_proba, dim=1)
+            num_correct += torch.sum(y_pred == y).float().item()
+            list_y_pred.append(y_pred)
+    accuracy = 100.0 * num_correct / num_samples
+    print(f'Accuracy for {type_dl} is {accuracy}')
+    
+    all_y_real = torch.cat(list_y_real)
+    all_y_pred = torch.cat(list_y_pred)
+    return all_y_real, all_y_pred, accuracy
+
 
 # ## Loading Hyper Parameters
 
-# In[ ]:
+# In[12]:
 
 
 import transformerUtils.hyperparams as hyperparams
@@ -151,10 +191,8 @@ def load_hyperparams(model_type, type_dataset):
 
 # # Load Model
 
-# In[ ]:
+# In[13]:
 
-
-import transformerUtils.models as models
 
 def load_model(model_name, path):
     if model_name == 'gru':
@@ -171,13 +209,13 @@ def load_model(model_name, path):
     return model
 
 
-# In[ ]:
+# In[14]:
 
 
 model = load_model('gru' , 'transformerUtils/gru.pt')
 
 
-# In[ ]:
+# In[15]:
 
 
 # 1 = pad 2=sos 3 = eof 
@@ -188,7 +226,7 @@ def tokenize(text, max_len):
     return input_tokens
 
 
-# In[101]:
+# In[23]:
 
 
 def predict_sentences(sentences):
@@ -201,39 +239,39 @@ def predict_sentences(sentences):
 
 # # Anchor Part
 
-# In[69]:
+# In[17]:
 
 
 nlp = spacy.load('en_core_web_sm')
 
 
-# In[72]:
+# In[18]:
 
 
-explainer = anchor_text.AnchorText(nlp, ['negative', 'positive'], use_unk_distribution=False)
+explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False)
 
 
-# In[92]:
+# In[25]:
 
 
 train, train_labels = [' '.join(example.text) for example in ds_train], [example.label for example in ds_train]
-test, test_labels = [' '.join(example.text) for example in ds_valid], [example.label for example in ds_valid]
+test, test_labels = [' '.join(example.text) for example in ds_train], [example.label for example in ds_train]
 
 
-# In[105]:
+# In[20]:
 
 
-anchor_examples = [example for example in train if 10< len(example) < 70]
+anchor_examples = [example for example in train if len(example) < 70 and len(example)>20][:500]
 
 
-# In[95]:
+# In[21]:
 
 
 pickle.dump( test, open( "results/transformer_test.pickle", "wb" ))
 pickle.dump( test_labels, open( "results/transformer_test_labels.pickle", "wb" ))
 
 
-# In[106]:
+# In[26]:
 
 
 my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, "results/transformer_exps.pickle")
@@ -244,5 +282,12 @@ explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
 
 
 pickle.dump( explanations, open( "results/transformer_exps_list.pickle", "wb" ))
+
+
+# ## Training Function
+# 
+# ### Saves all the the output in the output directory
+
+# In[ ]:
 
 
