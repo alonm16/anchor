@@ -111,7 +111,9 @@ def create_sentiment_dataset(path='sentiment-sentences'):
     ds_val = data.Dataset(examples=val_examples, fields=fields)
     ds_test = data.Dataset(examples=test_examples, fields=fields)
     
-    return text_field, label_field, ds_train, ds_val, ds_test
+    review_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=5)
+    
+    return review_parser, label_parser, ds_train, ds_val, ds_test
     
        
 #  Load Model
