@@ -4,6 +4,8 @@ import torch
 import os
 import transformerUtils.hyperparams as hyperparams
 import transformerUtils.models as models
+from torchtext.legacy import data
+import random
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -75,6 +77,43 @@ def create_binary_dataset():
     return review_parser, label_parser, ds_train, ds_valid, ds_test
 
 
+def create_sentiment_dataset(path='sentiment-sentences'):
+
+    text_field = torchtext.legacy.data.Field(
+        sequential=True, use_vocab=True, lower=True, dtype=torch.long,
+        tokenize='spacy', tokenizer_language='en_core_web_sm', init_token='sos', eos_token='eos'
+    )
+
+    # This Field object converts the text labels into numeric values (0,1,2)
+    label_field = torchtext.legacy.data.Field(
+        is_target=True, sequential=False, unk_token=None, use_vocab=True
+    )
+
+    fields = [('text', text_field), ('label', label_field)]
+
+    examples = []
+    f_names = ['rt-polarity.pos', 'rt-polarity.neg']
+    f_labels = ['positive', 'negative']
+    for (l, f) in enumerate(f_names):
+        for line in open(os.path.join(path, f), 'rb'):
+            try:
+                line = line.decode('utf8')
+            except:
+                continue
+            examples.append(data.Example.fromlist([line, f_labels[l]], fields))
+
+    random.seed(10)
+    random.shuffle(examples)
+    train_examples = examples[:7000]
+    val_examples = examples[7000:8000]
+    test_examples = examples[8000:]
+    ds_train = data.Dataset(examples=train_examples, fields=fields)
+    ds_val = data.Dataset(examples=val_examples, fields=fields)
+    ds_test = data.Dataset(examples=test_examples, fields=fields)
+    
+    return text_field, label_field, ds_train, ds_val, ds_test
+    
+       
 #  Load Model
 
 def load_hyperparams(model_type, type_dataset):
