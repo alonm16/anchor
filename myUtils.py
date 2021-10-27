@@ -81,7 +81,7 @@ class TextUtils:
         for i, exp in enumerate(explanations):
             if exps_names[i] not in seen:
                 saved_exps.append(exp)
-            seen.add(exps_names[i])
+                seen.add(exps_names[i])
 
         return saved_exps
 
