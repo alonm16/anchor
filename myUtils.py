@@ -21,7 +21,7 @@ class ExtendedExplanation:
         self.precision = exp.precision
         exp_label =  predict_sentences([str(anchor_examples[exp.index])])[0]
         self.test_precision = np.mean(predict_sentences(test[exp.fit_examples]) == exp_label)
-        self.real_precision = np.mean(test_labels[exp.fit_examples] == exp_label)
+        self.real_precision = np.mean(test_labels[exp.fit_examples] == explainer.class_names[exp_label])
 
 class TabularUtils:
     
