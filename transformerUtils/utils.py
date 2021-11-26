@@ -6,6 +6,7 @@ import transformerUtils.hyperparams as hyperparams
 import transformerUtils.models as models
 from torchtext.legacy import data
 import random
+import pandas as pd
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -114,14 +115,49 @@ def create_sentiment_dataset(path='sentiment-sentences'):
     review_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=5)
     
     return review_parser, label_parser, ds_train, ds_val, ds_test
-  
-    
+
+
 def counter_test():
-    f = pd.read_csv('test.tsv', sep='\t')
+    f = pd.read_csv('counter_ds/test.tsv', sep='\t')
     label_dict = {'Negative': 0, 'Positive': 1}
     f['label'] = [label_dict[label] for label in f['Sentiment']]
 
     return f['Text'].to_numpy(), f['label'].to_numpy()
+
+
+def load_counter(path, label_dict, fields):
+    df= pd.read_csv(path, sep='\t')
+
+    texts = df['Text']
+    labels = [label_dict[label] for label in df['Sentiment']]
+    examples= []
+    for x, y in zip(texts, labels):
+        examples.append(data.Example.fromlist([x, y], fields))
+    
+    return examples
+ 
+    
+def counter_dataset():
+    text_field = torchtext.legacy.data.Field(
+        sequential=True, use_vocab=True, lower=True, dtype=torch.long,
+        tokenize='spacy', tokenizer_language='en_core_web_sm', init_token='sos', eos_token='eos')
+
+    # This Field object converts the text labels into numeric values (0,1,2)
+    label_field = torchtext.legacy.data.Field(is_target=True, sequential=False, unk_token=None, use_vocab=True)
+    fields = [('text', text_field), ('label', label_field)]
+    label_dict = {'Negative': 0, 'Positive': 1}
+
+    train_examples = load_counter('counter_ds/train.tsv', label_dict, fields)
+    val_examples = load_counter('counter_ds/dev.tsv', label_dict, fields)
+    test_examples = load_counter('counter_ds/train.tsv', label_dict, fields)
+    
+    ds_train = data.Dataset(examples=train_examples, fields=fields)
+    ds_val = data.Dataset(examples=val_examples, fields=fields)
+    ds_test = data.Dataset(examples=test_examples, fields=fields)
+
+    review_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=5)
+
+    return review_parser, label_parser, ds_train, ds_val, ds_test
        
 #  Load Model
 
