@@ -11,16 +11,16 @@ class MyExplanation:
         self.precision = exp.precision()
         
 class ExtendedExplanation:
-    def __init__(self, exp, test, test_labels, predict_sentences, explainer):
+    def __init__(self, exp, anchor_examples, test, test_labels, predict_sentences, explainer):
         self.index = exp.index
         self.fit_examples = exp.fit_examples
         self.test_cov = exp.test_cov
         self.names =  exp.names
         self.coverage = exp.coverage
         self.precision = exp.precision
-        exp_label =  predict_sentences([str(test[exp.index])])[0]
+        exp_label =  predict_sentences([str(anchor_examples[exp.index])])[0]
         self.test_precision = np.mean(predict_sentences(test[exp.fit_examples]) == exp_label)
-        self.real_precision = np.mean(test_labels[exp.fit_examples] == explainer.class_names[predict_sentences([str(test[exp.index])])[0]])
+        self.real_precision = np.mean(test_labels[exp.fit_examples] == explainer.class_names[exp_label])
 
 class TabularUtils:
     
