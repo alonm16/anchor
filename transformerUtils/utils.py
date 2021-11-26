@@ -114,7 +114,14 @@ def create_sentiment_dataset(path='sentiment-sentences'):
     review_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=5)
     
     return review_parser, label_parser, ds_train, ds_val, ds_test
+  
     
+def counter_test():
+    f = pd.read_csv('test.tsv', sep='\t')
+    label_dict = {'Negative': 0, 'Positive': 1}
+    f['label'] = [label_dict[label] for label in f['Sentiment']]
+
+    return f['Text'].to_numpy(), f['label'].to_numpy()
        
 #  Load Model
 

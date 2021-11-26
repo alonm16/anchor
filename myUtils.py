@@ -119,10 +119,3 @@ class TextUtils:
         
         return explanations
     
-    @staticmethod
-    def counter_test():
-        f = pd.read_csv('test.tsv', sep='\t')
-        label_dict = {'Negative': 0, 'Positive': 1}
-        f['label'] = [label_dict[label] for label in f['Sentiment']]
-        
-        return f['Text'].to_numpy(), f['label'].to_numpy()
