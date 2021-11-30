@@ -181,6 +181,7 @@ def load_model(model_name, path, review_parser):
                                            dropout=hp['dropout'], two_attention_layers=hp['two_atten_layers'], output_classes=hp['output_classes']).to(device)
     saved_state = torch.load(path, map_location=device)
     model.load_state_dict(saved_state["model_state"])
+    model.eval()
     print(model)
     
     return model
