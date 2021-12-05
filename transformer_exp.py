@@ -39,46 +39,8 @@ ds_train = None
 ds_valid = None
 ds_test = None
 
-review_parser, label_parser, ds_train, ds_valid, ds_test = create_sentiment_dataset()
-counter_test, counter_test_labels = TextUtils.counter_test()
-
-
-# ## Forward Function For Getting Accuracy
-
-# In[4]:
-
-
-import tqdm
-def forward_dl(model, dl, device, type_dl):
-    model.train(False)
-    num_samples = len(dl) * dl.batch_size
-    num_batches = len(dl)  
-    pbar_name = type(model).__name__
-    list_y_real = []
-    list_y_pred = []
-    pbar_file = sys.stdout
-    num_correct = 0
-    dl_iter = iter(dl)
-    for batch_idx in range(num_batches):
-        data = next(dl_iter)
-        x, y = data.text, data.label
-        list_y_real.append(y)
-        x = x.to(device)  # (S, B, E)
-        y = y.to(device)  # (B,)
-        with torch.no_grad():
-            if isinstance(model, models.VanillaGRU):
-                y_pred_log_proba = model(x)
-            elif isinstance(model, models.MultiHeadAttentionNet):
-                y_pred_log_proba, _ = model(x)
-            y_pred = torch.argmax(y_pred_log_proba, dim=1)
-            num_correct += torch.sum(y_pred == y).float().item()
-            list_y_pred.append(y_pred)
-    accuracy = 100.0 * num_correct / num_samples
-    print(f'Accuracy for {type_dl} is {accuracy}')
-    
-    all_y_real = torch.cat(list_y_real)
-    all_y_pred = torch.cat(list_y_pred)
-    return all_y_real, all_y_pred, accuracy
+review_parser, label_parser, ds_train, ds_valid, ds_test =  create_sentiment_dataset()
+counter_test, counter_test_labels = counter_test()
 
 
 # In[5]:
@@ -123,7 +85,7 @@ nlp = spacy.load('en_core_web_sm')
 # In[9]:
 
 
-explainer = anchor_text.AnchorText(nlp, ['negative', 'positive'], use_unk_distribution=False)
+explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False)
 
 
 # In[13]:
@@ -136,26 +98,26 @@ test, test_labels = [' '.join(example.text) for example in ds_train], [example.l
 # In[18]:
 
 
-anchor_examples = [example for example in train if len(example) < 70 and len(example)>20]
+anchor_examples = pickle.load( open( "results/transformer_anchor_examples.pickle", "rb" ))
 
 
 # In[21]:
 
 
-pickle.dump( test, open( "results/transformer_test.pickle", "wb" ))
-pickle.dump( test_labels, open( "results/transformer_test_labels.pickle", "wb" ))
+#pickle.dump( test, open( "results/transformer_test.pickle", "wb" ))
+#pickle.dump( test_labels, open( "results/transformer_test_labels.pickle", "wb" ))
 
 
 # In[ ]:
 
 
-my_utils = TextUtils(anchor_examples, counter_test, explainer, predict_sentences, "results/transformer_exps.pickle")
+my_utils = TextUtils(anchor_examples, counter_test, explainer, predict_sentences, "results/gru_counter_exps.pickle")
 explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
 
 
 # In[ ]:
 
 
-pickle.dump( explanations, open( "results/transformer_exps_list.pickle", "wb" ))
+pickle.dump( explanations, open( "results/gru_counter_exps_list.pickle", "wb" ))
 
 
