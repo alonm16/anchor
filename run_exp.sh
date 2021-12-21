@@ -1,2 +1,2 @@
 #!/bin/bash
-python trigger_exp.py
+python trigger2_exp.py
