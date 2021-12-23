@@ -1,0 +1,162 @@
+import torchtext.data
+import torchtext.datasets
+import torch
+import os
+import pathlib
+from torchtext.legacy import data
+import random
+import pandas as pd
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+data_dir = os.path.expanduser('~/.pytorch-datasets')
+
+
+# Preparing Dataset
+
+def load_sst(fine_grained = False):
+    # torchtext Field objects parse text (e.g. a review) and create a tensor representation
+
+    # This Field object will be used for tokenizing the movie reviews text
+    # For this application, tokens ~= words
+
+    review_parser = torchtext.legacy.data.Field(
+        sequential=True, use_vocab=True, lower=True, dtype=torch.long,
+        tokenize='spacy', tokenizer_language='en_core_web_sm', init_token='sos', eos_token='eos'
+    )
+
+    # This Field object converts the text labels into numeric values (0,1,2)
+    label_parser = torchtext.legacy.data.Field(
+        is_target=True, sequential=False, unk_token=None, use_vocab=True
+    )
+    
+    # Load SST, tokenize the samples and labels
+    # ds_X are Dataset objects which will use the parsers to return tensors
+    ds_train, ds_valid, ds_test = torchtext.legacy.datasets.SST.splits(
+        review_parser, label_parser, root=data_dir, fine_grained=fine_grained
+    )
+
+
+    return review_parser, label_parser, ds_train, ds_valid, ds_test
+
+
+def build_vocabulary(review_parser, label_parser, ds_train, min_freq):
+    review_parser.build_vocab(ds_train, min_freq = min_freq)
+    label_parser.build_vocab(ds_train, min_freq= min_freq)
+
+    print(f"Number of tokens in training samples: {len(review_parser.vocab)}")
+    print(f"Number of tokens in training labels: {len(label_parser.vocab)}")
+    return review_parser, label_parser
+
+
+def print_dataset(ds, classes, type_ds):
+    print(f'Number of {type_ds} samples: {len(ds)}') 
+    for class_type in classes:
+        number_of_class = len([example for example in ds if example.label == class_type])
+        print(f'Number of {class_type} examples {number_of_class}')
+    print('------------------------------------------------------')
+    
+
+# Create Binary Dataset
+
+def filter_neutral(ds):
+    ds.examples = [example for example in ds.examples if example.label != 'neutral']
+    
+
+def create_binary_dataset():
+    review_parser, label_parser, ds_train, ds_valid, ds_test = load_dataset(fine_grained = False)
+    review_parser, label_parser = build_vocabulary(review_parser, label_parser, ds_train, min_freq=5)
+    filter_neutral(ds_train)
+    filter_neutral(ds_valid)
+    filter_neutral(ds_test)
+    print_dataset(ds_train, ['positive', 'negative'], 'training')
+    print_dataset(ds_valid, ['positive', 'negative'], 'validation')
+    print_dataset(ds_test, ['positive', 'negative'], 'test')
+    return review_parser, label_parser, ds_train, ds_valid, ds_test
+
+
+def create_sentiment_dataset(path='datasets/sentiment-sentences'):
+
+    text_field = torchtext.legacy.data.Field(
+        sequential=True, use_vocab=True, lower=True, dtype=torch.long,
+        tokenize='spacy', tokenizer_language='en_core_web_sm', init_token='sos', eos_token='eos'
+    )
+
+    # This Field object converts the text labels into numeric values (0,1,2)
+    label_field = torchtext.legacy.data.Field(
+        is_target=True, sequential=False, unk_token=None, use_vocab=True
+    )
+
+    fields = [('text', text_field), ('label', label_field)]
+
+    main_dir_path= pathlib.Path(__file__).parent.parent.resolve().as_posix()
+    path = '/'.join([main_dir_path, path])
+
+    examples = []
+    f_names = ['rt-polarity.pos', 'rt-polarity.neg']
+    f_labels = ['negative', 'positive']
+    for (l, f) in enumerate(f_names):
+        for line in open(os.path.join(path, f), 'rb'):
+            try:
+                line = line.decode('utf8')
+            except:
+                continue
+            examples.append(data.Example.fromlist([line, f_labels[l]], fields))
+
+    random.seed(10)
+    random.shuffle(examples)
+    train_examples = examples[:7000]
+    val_examples = examples[7000:8000]
+    test_examples = examples[8000:]
+    ds_train = data.Dataset(examples=train_examples, fields=fields)
+    ds_val = data.Dataset(examples=val_examples, fields=fields)
+    ds_test = data.Dataset(examples=test_examples, fields=fields)
+    
+    review_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=5)
+    
+    return review_parser, label_parser, ds_train, ds_val, ds_test
+
+
+def counter_test():
+    main_dir_path= pathlib.Path(__file__).parent.parent.resolve().as_posix()
+    path = '/'.join([main_dir_path, 'datasets/counter_ds/test.tsv'])
+    f = pd.read_csv(path, sep='\t')
+    label_dict = {'Negative': 0, 'Positive': 1}
+    f['label'] = [label_dict[label] for label in f['Sentiment']]
+
+    return f['Text'].to_numpy(), f['label'].to_numpy()
+
+
+def load_counter(path, label_dict, fields):
+    df= pd.read_csv(path, sep='\t')
+
+    texts = df['Text']
+    labels = [label_dict[label] for label in df['Sentiment']]
+    examples= []
+    for x, y in zip(texts, labels):
+        examples.append(data.Example.fromlist([x, y], fields))
+    
+    return examples
+ 
+    
+def counter_dataset():
+    text_field = torchtext.legacy.data.Field(
+        sequential=True, use_vocab=True, lower=True, dtype=torch.long,
+        tokenize='spacy', tokenizer_language='en_core_web_sm', init_token='sos', eos_token='eos')
+
+    # This Field object converts the text labels into numeric values (0,1,2)
+    label_field = torchtext.legacy.data.Field(is_target=True, sequential=False, unk_token=None, use_vocab=True)
+    fields = [('text', text_field), ('label', label_field)]
+    label_dict = {'Negative': 0, 'Positive': 1}
+
+    train_examples = load_counter('counter_ds/train.tsv', label_dict, fields)
+    val_examples = load_counter('counter_ds/dev.tsv', label_dict, fields)
+    test_examples = load_counter('counter_ds/train.tsv', label_dict, fields)
+    
+    ds_train = data.Dataset(examples=train_examples, fields=fields)
+    ds_val = data.Dataset(examples=val_examples, fields=fields)
+    ds_test = data.Dataset(examples=test_examples, fields=fields)
+
+    review_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=5)
+
+    return review_parser, label_parser, ds_train, ds_val, ds_test

@@ -21,7 +21,8 @@ class ExtendedExplanation:
         self.precision = exp.precision
         exp_label =  predict_sentences([str(anchor_examples[exp.index])])[0]
         self.test_precision = np.mean(predict_sentences(test[exp.fit_examples]) == exp_label)
-        self.real_precision = np.mean(test_labels[exp.fit_examples] == explainer.class_names[exp_label])
+        #prediction is opposite
+        self.real_precision = 1-np.mean(test_labels[exp.fit_examples] == exp_label)
 
 class TabularUtils:
     
@@ -61,7 +62,7 @@ class TabularUtils:
 
             explanations.append(MyExplanation(index, cur_fit, cur_test_cov, cur_exp))
         
-        explanations = self.remove_duplicates(explanations)
+        explanations = TextUtils.remove_duplicates(explanations)
         explanations.sort(key=lambda exp: exp.test_cov)
         
         return explanations
@@ -87,7 +88,8 @@ class TextUtils:
     def get_test_cov(self,fit_anchor):
         return (len(fit_anchor) / float(len(self.test)))
 
-    def remove_duplicates(self,explanations):
+    @staticmethod
+    def remove_duplicates(explanations):
         exps_names = [' AND '.join(exp.names) for exp in explanations]
         seen = set()
         saved_exps = list()
