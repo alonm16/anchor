@@ -59,9 +59,9 @@ def hyperparams_for_gru_binary():
         batch_size=32,
         hidden_dim=256,
         num_layers=2,
-        dropout=0.7,
+        dropout=0.3,
         lr = 0.0005,
-        early_stopping = 5,
+        early_stopping = 8,
         output_classes = 2
     )
     return hp

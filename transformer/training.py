@@ -7,8 +7,8 @@ from typing import Any, Callable
 from pathlib import Path
 from torch.utils.data import DataLoader
 import torchtext
-from train_results import FitResult, BatchResult, EpochResult
-import models as models
+from transformer.train_results import FitResult, BatchResult, EpochResult
+import transformer.models as models
 
 class Trainer(abc.ABC):
     """
@@ -254,9 +254,11 @@ class SentimentTrainer(Trainer):
         elif isinstance(self.model, models.MultiHeadAttentionNet):
             y_pred_log_proba, _ = self.model(x)
 
+       
         # Backward pass
         self.optimizer.zero_grad()
         loss = self.loss_fn(y_pred_log_proba, y)
+
         loss.backward()
         # self.model.embedding_layer.weight.grad[self.model.indices_to_zero] = 0
         

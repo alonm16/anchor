@@ -75,7 +75,7 @@ def create_binary_dataset():
     return review_parser, label_parser, ds_train, ds_valid, ds_test
 
 
-def create_sentiment_dataset(path='datasets/sentiment-sentences'):
+def create_sentiment_dataset(path='dataset/sentiment-sentences'):
 
     text_field = torchtext.legacy.data.Field(
         sequential=True, use_vocab=True, lower=True, dtype=torch.long,
@@ -91,7 +91,6 @@ def create_sentiment_dataset(path='datasets/sentiment-sentences'):
 
     main_dir_path= pathlib.Path(__file__).parent.parent.resolve().as_posix()
     path = '/'.join([main_dir_path, path])
-
     examples = []
     f_names = ['rt-polarity.pos', 'rt-polarity.neg']
     f_labels = ['negative', 'positive']
@@ -119,7 +118,7 @@ def create_sentiment_dataset(path='datasets/sentiment-sentences'):
 
 def counter_test():
     main_dir_path= pathlib.Path(__file__).parent.parent.resolve().as_posix()
-    path = '/'.join([main_dir_path, 'datasets/counter_ds/test.tsv'])
+    path = '/'.join([main_dir_path, 'dataset/counter_ds/test.tsv'])
     f = pd.read_csv(path, sep='\t')
     label_dict = {'Negative': 0, 'Positive': 1}
     f['label'] = [label_dict[label] for label in f['Sentiment']]
