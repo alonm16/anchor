@@ -93,7 +93,7 @@ def create_sentiment_dataset(path='dataset/sentiment-sentences'):
     path = '/'.join([main_dir_path, path])
     examples = []
     f_names = ['rt-polarity.pos', 'rt-polarity.neg']
-    f_labels = ['negative', 'positive']
+    f_labels = ['positive', 'negative']
     for (l, f) in enumerate(f_names):
         for line in open(os.path.join(path, f), 'rb'):
             try:
