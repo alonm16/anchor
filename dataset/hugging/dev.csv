@@ -1,97 +1,129 @@
 ,review,label
-0,  . . . a well - observed and disturbing little movie,1
-1,"an overemphatic , would - be wacky , ultimately tedious sex farce .",1
-2,"[ a ] rare , beautiful film .",0
-3,"what i saw , i enjoyed .",0
-4,"  . . . a movie that , quite simply , should n't have been made .",1
-5,"the film has [ its ] moments , but they are few and far between .",1
-6,a feel - good picture in the best sense of the term .,1
-7,an impeccable study in perversity .,1
-8,a documentary to make the stones weep -- as shameful as it is scary .,0
-9,chai 's structure and pacing are disconcertingly slack .,1
-10,as steamy as last week 's pork dumplings .,1
-11,oscar caliber cast does n't live up to material,1
-12,an engrossing and infectiously enthusiastic documentary .,0
-13,"i found it slow , predictable and not very amusing .",1
-14,its initial excitement settles into a warmed over pastiche .,1
-15,worth the effort to watch .,1
-16,troubling and powerful .,1
-17,as lively an account as seinfeld is deadpan .,0
-18,works as pretty contagious fun .,1
-19,the film is bright and flashy in all the right ways .,1
-20,the result is something quite fresh and delightful .,1
-21,perhaps the best sports movie i 've ever seen .,1
-22,summer 's far too fleeting to squander on offal like this .,1
-23,a generic international version of a typical american horror film .,1
-24,"hilarious , acidic brit comedy .",0
-25,smarter than its commercials make it seem .,1
-26,the story is bogus and its characters tissue - thin .,1
-27,its save - the - planet message clashes with its crass marketing .,1
-28,"a mild , reluctant , thumbs down .",1
-29,"charming and witty , it 's also somewhat clumsy .",0
-30,a listless and desultory affair .,0
-31,a very charming and funny movie .,1
-32,barrels along at the start before becoming mired in sentimentality .,1
-33,the story . . . is moldy and obvious .,1
-34,to blandly go where we went 8 movies ago . . .,1
-35,"fubar is very funny , but not always in a laugh - out - loud way .",0
-36,i did n't believe for a moment in these villains or their plot .,1
-37,an intelligent fiction about learning through cultural clash .,0
-38,a terrible movie that some people will nevertheless find moving .,1
-39,bad beyond belief and ridiculous beyond description .,1
-40,a little too pat for its own good .,1
-41,a rote exercise in both animation and storytelling .,1
-42,  . . . a true delight .,1
-43,"a sour , nasty offering .",0
-44,one fantastic ( and educational ) documentary .,1
-45,serious and thoughtful .,1
-46,the feature - length stretch . . . strains the show 's concept .,1
-47,a moving story of determination and the human spirit .,1
-48,demme 's loose approach kills the suspense .,1
-49,i can analyze this movie in three words : thumbs friggin ' down .,1
-50,"usually when i get this much syrup , i like pancakes to go with it .",1
-51,"brainy , artistic and muted , almost to the point of suffocation .",1
-52,"did we really need a remake of "" charade ? """,1
-53,huppert and girardot give performances of exceptional honesty .,0
-54,adaptation is simply brilliant .,0
-55,i hate the feeling of having been slimed in the name of high art .,1
-56,"when the plot kicks in , the film loses credibility .",1
-57,bring on the sequel .,0
-58,a fifty car pileup of cliches .,1
-59,a straight - ahead thriller that never rises above superficiality .,1
-60,one groan - inducing familiarity begets another .,1
-61,"  . . . a solid , well - formed satire .",1
-62,sex with strangers is fascinating . . .,1
-63,it took 19 predecessors to get this ?,1
-64,"say this for the soundtrack , it drowns out the lousy dialogue .",1
-65,"unpretentious , charming , quirky , original",1
-66,bound to appeal to women looking for a howlingly trashy time .,1
-67,low comedy does n't come much lower .,1
-68,a mimetic approximation of better films like contempt and 8 1/2 .,1
-69,"the script is smart , not cloying .",0
-70,a terrifically entertaining specimen of spielbergian sci - fi .,0
-71,the real question this movie poses is not ' who ? ' but ' why ? ',1
-72,what happened with pluto nash ? how did it ever get made ?,1
-73,a moving picture that does not move .,1
-74,an intriguing and entertaining introduction to johnson .,0
-75,"marvelous , merry and , yes , melancholy film .",0
-76,"a funny , triumphant , and moving documentary .",0
-77,a marvel of production design .,0
-78,spare but quietly effective retelling .,0
-79,this is art paying homage to art .,0
-80,it 's hard to believe that something so short could be so flabby .,1
-81,make like the title and dodge this one .,1
-82,an imponderably stilted and self - consciously arty movie .,1
-83,another best of the year selection .,0
-84,a captivating new film .,0
-85,"strange , funny , twisted , brilliant and macabre .",1
-86,falls short in explaining the music and its roots .,0
-87,it never fails to engage us .,1
-88,just is n't as weird as it ought to be .,1
-89,plays less like a coming - of - age romance than an infomercial .,1
-90,"smart and fun , but far more witty than it is wise .",1
-91,we have n't seen such hilarity since say it is n't so !,0
-92,"  "" it 's all about the image . """,0
-93,a small movie with a big heart .,0
-94,"has its moments , but it 's pretty far from a treasure .",0
-95,"it 's a lovely , eerie film that casts an odd , rapt spell .",0
+0,"the film has a kind of hard , cold effect .",1.0
+1,classic cinema served up with heart and humor,0.0
+2,the performances are an absolute joy .,0.0
+3,i am sorry that i was unable to get the full brunt of the comedy .,0.7777777777777777
+4,"if only it were , well , funnier .",0.65625
+5,there 's more repetition than creativity throughout the movie .,0.38075313807531375
+6,a delightful coming - of - age story .,0.1428571428571428
+7,rarely has a film 's title served such dire warning .,0.6666666666666667
+8,might best be enjoyed as a daytime soaper .,0.0
+9,intelligent and moving .,0.0
+10,the movie has an avalanche of eye - popping visual effects .,0.0
+11,a low - rent retread of the alien pictures .,1.0
+12,a lot smarter than your average bond .,0.0
+13,[ a ] shapeless blob of desperate entertainment .,1.0
+14,chokes on its own depiction of upper - crust decorum .,0.6666666666666667
+15,"well , it does go on forever .",1.0
+16,pretty good little movie .,0.0
+17,"as the dominant christine , sylvie testud is icily brilliant .",0.0
+18,what 's next ? the porky 's revenge : ultimate edition ?,0.5416666666666667
+19,the fetid underbelly of fame has never looked uglier .,0.5675675675675675
+20,does n't really add up to much .,0.5714285714285714
+21,"an entertaining , if somewhat standardized , action movie .",0.03703703703703698
+22,"sly , sophisticated and surprising .",0.0
+23,does n't add up to much .,0.5714285714285714
+24,an awkwardly contrived exercise in magic realism .,0.6000000000000001
+25,a genuine mind - bender .,1.0
+26,an enjoyable above average summer diversion .,1.0
+27,the picture does n't know it 's a comedy .,0.4618834080717489
+28,intriguing and stylish .,0.0
+29,it 's a barely tolerable slog over well - trod ground .,0.5714285714285714
+30,worth a look as a curiosity .,0.0
+31,"fast , frantic and fun , but also soon forgotten",1.0
+32,no telegraphing is too obvious or simplistic for this movie .,0.4726609963547994
+33,enticing and often funny documentary .,1.0
+34,[ l]ame and unnecessary .,0.6666666666666667
+35,"as teen movies go , "" orange county "" is a refreshing change",0.0
+36,"a disaster of a drama , saved only by its winged assailants .",0.44723618090452266
+37,"worth seeing once , but its charm quickly fades .",0.6363636363636365
+38,takashi miike keeps pushing the envelope : ichi the killer,1.0
+39,a small gem from belgium .,0.0
+40,ah - nuld 's action hero days might be over .,0.510204081632653
+41,a loving little film of considerable appeal .,0.0
+42,offers that rare combination of entertainment and education .,0.0
+43,a puzzling experience .,1.0
+44,suffers from a decided lack of creative storytelling .,0.6263736263736264
+45,nothing about it fits .,0.2777777777777777
+46,"this is a dark , gritty , sometimes funny little gem .",0.0
+47,any movie that makes hard work seem heroic deserves a look .,1.0
+48,[ a ] poorly executed comedy .,0.8378378378378379
+49,lurid and less than lucid work .,0.30000000000000004
+50,a bit too eager to please .,0.7560975609756098
+51,knows how to make our imagination wonder .,0.0
+52,characterisation has been sacrificed for the sake of spectacle .,0.5156950672645739
+53,feels like a cold old man going through the motions .,0.8181818181818181
+54,solondz may well be the only one laughing at his own joke,0.368421052631579
+55,it 's everything you do n't go to the movies for .,0.3999999999999999
+56,the film is really not so much bad as bland .,0.46035015447991756
+57,"some of it is clever , but it is never melodic/",0.5776397515527951
+58,mais um momento inspirado de david fincher .,0.0
+59,"a grating , emaciated flick .",1.0
+60,"tense , terrific , sweaty - palmed fun .",1.0
+61,"an uplifting , largely bogus story .",0.6000000000000001
+62,"it 's dumb , but more importantly , it 's just not scary .",0.6666666666666667
+63,well - meant but unoriginal .,0.5
+64,a predictable and stereotypical little b - movie .,1.0
+65,a solid film . . . but more conscientious than it is truly stirring .,0.0
+66,"it 's fun , splashy and entertainingly nasty .",0.0
+67,even better than the first one !,0.0
+68,"with or without ballast tanks , k-19 sinks to a harrison ford low .",0.6666666666666667
+69,"sadly , ' garth ' has n't progressed as nicely as ' wayne . '",0.6000000000000001
+70,effective but too - tepid biopic,0.0
+71,tailored to entertain !,0.0
+72,"muddled , trashy and incompetent",0.0
+73,a mesmerizing cinematic poem from the first frame to the last .,0.0
+74,"a wild , endearing , masterful documentary .",0.5
+75,i have n't seen such self - amused trash since freddy got fingered .,0.6153846153846154
+76,"[ a ] wonderfully loopy tale of love , longing , and voting .",0.6363636363636365
+77,"an admirable , sometimes exceptional film",0.0
+78,the film is full of charm .,1.0
+79,"cry havoc and let slip the dogs of cheese , indeed .",0.5
+80,overly long and worshipful bio - doc .,0.7777777777777777
+81,there 's no reason to miss interview with the assassin,0.6451612903225807
+82,the problem with all of this : it 's not really funny .,0.5151515151515151
+83,adam sandler ! in an art film !,0.0
+84,"feels like pieces a bunch of other , better movies slapped together .",0.2941176470588236
+85,a dreadful live - action movie .,1.0
+86,"it 's leaden and predictable , and laughs are lacking .",1.0
+87,a potent allegorical love story .,0.0
+88,"initially gripping , eventually cloying pow drama .",0.0
+89,about as big a crowdpleaser as they possibly come .,1.0
+90,more good than great but freeman and judd make it work .,1.0
+91,"stinks from start to finish , like a wet burlap sack of gloom .",0.4285714285714286
+92,seems like someone going through the motions .,1.0
+93,utter mush . . . conceited pap .,0.5384615384615385
+94,the whole talking - animal thing is grisly .,0.33333333333333326
+95,this is a very fine movie -- go see it .,0.0
+96,it 's depressing to see how far herzog has fallen .,1.0
+97,"sensual , funny and , in the end , very touching .",0.0
+98,eerily accurate depiction of depression .,0.0
+99,a film that clearly means to preach exclusively to the converted .,1.0
+100,kinnear gives a tremendous performance .,0.33333333333333326
+101,de niro cries . you 'll cry for your money back .,0.4193548387096775
+102,jones . . . does offer a brutal form of charisma .,0.0
+103,the tone shifts abruptly from tense to celebratory to soppy .,0.0
+104,  . . . contains very few laughs and even less surprises .,1.0
+105,a vivid cinematic portrait .,0.0
+106,a delightful entree in the tradition of food movies .,0.0
+107,a comic gem with some serious sparkles .,1.0
+108,too lazy to take advantage of its semi - humorous premise .,1.0
+109,"  . . . a cheap , ludicrous attempt at serious horror .",0.46035015447991756
+110,"third time 's the charm . . . yeah , baby !",0.0
+111,"if melville is creatively a great whale , this film is canned tuna .",1.0
+112,demeo is not without talent ; he just needs better material .,0.4594039054470709
+113,"  "" abandon "" will leave you wanting to abandon the theater .",0.19999999999999996
+114,  . . . a roller - coaster ride of a movie,0.0
+115,' easily my choice for one of the year 's best films . ',0.0
+116,the script is smart and dark - hallelujah for small favors .,0.0
+117,show me the mugging .,0.4371859296482412
+118,"a horrible , 99-minute stink bomb .",0.75
+119,resembles a soft porn brian de palma pastiche .,0.16666666666666674
+120,exciting and well - paced .,0.0
+121,one of [ herzog 's ] least inspired works .,0.0
+122,it is definitely worth seeing .,0.0
+123,"she 's not yet an actress , not quite a singer . . .",0.4920634920634921
+124,an enjoyable feel - good family comedy regardless of race .,0.0
+125,[ a ] strong piece of work .,0.33333333333333326
+126,the film has several strong performances .,1.0
+127,needed a little less bling - bling and a lot more romance .,0.46153846153846145

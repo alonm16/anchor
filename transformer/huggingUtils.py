@@ -3,7 +3,7 @@ import random
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, TrainingArguments, Trainer
 from datasets import load_dataset, load_metric
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import accuracy_score, mean_squared_error
 
 def set_seed(seed=42):
     """
@@ -22,7 +22,7 @@ def load_model(model_name = 'roberta-base'):
     :param model_name: name for model
     :return: loaded model
     """
-    return AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
+    return AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=1)
 
 def load_data(path = "clean_data/baby", dev_path = "clean_data/baby"):
     """
@@ -78,7 +78,7 @@ def metric_fn(predictions):
     """
     preds = predictions.predictions.argmax(axis=1)
     labels = predictions.label_ids
-    return {'accuracy': accuracy_score(preds, labels)}
+    return {'accuracy': mean_squared_error(preds, labels)}
 
 def train(model_seq_classification, tokenized_datasets, evaluate=False):
     """
