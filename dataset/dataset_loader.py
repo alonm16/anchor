@@ -3,7 +3,8 @@ import torchtext.datasets
 import torch
 import os
 import pathlib
-from torchtext.legacy import data
+from torchtext.data.utils import get_tokenizer
+from torchtext.vocab import build_vocab_from_iterator
 import random
 import pandas as pd
 
@@ -77,21 +78,15 @@ def create_binary_dataset():
 
 def create_sentiment_dataset(path='dataset/sentiment-sentences'):
 
-    text_field = torchtext.legacy.data.Field(
-        sequential=True, use_vocab=True, lower=True, dtype=torch.long,
-        tokenize='spacy', tokenizer_language='en_core_web_sm', init_token='sos', eos_token='eos'
-    )
-
-    # This Field object converts the text labels into numeric values (0,1,2)
-    label_field = torchtext.legacy.data.Field(
-        is_target=True, sequential=False, unk_token=None, use_vocab=True
-    )
-
-    fields = [('text', text_field), ('label', label_field)]
-
+    tokenizer = get_tokenizer('basic_english')
+    
+    def yield_tokens(data_iter):
+        for text in data_iter:
+            yield tokenizer(text)
+    
     main_dir_path= pathlib.Path(__file__).parent.parent.resolve().as_posix()
     path = '/'.join([main_dir_path, path])
-    examples = []
+    X, y = [], []
     f_names = ['rt-polarity.pos', 'rt-polarity.neg']
     f_labels = ['positive', 'negative']
     for (l, f) in enumerate(f_names):
@@ -100,8 +95,12 @@ def create_sentiment_dataset(path='dataset/sentiment-sentences'):
                 line = line.decode('utf8')
             except:
                 continue
-            examples.append(data.Example.fromlist([line, f_labels[l]], fields))
-
+            X.append(line)
+            y.append(f_labels[l])
+    
+    vocab = build_vocab_from_iterator(yield_tokens(train_iter), specials=["<unk>"])
+    vocab.set_default_index(vocab["<unk>"])
+    
     random.seed(10)
     random.shuffle(examples)
     train_examples = examples[:7000]
