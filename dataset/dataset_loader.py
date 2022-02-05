@@ -7,6 +7,7 @@ from torchtext.data.utils import get_tokenizer
 from torchtext.vocab import build_vocab_from_iterator
 import random
 import pandas as pd
+from torchtext.legacy import data
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -75,6 +76,47 @@ def create_binary_dataset():
     print_dataset(ds_test, ['positive', 'negative'], 'test')
     return review_parser, label_parser, ds_train, ds_valid, ds_test
 
+
+def old_create_sentiment_dataset(path='dataset/sentiment-sentences'):
+
+    text_field = torchtext.legacy.data.Field(
+        sequential=True, use_vocab=True, lower=True, dtype=torch.long,
+        tokenize='spacy', tokenizer_language='en_core_web_sm', init_token='sos', eos_token='eos'
+    )
+
+    # This Field object converts the text labels into numeric values (0,1,2)
+    label_field = torchtext.legacy.data.Field(
+        is_target=True, sequential=False, unk_token=None, use_vocab=True
+    )
+
+    fields = [('text', text_field), ('label', label_field)]
+
+    main_dir_path= pathlib.Path(__file__).parent.parent.resolve().as_posix()
+    path = '/'.join([main_dir_path, path])
+
+    examples = []
+    f_names = ['rt-polarity.pos', 'rt-polarity.neg']
+    f_labels = ['negative', 'positive']
+    for (l, f) in enumerate(f_names):
+        for line in open(os.path.join(path, f), 'rb'):
+            try:
+                line = line.decode('utf8')
+            except:
+                continue
+            examples.append(data.Example.fromlist([line, f_labels[l]], fields))
+
+    random.seed(10)
+    random.shuffle(examples)
+    train_examples = examples[:7000]
+    val_examples = examples[7000:8000]
+    test_examples = examples[8000:]
+    ds_train = data.Dataset(examples=train_examples, fields=fields)
+    ds_val = data.Dataset(examples=val_examples, fields=fields)
+    ds_test = data.Dataset(examples=test_examples, fields=fields)
+    
+    review_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=5)
+    
+    return review_parser, label_parser, ds_train, ds_val, ds_test
 
 def create_sentiment_dataset(path='dataset/sentiment-sentences'):
 
