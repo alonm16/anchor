@@ -8,6 +8,8 @@ from torchtext.vocab import build_vocab_from_iterator
 import random
 import pandas as pd
 from torchtext.legacy import data
+from torch.utils.data import DataLoader
+from torchtext.data.functional import to_map_style_dataset
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -96,7 +98,7 @@ def old_create_sentiment_dataset(path='dataset/sentiment-sentences'):
 
     examples = []
     f_names = ['rt-polarity.pos', 'rt-polarity.neg']
-    f_labels = ['negative', 'positive']
+    f_labels = ['positive', 'negative']
     for (l, f) in enumerate(f_names):
         for line in open(os.path.join(path, f), 'rb'):
             try:
@@ -119,18 +121,27 @@ def old_create_sentiment_dataset(path='dataset/sentiment-sentences'):
     return review_parser, label_parser, ds_train, ds_val, ds_test
 
 def create_sentiment_dataset(path='dataset/sentiment-sentences'):
+    def collate_batch(batch):
+        label_list, text_list = [], []
+        for (_text, _label) in batch:
+             label_list.append(_label)
+             processed_text = torch.tensor(text_pipeline(_text), dtype=torch.int64)
+             text_list.append(processed_text)
+        label_list = torch.tensor(label_list, dtype=torch.int64)
+        text_list = torch.stack(text_list)
+        return  text_list.to(device), label_list.to(device)
 
     tokenizer = get_tokenizer('basic_english')
     
     def yield_tokens(data_iter):
-        for text in data_iter:
+        for text, _  in data_iter:
             yield tokenizer(text)
     
     main_dir_path= pathlib.Path(__file__).parent.parent.resolve().as_posix()
     path = '/'.join([main_dir_path, path])
     X, y = [], []
     f_names = ['rt-polarity.pos', 'rt-polarity.neg']
-    f_labels = ['positive', 'negative']
+    f_labels = [1, 0]
     for (l, f) in enumerate(f_names):
         for line in open(os.path.join(path, f), 'rb'):
             try:
@@ -140,21 +151,19 @@ def create_sentiment_dataset(path='dataset/sentiment-sentences'):
             X.append(line)
             y.append(f_labels[l])
     
-    vocab = build_vocab_from_iterator(yield_tokens(train_iter), specials=["<unk>"])
+    train_iter = iter(list(zip(X,y)))
+    train_dataset = to_map_style_dataset(train_iter)
+    vocab = build_vocab_from_iterator(yield_tokens(train_dataset), specials=["<unk>", "<pad>"])
     vocab.set_default_index(vocab["<unk>"])
     
+    text_pipeline = lambda x: vocab(tokenizer(x))
+    
     random.seed(10)
-    random.shuffle(examples)
-    train_examples = examples[:7000]
-    val_examples = examples[7000:8000]
-    test_examples = examples[8000:]
-    ds_train = data.Dataset(examples=train_examples, fields=fields)
-    ds_val = data.Dataset(examples=val_examples, fields=fields)
-    ds_test = data.Dataset(examples=test_examples, fields=fields)
+    #random.shuffle(examples)
+
+    dataloader = DataLoader(train_dataset, batch_size=8, shuffle=False, collate_fn=collate_batch)
     
-    review_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=5)
-    
-    return review_parser, label_parser, ds_train, ds_val, ds_test
+    return dataloader
 
 
 def counter_test():
