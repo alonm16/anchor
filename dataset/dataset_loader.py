@@ -79,7 +79,7 @@ def create_binary_dataset():
     return review_parser, label_parser, ds_train, ds_valid, ds_test
 
 
-def old_create_sentiment_dataset(path='dataset/sentiment-sentences'):
+def create_sentiment_dataset(path='dataset/sentiment-sentences'):
 
     text_field = torchtext.legacy.data.Field(
         sequential=True, use_vocab=True, lower=True, dtype=torch.long,
@@ -120,7 +120,7 @@ def old_create_sentiment_dataset(path='dataset/sentiment-sentences'):
     
     return review_parser, label_parser, ds_train, ds_val, ds_test
 
-def create_sentiment_dataset(path='dataset/sentiment-sentences'):
+def not_finished_create_sentiment_dataset(path='dataset/sentiment-sentences'):
     def collate_batch(batch):
         label_list, text_list = [], []
         for (_text, _label) in batch:
