@@ -6,22 +6,25 @@ import math
 def create_embedding_layer(input_vocabulary, embedding_dim, statistics):
     embedding_glove = GloVe(name='6B', dim=embedding_dim)
     vocab_size = len(input_vocabulary)
-    weight_matrix = torch.zeros((vocab_size, embedding_dim + len(statistics)))
+    embedding_dim+=len(statistics)
+    weight_matrix = torch.zeros((vocab_size, embedding_dim))
     embedding_glove_itos = embedding_glove.itos
     indices_to_zero = []
     for i, word in enumerate(input_vocabulary.itos):
         if word in embedding_glove_itos:
-            
-            weight_matrix[i, :-len(statistics)] = embedding_glove[word]
-            weight_matrix[i, -2] = statistics[0][word]
-            weight_matrix[i, -1] = statistics[1][word]
+            if len(statistics)>0:
+                weight_matrix[i, :-len(statistics)] = embedding_glove[word]
+                for j in range(len(statistics)):
+                    weight_matrix[i, -(j+1)] = statistics[j][word]
+            else:
+                weight_matrix[i] = embedding_glove[word]
             indices_to_zero.append(i)
         else:
-            weight_matrix[i] = torch.normal(mean=0.0, std=1.0, size=(1, embedding_dim+ len(statistics)))
+            weight_matrix[i] = torch.normal(mean=0.0, std=1.0, size=(1, embedding_dim))
             
     
     #pad token is zeros and unk token is average
-    weight_matrix[1] = torch.zeros(size=(1, embedding_dim + len(statistics)))
+    weight_matrix[1] = torch.zeros(size=(1, embedding_dim))
     weight_matrix[0] = torch.mean(weight_matrix, dim=0)
     
     embedding_layer = nn.Embedding.from_pretrained(weight_matrix)
@@ -31,7 +34,7 @@ def create_embedding_layer(input_vocabulary, embedding_dim, statistics):
 
 
 class VanillaGRU(nn.Module):
-    def __init__(self, input_vocabulary, embedding_dim, hidden_dim, num_layers, output_dim, dropout, statistics):
+    def __init__(self, input_vocabulary, embedding_dim, hidden_dim, num_layers, output_dim, dropout, statistics=[]):
         super().__init__()
 
         self.embedding_layer, self.indices_to_zero = create_embedding_layer(input_vocabulary, embedding_dim, statistics)
