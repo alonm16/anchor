@@ -10,6 +10,9 @@ import torchtext
 from transformer.train_results import FitResult, BatchResult, EpochResult
 import transformer.models as models
 
+from sklearn.metrics import r2_score
+regression = True
+
 class Trainer(abc.ABC):
     """
     A class abstracting the various tasks of training models.
@@ -230,12 +233,22 @@ class Trainer(abc.ABC):
                 num_correct += batch_res.num_correct
 
             avg_loss = sum(losses) / num_batches
-            accuracy = 100.0 * num_correct / num_samples
-            pbar.set_description(
-                f"{pbar_name} "
-                f"(Avg. Loss {avg_loss:.3f}, "
-                f"Accuracy {accuracy:.1f})"
-            )
+            
+            if regression:
+                accuracy = num_correct/num_batches
+                pbar.set_description(
+                    f"{pbar_name} "
+                    f"(Avg. Loss {avg_loss:.3f}, "
+                    f"R2 {accuracy:.3f})"
+                )
+            else:
+                accuracy = 100.0 * num_correct / num_samples
+                            
+                pbar.set_description(
+                    f"{pbar_name} "
+                    f"(Avg. Loss {avg_loss:.3f}, "
+                    f"Accuracy {accuracy:.3f})"
+                )
 
         return EpochResult(losses=losses, accuracy=accuracy)
 
@@ -271,6 +284,15 @@ class SentimentTrainer(Trainer):
         num_correct = torch.sum(y_pred == y).float().item()
 
         # ========================
+        if regression: 
+            pred =  y_pred_log_proba.reshape(-1).detach().cpu().numpy()
+            y =y.cpu()
+            score = r2_score(y, pred)
+            # print(f'y {y}')
+            # print(f' pred {pred}')
+            # print(f'score {score}')
+            return BatchResult(loss.item(), score)
+
 
         return BatchResult(loss.item(), num_correct)
 
@@ -287,6 +309,15 @@ class SentimentTrainer(Trainer):
             loss = self.loss_fn(y_pred_log_proba, y)
             y_pred = torch.argmax(y_pred_log_proba, dim=1)
             num_correct = torch.sum(y_pred == y).float()
+            
+        if regression: 
+            pred =  y_pred_log_proba.reshape(-1).detach().cpu().numpy()
+            y =y.cpu()
+            score = r2_score(y, pred)
+            # print(f'y {y}')
+            # print(f' pred {pred}')
+            # print(f'score {score}')
+            return BatchResult(loss.item(), score)
 
         return BatchResult(loss.item(), num_correct.item())
     
