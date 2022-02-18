@@ -11,7 +11,7 @@ from transformer.train_results import FitResult, BatchResult, EpochResult
 import transformer.models as models
 
 from sklearn.metrics import r2_score
-regression = True
+regression = False
 
 class Trainer(abc.ABC):
     """
