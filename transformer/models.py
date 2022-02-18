@@ -34,7 +34,7 @@ def create_embedding_layer(input_vocabulary, embedding_dim, statistics):
 
 
 class VanillaGRU(nn.Module):
-    def __init__(self, input_vocabulary, embedding_dim, hidden_dim, num_layers, output_dim, dropout, statistics=[]):
+    def __init__(self, input_vocabulary, embedding_dim, hidden_dim, num_layers, output_dim, dropout, statistics=[], regression = False):
         super().__init__()
 
         self.embedding_layer, self.indices_to_zero = create_embedding_layer(input_vocabulary, embedding_dim, statistics)
@@ -46,6 +46,8 @@ class VanillaGRU(nn.Module):
         self.fc = nn.Linear(in_features=hidden_dim, out_features=output_dim)
 
         self.log_softmax = nn.LogSoftmax(dim=1)
+        
+        self.regression = regression
 
     def forward(self, x):
         _, batch_size = x.shape
@@ -53,6 +55,8 @@ class VanillaGRU(nn.Module):
         lstm_out, _ = self.GRU_layer(embedded)
         out = self.dropout_layer(lstm_out)
         out = self.fc(out[-1])
+        if self.regression:
+            return out
         return self.log_softmax(out)
 
 
