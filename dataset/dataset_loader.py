@@ -88,7 +88,7 @@ def create_sentiment_dataset(path='dataset/sentiment-sentences'):
 
     # This Field object converts the text labels into numeric values (0,1,2)
     label_field = torchtext.legacy.data.Field(
-        is_target=True, sequential=False, unk_token=None, use_vocab=False, dtype=torch.float
+        is_target=True, sequential=False, unk_token=None, use_vocab=False, dtype=torch.long
     )
 
     fields = [('text', text_field), ('label', label_field)]
