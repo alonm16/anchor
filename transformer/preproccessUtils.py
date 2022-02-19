@@ -8,7 +8,7 @@ from transformer.utils import *
 def get_occurences(ds):
     c = Counter()
     ignore = list(".,- \'\"\s[]?():!;")
-    ignore.extend(["--", "'s"])
+    ignore.extend(["--", "'s", 'sos', 'eos'])
     ignore.extend(stopwords.words('english'))
     for ds_example in ds:
         c.update(ds_example.text)
@@ -25,7 +25,7 @@ def get_label_distribution(ds):
     c_neg = Counter()
     c = Counter()
     ignore = list(".,- \'\"\s[]?():!;")
-    ignore.extend(["--", "'s"])
+    ignore.extend(["--", "'s", 'sos', 'eos'])
     ignore.extend(stopwords.words('english'))
     
     for ds_example in ds:
@@ -47,7 +47,7 @@ def get_label_distribution(ds):
 def get_prediction_distribution(ds, predictions):
     d = defaultdict(list)
     ignore = list(".,- \'\"\s[]?():!;")
-    ignore.extend(["--", "'s"])
+    ignore.extend(["--", "'s", 'sos', 'eos'])
     ignore.extend(stopwords.words('english'))
     
     for ds_example, prediction in zip(ds, predictions):
