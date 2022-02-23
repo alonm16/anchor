@@ -7,7 +7,7 @@ class MyExplanation:
         self.index = index
         self.fit_examples = fit_examples
         self.test_cov = test_cov
-        self.names =  exp.names()
+        self.names = exp.names()
         self.coverage = exp.coverage()
         self.precision = exp.precision()
         

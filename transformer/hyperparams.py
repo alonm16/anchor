@@ -61,7 +61,7 @@ def hyperparams_for_gru_binary():
         num_layers=2,
         dropout=0.3,
         lr = 0.0005,
-        early_stopping = 8,
+        early_stopping = 20,
         output_classes = 2
     )
     return hp
