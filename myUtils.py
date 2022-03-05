@@ -106,14 +106,15 @@ class TextUtils:
             for i, index in enumerate(indices):
 
                 print('number '+str(i))
-                cur_exp = self.get_exp(index)
-                cur_fit = self.get_fit_examples(cur_exp)
-                cur_test_cov = self.get_test_cov(cur_fit)
+                cur_exps = self.get_exp(index)
+                for cur_exp in cur_exps:
+                    cur_fit = self.get_fit_examples(cur_exp)
+                    cur_test_cov = self.get_test_cov(cur_fit)
 
-                explanation = MyExplanation(index, cur_fit, cur_test_cov, cur_exp)
-                explanations.append(explanation)
-                pickle.dump(explanation, fp)
-                fp.flush()
+                    explanation = MyExplanation(index, cur_fit, cur_test_cov, cur_exp)
+                    explanations.append(explanation)
+                    pickle.dump(explanation, fp)
+                    fp.flush()
 
 
         explanations = self.remove_duplicates(explanations)
