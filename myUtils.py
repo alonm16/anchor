@@ -12,7 +12,7 @@ class MyExplanation:
         self.precision = exp.precision()
         
 class ExtendedExplanation:
-    def __init__(self, exp, anchor_examples, test, test_labels, predict_sentences, explainer):
+    def __init__(self, exp, anchor_examples, test, test_labels, test_predictions, predict_sentences, explainer):
         self.index = exp.index
         self.fit_examples = exp.fit_examples
         self.test_cov = exp.test_cov
@@ -20,7 +20,7 @@ class ExtendedExplanation:
         self.coverage = exp.coverage
         self.precision = exp.precision
         exp_label =  predict_sentences([str(anchor_examples[exp.index])])[0]
-        self.test_precision = np.mean(predict_sentences(test[exp.fit_examples]) == exp_label)
+        self.test_precision = np.mean(test_predictions[exp.fit_examples] == exp_label)
         #prediction is opposite
         self.real_precision = 1-np.mean(test_labels[exp.fit_examples] == exp_label)
 
@@ -117,7 +117,7 @@ class TextUtils:
                     fp.flush()
 
 
-        explanations = self.remove_duplicates(explanations)
+        #explanations = self.remove_duplicates(explanations)
         explanations.sort(key=lambda exp: exp.test_cov)
         
         return explanations
