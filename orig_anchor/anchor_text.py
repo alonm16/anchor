@@ -165,15 +165,18 @@ class AnchorText(object):
             return raw_data, data, labels
         return words, positions, true_label, sample_fn
 
-    def explain_instance(self, text, classifier_fn, threshold=0.95,
+    def explain_instance(self, text, classifier_fn, ignored, threshold=0.95,
                           delta=0.1, tau=0.15, batch_size=10, onepass=False,
-                          use_proba=False, beam_size=4,
+                          use_proba=False, beam_size=4, 
                           **kwargs):
         if type(text) == bytes:
             text = text.decode()
         words, positions, true_label, sample_fn = self.get_sample_fn(
             text, classifier_fn, onepass=onepass, use_proba=use_proba)
         # print words, true_label
+        # TODO changed anchor_size
+        anchor_base.AnchorBaseBeam.words = words
+        anchor_base.AnchorBaseBeam.ignored = ignored
         exps = anchor_base.AnchorBaseBeam.anchor_beam(
             sample_fn, delta=delta, epsilon=tau, batch_size=batch_size,
             desired_confidence=threshold, stop_on_first=True,

@@ -70,15 +70,16 @@ class TabularUtils:
     
 class TextUtils:
     
-    def __init__(self, dataset, test, explainer, predict_fn, result_path = 'results/text_exps_bert.pickle'):
+    def __init__(self, dataset, test, explainer, predict_fn, ignored , result_path = 'results/text_exps_bert.pickle'):
         self.dataset = dataset
         self.explainer = explainer
         self.predict_fn = predict_fn
         self.test = test
         self.path = result_path
+        self.ignored = ignored
 
     def get_exp(self,idx):
-        return self.explainer.explain_instance(self.dataset[idx], self.predict_fn, threshold=0.95, verbose=False, onepass=True)
+        return self.explainer.explain_instance(self.dataset[idx], self.predict_fn, self.ignored, threshold=0.95, verbose=False, onepass=True)
 
     def get_fit_examples(self,exp):
         exp_words = exp.names()

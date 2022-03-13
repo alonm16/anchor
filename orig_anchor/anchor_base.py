@@ -15,6 +15,10 @@ def matrix_subset(matrix, n_samples):
 
 
 class AnchorBaseBeam(object):
+    # TODO: added static members
+    words= None
+    ignored=  None
+    
     def __init__(self):
         pass
 
@@ -120,7 +124,7 @@ class AnchorBaseBeam(object):
         data = state['data'][:current_idx]
         labels = state['labels'][:current_idx]
         if len(previous_best) == 0:
-            tuples = [(x, ) for x in all_features]
+            tuples = [(x, ) for x in all_features if AnchorBaseBeam.words[x] not in AnchorBaseBeam.ignored]
             for x in tuples:
                 pres = data[:, x[0]].nonzero()[0]
                 # NEW
@@ -380,9 +384,12 @@ class AnchorBaseBeam(object):
                         best_tuple = t
                         if best_coverage == 1 or stop_on_first:
                             stop_this = True
-            if stop_this:
-                break
+            #TODO commented this
+            # if stop_this:
+            #     break
             current_size += 1
+        # TODO and this
+        """
         if best_tuple == ():
             # Could not find an anchor, will now choose the highest precision
             # amongst the top K from every round
@@ -402,7 +409,7 @@ class AnchorBaseBeam(object):
                 1, verbose=verbose)
             best_tuple = tuples[chosen_tuples[0]]
         # return best_tuple, state
-
+        """
         anchors = [AnchorBaseBeam.get_anchor_from_tuple(best_tuple, state) for best_tuple in final_tuples]
 
         return anchors
