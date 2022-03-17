@@ -7,8 +7,8 @@ from typing import Any, Callable
 from pathlib import Path
 from torch.utils.data import DataLoader
 import torchtext
-from transformer.train_results import FitResult, BatchResult, EpochResult
-import transformer.models as models
+from train_results import FitResult, BatchResult, EpochResult
+import models as models
 
 from sklearn.metrics import r2_score
 regression = False

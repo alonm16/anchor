@@ -1,5 +1,5 @@
 import torch
-from . import hyperparams, models
+from transformer import hyperparams, models
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -25,7 +25,7 @@ def load_model(model_name, path, review_parser):
         model = models.MultiHeadAttentionNet(input_vocabulary=review_parser.vocab, embed_dim=hp['embedding_dim'], num_heads=hp['num_heads'], 
                                            dropout=hp['dropout'], two_attention_layers=hp['two_atten_layers'], output_classes=hp['output_classes']).to(device)
     saved_state = torch.load(path, map_location=device)
-    model.load_state_dict(saved_state)
+    model.load_state_dict(saved_state["model_state"])
     model.eval()
     print(model)
     
