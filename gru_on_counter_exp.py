@@ -6,11 +6,11 @@
 import matplotlib.pyplot as plt
 import warnings
 import spacy
-from anchor import anchor_text
+from orig_anchor import anchor_text
 import pickle
 from myUtils import *
 from transformer.utils import *
-from datasets.dataset_loader import *
+from dataset.dataset_loader import *
 
 SEED = 84
 torch.manual_seed(SEED)
@@ -35,7 +35,7 @@ counter_test, counter_test_labels = counter_test()
 # In[4]:
 
 
-model = load_model('gru' , 'transformer/gru_sentiment.pt', review_parser)
+model = load_model('gru', 'transformer/gru_sentiment.pt', review_parser)
 
 
 # In[5]:
@@ -87,7 +87,7 @@ test, test_labels = [' '.join(example.text) for example in ds_train], [example.l
 # In[13]:
 
 
-anchor_examples = [example for example in train if len(example) < 120 and len(example)>20]
+anchor_examples = [example for example in train if len(example) < 70 and len(example)>20]
 
 
 # In[21]:
