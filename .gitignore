@@ -1,7 +1,7 @@
 checkpoints/
 .vector_cache/
 .ipynb_checkpoints/
-**/results/monitor/
+nohup.out
 
 # Created by https://www.gitignore.io/api/python,pycharm,windows,osx,linux
 

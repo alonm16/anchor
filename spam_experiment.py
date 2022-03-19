@@ -90,7 +90,7 @@ test, test_labels = [' '.join(example.text) for example in ds_train], [example.l
 # In[26]:
 
 
-anchor_examples = [example for example in train if len(example) < 100 and len(example)>20]
+anchor_examples = [example for example in train if len(example) < 150 and len(example)>20]
 
 
 # In[27]:
