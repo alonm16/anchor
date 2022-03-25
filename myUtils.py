@@ -22,8 +22,8 @@ class ExtendedExplanation:
         exp_label =  predict_sentences([str(anchor_examples[exp.index])])[0]
         self.test_precision = np.mean(test_predictions[exp.fit_examples] == exp_label)
         #prediction is opposite depending on db
-        #self.real_precision = 1-np.mean(test_labels[exp.fit_examples] == exp_label)
-        self.real_precision = np.mean(test_labels[exp.fit_examples] == exp_label)
+        self.real_precision = 1-np.mean(test_labels[exp.fit_examples] == exp_label)
+        #self.real_precision = np.mean(test_labels[exp.fit_examples] == exp_label)
 
 class TabularUtils:
     

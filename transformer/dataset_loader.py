@@ -7,6 +7,7 @@ from torchtext.data.utils import get_tokenizer
 from torchtext.vocab import build_vocab_from_iterator
 import random
 import pandas as pd
+import re
 from torchtext.legacy import data
 from torch.utils.data import DataLoader
 from torchtext.data.functional import to_map_style_dataset
@@ -257,6 +258,76 @@ def spam_dataset(path='dataset/spam.csv'):
     import copy
     ds_for_parser = copy.deepcopy(train_examples)
     ds_for_parser.extend(hams[750:])
+    ds_for_parser = data.Dataset(examples=ds_for_parser, fields=fields)
+    review_parser, label_parser = build_vocabulary(text_field, label_field, ds_for_parser, min_freq=3)
+    
+    return review_parser, label_parser, ds_train, ds_val
+
+def offensive_preprocess(text_string):
+    """
+    Accepts a text string and replaces:
+    1) urls with URLHERE
+    2) lots of whitespace with one instance
+    3) mentions with MENTIONHERE
+
+    This allows us to get standardized counts of urls and mentions
+    Without caring about specific people mentioned
+    """
+    space_pattern = '\s+'
+    giant_url_regex = ('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|'
+        '[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+    mention_regex = '@[\w\-]+'
+    parsed_text = re.sub(space_pattern, ' ', text_string)
+    parsed_text = re.sub(giant_url_regex, '', parsed_text)
+    parsed_text = re.sub(mention_regex, '', parsed_text)
+    return parsed_text
+
+def offensive_dataset(path='dataset/offensive.csv'):
+
+    text_field = torchtext.legacy.data.Field(
+        sequential=True, use_vocab=True, lower=True, dtype=torch.long,
+        tokenize='spacy', tokenizer_language='en_core_web_sm', init_token='sos', eos_token='eos'
+    )
+
+    # This Field object converts the text labels into numeric values (0,1,2)
+    label_field = torchtext.legacy.data.Field(
+        is_target=True, sequential=False, unk_token=None, use_vocab=True
+    )
+
+    fields = [('text', text_field), ('label', label_field)]
+    
+    df = pd.read_csv(path).drop(columns=['Unnamed: 0', 'count'])
+    
+    offensive =[]
+    not_offensive = []
+
+    for index, row in df.iterrows():
+        tweet = offensive_preprocess(row['tweet'])
+        if row['class'] == 1:
+            target = 'positive'
+            offensive.append(data.Example.fromlist([tweet, target], fields))
+        elif row['class'] == 2:
+            target = 'negative'
+            not_offensive.append(data.Example.fromlist([tweet, target], fields))
+
+    random.seed(10)
+    random.shuffle(offensive)
+    random.shuffle(not_offensive)
+    print(len(offensive))
+    print(len(not_offensive))
+    
+    train_examples = offensive[:3000]
+    train_examples.extend(not_offensive[:3000])
+    random.shuffle(train_examples)
+    val_examples = offensive[3000:4163]
+    val_examples.extend(not_offensive[3000:])
+    random.shuffle(val_examples)
+    ds_train = data.Dataset(examples=train_examples, fields=fields)
+    ds_val = data.Dataset(examples=val_examples, fields=fields)
+    
+    import copy
+    ds_for_parser = copy.deepcopy(train_examples)
+    ds_for_parser.extend(offensive[4163:])
     ds_for_parser = data.Dataset(examples=ds_for_parser, fields=fields)
     review_parser, label_parser = build_vocabulary(text_field, label_field, ds_for_parser, min_freq=3)
     
