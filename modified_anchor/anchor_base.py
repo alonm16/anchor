@@ -16,8 +16,8 @@ def matrix_subset(matrix, n_samples):
 
 class AnchorBaseBeam(object):
     # TODO: added static members
-    words= None
-    ignored=  None
+    words = None
+    ignored = None
     
     def __init__(self):
         pass
@@ -124,6 +124,7 @@ class AnchorBaseBeam(object):
         data = state['data'][:current_idx]
         labels = state['labels'][:current_idx]
         if len(previous_best) == 0:
+            # TODO added if not in ignored
             tuples = [(x, ) for x in all_features if AnchorBaseBeam.words[x] not in AnchorBaseBeam.ignored]
             for x in tuples:
                 pres = data[:, x[0]].nonzero()[0]
@@ -327,7 +328,8 @@ class AnchorBaseBeam(object):
             initial_stats = AnchorBaseBeam.get_initial_statistics(tuples,
                                                                   state)
 
-            # TODO
+            # TODO changed to len(sample_fns) instead of min(beam_size, len(tuples)
+            # TODO change back if need only 1 anchor
             # print tuples, beam_size
             chosen_tuples = AnchorBaseBeam.lucb(
                 sample_fns, initial_stats, epsilon, delta, batch_size,
