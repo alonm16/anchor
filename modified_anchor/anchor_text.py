@@ -8,7 +8,7 @@ import string
 import sys
 from io import open
 import numpy as np
-from numba import jit
+from numba import jit, njit, float32
 
 def id_generator(size=15):
     """Helper function to generate random div ids. This is useful for embedding
@@ -16,7 +16,9 @@ def id_generator(size=15):
     chars = list(string.ascii_uppercase + string.digits)
     return ''.join(np.random.choice(chars, size, replace=True))
 
-def exp_normalize(x):
+# TODO optimization
+@njit(float32[:](float32[:]), cache=True)
+def exp_normalize(x):  
     b = x.max()
     y = np.exp(x - b)
     return y / y.sum()
@@ -55,27 +57,19 @@ class TextGenerator(object):
                 v = np.array([float(x) for x in v])
             else:
                 top_preds = top_preds.cpu().numpy()
-                words = token_converter(top_preds, tokenizer)
+                
+                #optimized the inner function of the tokenizer "convert_ids_to_tokens"
+                words = [tokenizer.added_tokens_decoder[index]
+                        if index in tokenizer.added_tokens_decoder
+                        else tokenizer.ids_to_tokens.get(index, tokenizer.unk_token)
+                        for index in top_preds]
                
-                v= v.cpu().numpy()
+                v = v.cpu().numpy()
             
             ret.append((words, v))
         return ret
     
-optimize = True
-
-#optimized the inner function of the tokenizer "convert_ids_to_tokens"
-def token_converter(top_preds, tokenizer):
-    words = []
-    for index in top_preds:
-
-        if index in tokenizer.added_tokens_decoder:
-            words.append(tokenizer.added_tokens_decoder[index])
-        else:
-            words.append(tokenizer._convert_id_to_token(index))
-    return words
-
-    
+optimize = True  
 
 class SentencePerturber:
     def __init__(self, words, tg, onepass=False):
@@ -120,8 +114,6 @@ class SentencePerturber:
     def perturb_sentence(present, n, prob_change=0.5):
         raw = np.zeros((n, len(self.words)), '|U80')
         data = np.ones((n, len(self.words)))
-
-
 
 
 class AnchorText(object):
@@ -213,7 +205,7 @@ class AnchorText(object):
             exp['positions'] = [positions[x] for x in exp['feature']]
             exp['instance'] = text
             exp['prediction'] = true_label
-            
+            print(exp['precision'])
             explanation = anchor_explanation.AnchorExplanation('text', exp,
                                                                self.as_html)
             explanations.append(explanation)

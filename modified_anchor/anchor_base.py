@@ -13,6 +13,7 @@ def matrix_subset(matrix, n_samples):
     n_samples = min(matrix.shape[0], n_samples)
     return matrix[np.random.choice(matrix.shape[0], n_samples, replace=False)]
 
+optimize = True 
 
 class AnchorBaseBeam(object):
     # TODO: added static members
@@ -165,7 +166,8 @@ class AnchorBaseBeam(object):
                     state['t_positives'][new_t] = np.sum(
                         state['labels'][idx_list])
         return list(new_tuples)
-
+    
+    
     @staticmethod
     def get_sample_fns(sample_fn, tuples, state):
         # each sample fn returns number of positives
@@ -175,13 +177,27 @@ class AnchorBaseBeam(object):
             current_idx = state['current_idx']
             # idxs = range(state['data'].shape[0], state['data'].shape[0] + n)
             idxs = range(current_idx, current_idx + n)
+            
+            # TODO: optimize, now apply astype only once
+            if optimize:
+                raw_dtype = str(raw_data.dtype)
 
-            if '<U' in str(raw_data.dtype):
-                # String types: make sure both string types are of maximum length 
-                # to avoid string truncation. E.g., '<U308', '<U290' -> '<U308'
-                max_dtype = max(str(state['raw_data'].dtype), str(raw_data.dtype))
-                state['raw_data'] = state['raw_data'].astype(max_dtype)
-                raw_data = raw_data.astype(max_dtype)
+                if '<U' in raw_dtype:
+                    # String types: make sure both string types are of maximum length 
+                    # to avoid string truncation. E.g., '<U308', '<U290' -> '<U308'
+                    state_dtype = str(state['raw_data'].dtype)
+
+                    if state_dtype > raw_dtype:
+                        raw_data = raw_data.astype(state_dtype)
+                    else:
+                        state['raw_data'] = state['raw_data'].astype(raw_dtype)
+            else:
+                if '<U' in str(raw_data.dtype):
+                    # String types: make sure both string types are of maximum length 
+                    # to avoid string truncation. E.g., '<U308', '<U290' -> '<U308'
+                    max_dtype = max(str(state['raw_data'].dtype), str(raw_data.dtype))
+                    state['raw_data'] = state['raw_data'].astype(max_dtype)
+                    raw_data = raw_data.astype(max_dtype)
 
             state['t_idx'][t].update(idxs)
             state['t_nsamples'][t] += n
