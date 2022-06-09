@@ -115,7 +115,11 @@ class SentencePerturber:
         raw = np.zeros((n, len(self.words)), '|U80')
         data = np.ones((n, len(self.words)))
 
-
+#maybe use instead of np.random.choice
+#@njit(int64(float32[:]), cache=True)
+#def choice(p): 
+#    return np.argmax(np.random.multinomial(1, p))
+        
 class AnchorText(object):
     """bla"""
     def __init__(self, nlp, class_names, use_unk_distribution=True, mask_string='UNK'):
