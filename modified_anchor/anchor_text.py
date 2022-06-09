@@ -8,6 +8,7 @@ import string
 import sys
 from io import open
 import numpy as np
+from numba import jit
 
 def id_generator(size=15):
     """Helper function to generate random div ids. This is useful for embedding
@@ -43,13 +44,38 @@ class TextGenerator(object):
         to_pred = torch.tensor([encoded], device=self.device)
         with torch.no_grad():
             outputs = model(to_pred)[0]
-        ret = []
+        ret = []  
+        
         for i in masked:
+            #### try change to 100!!!!!!!!!!!!!!!!!!!
             v, top_preds = torch.topk(outputs[0, i], 500)
-            words = tokenizer.convert_ids_to_tokens(top_preds)
-            v = np.array([float(x) for x in v])
+            
+            if not optimize:
+                words = tokenizer.convert_ids_to_tokens(top_preds)
+                v = np.array([float(x) for x in v])
+            else:
+                top_preds = top_preds.cpu().numpy()
+                words = token_converter(top_preds, tokenizer)
+               
+                v= v.cpu().numpy()
+            
             ret.append((words, v))
         return ret
+    
+optimize = True
+
+#optimized the inner function of the tokenizer "convert_ids_to_tokens"
+def token_converter(top_preds, tokenizer):
+    words = []
+    for index in top_preds:
+
+        if index in tokenizer.added_tokens_decoder:
+            words.append(tokenizer.added_tokens_decoder[index])
+        else:
+            words.append(tokenizer._convert_id_to_token(index))
+    return words
+
+    
 
 class SentencePerturber:
     def __init__(self, words, tg, onepass=False):
@@ -187,10 +213,11 @@ class AnchorText(object):
             exp['positions'] = [positions[x] for x in exp['feature']]
             exp['instance'] = text
             exp['prediction'] = true_label
-
+            
             explanation = anchor_explanation.AnchorExplanation('text', exp,
                                                                self.as_html)
             explanations.append(explanation)
+            
         return explanations
 
     def as_html(self, exp):
