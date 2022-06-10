@@ -35,10 +35,12 @@ class TextGenerator(object):
             self.bert = DistilBertForMaskedLM.from_pretrained('distilbert-base-cased')
             self.bert.to(self.device)
             self.bert.eval()
+            
+            
 
     def unmask(self, text_with_mask):
         torch = self.torch
-        tokenizer = self.bert_tokenizer
+        tokenizer = self.bert_tokenizer   
         model = self.bert
         encoded = np.array(tokenizer.encode(text_with_mask, add_special_tokens=True))
         input_ids = torch.tensor(encoded)
@@ -48,6 +50,10 @@ class TextGenerator(object):
             outputs = model(to_pred)[0]
         ret = []  
         
+        # added for optimization
+        ids_to_tokens = tokenizer.ids_to_tokens
+        unk_token = tokenizer.unk_token
+        
         for i in masked:
             #### try change to 100!!!!!!!!!!!!!!!!!!!
             v, top_preds = torch.topk(outputs[0, i], 500)
@@ -56,13 +62,10 @@ class TextGenerator(object):
                 words = tokenizer.convert_ids_to_tokens(top_preds)
                 v = np.array([float(x) for x in v])
             else:
-                top_preds = top_preds.cpu().numpy()
+                top_preds = top_preds.tolist()
                 
-                #optimized the inner function of the tokenizer "convert_ids_to_tokens"
-                words = [tokenizer.added_tokens_decoder[index]
-                        if index in tokenizer.added_tokens_decoder
-                        else tokenizer.ids_to_tokens.get(index, tokenizer.unk_token)
-                        for index in top_preds]
+                # optimized function of the tokenizer "convert_ids_to_tokens", added_tokens_decoder always empty
+                words = [ids_to_tokens.get(index, unk_token) for index in top_preds]
                
                 v = v.cpu().numpy()
             
@@ -93,7 +96,12 @@ class SentencePerturber:
         if self.onepass:
             s = ' '.join(a)
             rs = self.probs(s)
-            reps = [np.random.choice(a, p=p) for a, p in rs]
+            # TODO optimize : faster this way
+            if optimize:
+                reps = [a[np.random.choice(len(a), p=p)] for a, p in rs]
+            else:
+                reps = [np.random.choice(a, p=p) for a, p in rs]
+           
             a[masks] = reps
         else:
             for i in masks:
@@ -169,8 +177,12 @@ class AnchorText(object):
                 for i in range(len(words)):
                     if i in present:
                         continue
-                    probs = [1 - perturber.pr[i], perturber.pr[i]]
-                    data[:, i] = np.random.choice([0, 1], num_samples, p=probs)
+                    
+                    if optimize:
+                        data[:, i] = np.random.binomial(1, perturber.pr[i], num_samples)
+                    else:
+                        probs = [1 - perturber.pr[i], perturber.pr[i]]
+                        data[:, i] = np.random.choice([0, 1], num_samples, p=probs)
                 data[:, present] = 1
                 raw_data = []
                 for i, d in enumerate(data):
