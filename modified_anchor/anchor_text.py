@@ -9,6 +9,7 @@ import sys
 from io import open
 import numpy as np
 from numba import jit, njit, float32
+import torch
 
 def id_generator(size=15):
     """Helper function to generate random div ids. This is useful for embedding
@@ -50,26 +51,32 @@ class TextGenerator(object):
             outputs = model(to_pred)[0]
         ret = []  
         
-        # added for optimization
-        ids_to_tokens = tokenizer.ids_to_tokens
-        unk_token = tokenizer.unk_token
-        
-        for i in masked:
+        if optimize:
+            ids_to_tokens = tokenizer.ids_to_tokens
+            unk_token = tokenizer.unk_token
             #### try change to 100!!!!!!!!!!!!!!!!!!!
-            v, top_preds = torch.topk(outputs[0, i], 500)
+            v_array, top_preds_array = torch.topk(outputs[0, masked], 500)
+            top_preds_array = top_preds_array.tolist()
+            v_array = v_array.cpu().numpy()
             
-            if not optimize:
-                words = tokenizer.convert_ids_to_tokens(top_preds)
-                v = np.array([float(x) for x in v])
-            else:
-                top_preds = top_preds.tolist()
-                
+            for i in range(len(masked)):
+        
+                v, top_preds = v_array[i], top_preds_array[i]
+
                 # optimized function of the tokenizer "convert_ids_to_tokens", added_tokens_decoder always empty
                 words = [ids_to_tokens.get(index, unk_token) for index in top_preds]
-               
-                v = v.cpu().numpy()
+
+                ret.append((words, v))
             
-            ret.append((words, v))
+        else:
+            for i in masked:
+                v, top_preds = torch.topk(outputs[0, i], 500)
+
+                words = tokenizer.convert_ids_to_tokens(top_preds)
+                v = np.array([float(x) for x in v])
+
+                ret.append((words, v))
+        
         return ret
     
 optimize = True  
@@ -198,6 +205,7 @@ class AnchorText(object):
             raw_data = np.array(raw_data, dtype).reshape(-1, 1)
             return raw_data, data, labels
         return words, positions, true_label, sample_fn
+    
 
     def explain_instance(self, text, classifier_fn, ignored, threshold=0.95,
                           delta=0.1, tau=0.15, batch_size=10, onepass=False,
@@ -211,6 +219,7 @@ class AnchorText(object):
         # TODO changed anchor_size
         anchor_base.AnchorBaseBeam.words = words
         anchor_base.AnchorBaseBeam.ignored = ignored
+        
         exps = anchor_base.AnchorBaseBeam.anchor_beam(
             sample_fn, delta=delta, epsilon=tau, batch_size=batch_size,
             desired_confidence=threshold, stop_on_first=True,
