@@ -183,13 +183,14 @@ class AnchorBaseBeam(object):
                 raw_dtype = str(raw_data.dtype)
 
                 if '<U' in raw_dtype:
+                    
                     # String types: make sure both string types are of maximum length 
                     # to avoid string truncation. E.g., '<U308', '<U290' -> '<U308'
                     state_dtype = str(state['raw_data'].dtype)
-
+                    
                     if state_dtype > raw_dtype:
                         raw_data = raw_data.astype(state_dtype)
-                    else:
+                    elif raw_dtype > state_dtype:
                         state['raw_data'] = state['raw_data'].astype(raw_dtype)
             else:
                 if '<U' in str(raw_data.dtype):
@@ -271,7 +272,7 @@ class AnchorBaseBeam(object):
             exs['uncovered_false'] = np.array([])
             anchor['examples'].append(exs)
         return anchor
-
+    
     @staticmethod
     def anchor_beam(sample_fn, delta=0.05, epsilon=0.1, batch_size=10,
                     min_shared_samples=0, desired_confidence=1, beam_size=1,
