@@ -33,9 +33,13 @@ class TextGenerator(object):
         if url is None:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             self.bert_tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-cased')
-            self.bert = DistilBertForMaskedLM.from_pretrained('distilbert-base-cased')
+            self.bert = DistilBertForMaskedLM.from_pretrained('distilbert-base-cased', torchscript=True)
             self.bert.to(self.device)
             self.bert.eval()
+            if optimize:
+                x = self.torch.tensor([[  101,   103,   119,   119,   119,   170,   171,  1931,  3513,   118,
+                1113,   118,  3314, 11078,  6540,  1200,   119,   102]]).to(self.device)
+                self.bert = self.torch.jit.trace(self.bert, x)
             
             
 
