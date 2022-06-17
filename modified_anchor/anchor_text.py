@@ -8,8 +8,11 @@ import string
 import sys
 from io import open
 import numpy as np
-from numba import jit, njit, float32
+from transformers import DistilBertTokenizer, DistilBertForMaskedLM
 import torch
+from numba import jit, njit, float32
+
+optimize = False
 
 def id_generator(size=15):
     """Helper function to generate random div ids. This is useful for embedding
@@ -18,7 +21,7 @@ def id_generator(size=15):
     return ''.join(np.random.choice(chars, size, replace=True))
 
 # TODO optimization
-@njit(float32[:](float32[:]), cache=True)
+@njit(cache=True)
 def exp_normalize(x):  
     b = x.max()
     y = np.exp(x - b)
@@ -26,9 +29,6 @@ def exp_normalize(x):
 
 class TextGenerator(object):
     def __init__(self, url=None):
-        from transformers import DistilBertTokenizer, DistilBertForMaskedLM
-        import torch
-        self.torch = torch
         self.url = url
         if url is None:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -37,14 +37,12 @@ class TextGenerator(object):
             self.bert.to(self.device)
             self.bert.eval()
             if optimize:
-                x = self.torch.tensor([[  101,   103,   119,   119,   119,   170,   171,  1931,  3513,   118,
-                1113,   118,  3314, 11078,  6540,  1200,   119,   102]]).to(self.device)
-                self.bert = self.torch.jit.trace(self.bert, x)
+                x = torch.tensor([[101, 103, 119, 119, 119, 170, 171, 1931, 3513, 118, 1113, 118, 3314,                     11078, 6540, 1200, 119, 102]]).to(self.device)
+                self.bert = torch.jit.trace(self.bert, x)
             
             
 
     def unmask(self, text_with_mask):
-        torch = self.torch
         tokenizer = self.bert_tokenizer   
         model = self.bert
         encoded = np.array(tokenizer.encode(text_with_mask, add_special_tokens=True))
@@ -83,7 +81,6 @@ class TextGenerator(object):
         
         return ret
     
-optimize = True  
 
 class SentencePerturber:
     def __init__(self, words, tg, onepass=False):
@@ -141,6 +138,7 @@ class SentencePerturber:
         
 class AnchorText(object):
     """bla"""
+    
     def __init__(self, nlp, class_names, use_unk_distribution=True, mask_string='UNK'):
         """
         Args:
@@ -159,6 +157,13 @@ class AnchorText(object):
         self.mask_string = mask_string
         if not self.use_unk_distribution:
             self.tg = TextGenerator()
+            
+    @staticmethod       
+    def set_optimize(should_optimize):
+        global optimize
+        optimize = should_optimize 
+        anchor_base.AnchorBaseBeam.set_optimize(should_optimize)
+        
 
     def get_sample_fn(self, text, classifier_fn, onepass=False, use_proba=False):
         true_label = classifier_fn([text])[0]

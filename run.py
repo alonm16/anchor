@@ -42,28 +42,29 @@ review_parser, label_parser, ds_train, ds_val, _ = create_sentiment_dataset()
 
 
 model = load_model('gru' , f'transformer/{dataset_name}/gru.pt', review_parser)
+model = torch.jit.script(model)
 
 
 # In[7]:
 
+spacy_tokenizer = spacy.load("en_core_web_sm")
 
 # 1 = pad 2=sos 3 = eos
 def tokenize(text, max_len):
-    sentence = review_parser.tokenize(str(text))
-    input_tokens = [2] + [review_parser.vocab.stoi[word] for word in sentence] + [3] + [1]*(max_len-len(sentence))
+    sentence = spacy_tokenizer.tokenizer(text)
+    input_tokens = [2] + [review_parser.vocab.stoi[word.text] for word in sentence] + [3] + [1]*(max_len-len(sentence))
 
     return input_tokens
 
 
 # In[8]:
 
-
 def predict_sentences(sentences):
     half_length = len(sentences)//2
     if(half_length>100):
         return np.concatenate([predict_sentences(sentences[:half_length]), predict_sentences(sentences[half_length:])])
     max_len = max([len(sentence) for sentence in sentences])
-    sentences = torch.tensor([tokenize(sentence, max_len) for sentence in sentences]).to(device)
+    sentences = torch.tensor([tokenize(sentence, max_len) for sentence in sentences], device=device)
     input_tokens = torch.transpose(sentences, 0, 1)
     output = model(input_tokens)
 
@@ -95,12 +96,6 @@ test, test_labels = [' '.join(example.text) for example in ds_train], [example.l
 
 
 anchor_examples = [example for example in train if len(example) < 90 and len(example)>20]
-
-
-# In[13]:
-
-
-len(anchor_examples)
 
 
 # In[13]:
@@ -144,20 +139,23 @@ ignored = get_ignored(anchor_examples)
 # In[14]:
 
 
-#ignored = []
-
-
-# In[17]:
-
-
-print(datetime.datetime.now())
+ignored = []
 
 
 # In[ ]:
+print(datetime.datetime.now())
 
-
-my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, ignored,f"{dataset_name}/profile.pickle")
-explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
+def set_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    
+my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, ignored,f"profile.pickle", optimize = True)
+set_seed()
+my_utils.compute_explanations(list(range(len(anchor_examples))))
 
 
 # In[ ]:

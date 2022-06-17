@@ -6,6 +6,8 @@ import copy
 import sklearn
 import collections
 
+optimize = False
+
 
 def matrix_subset(matrix, n_samples):
     if matrix.shape[0] == 0:
@@ -13,7 +15,6 @@ def matrix_subset(matrix, n_samples):
     n_samples = min(matrix.shape[0], n_samples)
     return matrix[np.random.choice(matrix.shape[0], n_samples, replace=False)]
 
-optimize = True 
 
 class AnchorBaseBeam(object):
     # TODO: added static members
@@ -22,6 +23,12 @@ class AnchorBaseBeam(object):
     
     def __init__(self):
         pass
+    
+    @staticmethod       
+    def set_optimize(should_optimize):
+        global optimize
+        optimize = should_optimize 
+
 
     @staticmethod
     def kl_bernoulli(p, q):
