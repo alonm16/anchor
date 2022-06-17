@@ -28,13 +28,16 @@ class ExtendedExplanation:
 # utils for the MODIFIED anchor algorithm
 class TextUtils:
     
-    def __init__(self, dataset, test, explainer, predict_fn, ignored , result_path = 'results/text_exps_bert.pickle'):
+    
+    def __init__(self, dataset, test, explainer, predict_fn, ignored, result_path = 'results/text_exps_bert.pickle', optimize = False):
         self.dataset = dataset
         self.explainer = explainer
         self.predict_fn = predict_fn
         self.test = test
         self.path = result_path
         self.ignored = ignored
+        
+        explainer.set_optimize(optimize)
 
     def get_exp(self,idx):
         return self.explainer.explain_instance(self.dataset[idx], self.predict_fn, self.ignored, threshold=0.95, verbose=False, onepass=True)

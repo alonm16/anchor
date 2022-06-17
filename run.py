@@ -42,15 +42,18 @@ review_parser, label_parser, ds_train, ds_val, _ = create_sentiment_dataset()
 
 
 model = load_model('gru' , f'transformer/{dataset_name}/gru.pt', review_parser)
+model = torch.jit.script(model)
 
 
 # In[7]:
 
+import spacy
+spacy = spacy.load("en_core_web_sm")
 
 # 1 = pad 2=sos 3 = eos
 def tokenize(text, max_len):
-    sentence = review_parser.tokenize(str(text))
-    input_tokens = [2] + [review_parser.vocab.stoi[word] for word in sentence] + [3] + [1]*(max_len-len(sentence))
+    sentence = spacy.tokenizer(text)
+    input_tokens = [2] + [review_parser.vocab.stoi[word.text] for word in sentence] + [3] + [1]*(max_len-len(sentence))
 
     return input_tokens
 
@@ -100,12 +103,6 @@ anchor_examples = [example for example in train if len(example) < 90 and len(exa
 # In[13]:
 
 
-len(anchor_examples)
-
-
-# In[13]:
-
-
 from collections import Counter, defaultdict
 from nltk.corpus import stopwords
 def get_ignored(anchor_sentences):
@@ -144,20 +141,16 @@ ignored = get_ignored(anchor_examples)
 # In[14]:
 
 
-#ignored = []
-
-
-# In[17]:
-
-
-print(datetime.datetime.now())
+ignored = []
 
 
 # In[ ]:
+print(datetime.datetime.now())
 
 
-my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, ignored,f"{dataset_name}/profile.pickle")
-explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
+my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, ignored,f"profile.pickle", optimize = True)
+set_seed()
+%prun -s cumtime -T profile.txt my_utils.compute_explanations(list(range(len(anchor_examples))))
 
 
 # In[ ]:
