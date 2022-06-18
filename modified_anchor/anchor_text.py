@@ -33,21 +33,18 @@ class TextGenerator(object):
         if url is None:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             self.bert_tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-cased')
-            self.bert = DistilBertForMaskedLM.from_pretrained('distilbert-base-cased', torchscript=True)
-            self.bert.to(self.device)
-            self.bert.eval()
             if optimize:
-                x = torch.tensor([[101, 103, 119, 119, 119, 170, 171, 1931, 3513, 118, 1113, 118, 3314,                     11078, 6540, 1200, 119, 102]]).to(self.device)
-                self.bert = torch.jit.trace(self.bert, x)
+                self.bert = torch.jit.load('DistilBertForMaskedLM.pt').to(self.device)
+            else:
+                self.bert = DistilBertForMaskedLM.from_pretrained('distilbert-base-cased', torchscript=True)
+                self.bert.to(self.device)
+                self.bert.eval()
             
-            
-
     def unmask(self, text_with_mask):
-        tokenizer = self.bert_tokenizer   
+        tokenizer = self.bert_tokenizer 
         model = self.bert
         encoded = np.array(tokenizer.encode(text_with_mask, add_special_tokens=True))
-        input_ids = torch.tensor(encoded)
-        masked = (input_ids == self.bert_tokenizer.mask_token_id).numpy().nonzero()[0]
+        masked = (encoded == self.bert_tokenizer.mask_token_id).nonzero()[0]
         to_pred = torch.tensor([encoded], device=self.device)
         with torch.no_grad():
             outputs = model(to_pred)[0]

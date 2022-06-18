@@ -16,6 +16,7 @@ from myUtils import *
 from transformer.utils import *
 from dataset.dataset_loader import *
 import datetime
+import re
 
 SEED = 84
 torch.manual_seed(SEED)
@@ -87,10 +88,8 @@ explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distri
 
 # In[11]:
 
-
-train, train_labels = [' '.join(example.text) for example in ds_train], [example.label for example in ds_train]
-test, test_labels = [' '.join(example.text) for example in ds_train], [example.label for example in ds_train]
-
+train, train_labels = [re.sub('\s+',' ',' '.join(example.text)) for example in ds_train], [example.label for example in ds_train]
+test, test_labels = [re.sub('\s+',' ',' '.join(example.text)) for example in ds_train], [example.label for example in ds_train]
 
 # In[12]:
 
