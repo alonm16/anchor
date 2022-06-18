@@ -11,6 +11,7 @@ sentiment/extended_exps.pickle
 sentiment/profile.pickle
 sentiment/extended_profile.pickle
 profile.pickle
+DistilBertForMaskedLM.pt
 
 
 # Created by https://www.gitignore.io/api/python,pycharm,windows,osx,linux
