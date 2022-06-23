@@ -103,28 +103,18 @@ anchor_examples = [example for example in train if len(example) < 90 and len(exa
 from collections import Counter, defaultdict
 from nltk.corpus import stopwords
 def get_ignored(anchor_sentences):
-    sentences = [[x.text for x in nlp(sentence)] for sentence in anchor_sentences]
-    min_occurence = 1
-    c = Counter()
-    stop_words = list(".,- \'\"\s[]?():!;")
+    stop_words = list(".,- \'\"\s\t[]?():!;")
     stop_words.extend(["--", "'s", 'sos', 'eos'])
     stop_words.extend(stopwords.words('english'))
-    """
-    for sentence in sentences:
-        c.update(sentence)
-    sums = 0
-    for ignore_s in stop_words:
-        sums+=c[ignore_s]
-        del c[ignore_s]
-    print(sums)
-    ignored_anchors = stop_words
-    for key in c.keys():
-        if c[key]<=min_occurence:
-            ignored_anchors.append(key)
-    print(len(c.keys()))
-    return ignored_anchors
-    """
-    return stop_words
+    
+    def get_below_occurences(sentences):
+        min_value = 1
+        c = Counter()
+        for sentence in sentences:
+            c.update(review_parser.tokenize(sentence))
+        return set(w for w in c if c[w]<=min_value)
+
+    return set(stop_words).union(get_below_occurences(anchor_sentences))
 
 
 # In[14]:
@@ -138,7 +128,7 @@ ignored = get_ignored(anchor_examples)
 # In[14]:
 
 
-ignored = []
+#ignored = []
 
 
 # In[ ]:
@@ -154,7 +144,9 @@ def set_seed(seed=42):
     
 my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, ignored,f"profile.pickle", optimize = True)
 set_seed()
-my_utils.compute_explanations(list(range(len(anchor_examples))))
+explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
+
+pickle.dump( explanations, open( f"{dataset_name}/profile_list.pickle", "wb"))
 
 
 # In[ ]:
