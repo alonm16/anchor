@@ -36,7 +36,7 @@ print(device)
 
 # can be sentiment/spam/offensive
 dataset_name = 'sentiment'
-review_parser, label_parser, ds_train, ds_val, _ = create_sentiment_dataset()
+review_parser, label_parser, ds_train, ds_val,_ = sentiment_dataset()
 
 
 # In[6]:
@@ -103,7 +103,7 @@ anchor_examples = [example for example in train if len(example) < 90 and len(exa
 from collections import Counter, defaultdict
 from nltk.corpus import stopwords
 def get_ignored(anchor_sentences):
-    stop_words = list(".,- \'\"\s\t[]?():!;")
+    stop_words = list(".,#&- \'\"\s\t[]?():!;")
     stop_words.extend(["--", "'s", 'sos', 'eos'])
     stop_words.extend(stopwords.words('english'))
     
