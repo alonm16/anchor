@@ -88,8 +88,8 @@ explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distri
 
 # In[11]:
 
-train, train_labels = [re.sub('\s+',' ',' '.join(example.text)) for example in ds_train], [example.label for example in ds_train]
-test, test_labels = [re.sub('\s+',' ',' '.join(example.text)) for example in ds_train], [example.label for example in ds_train]
+train, train_labels = [re.sub('\s+',' ',' '.join(example.text).strip()) for example in ds_train], [example.label for example in ds_train]
+test, test_labels = [re.sub('\s+',' ',' '.join(example.text).strip()) for example in ds_train], [example.label for example in ds_train]
 
 # In[12]:
 
@@ -128,7 +128,7 @@ ignored = get_ignored(anchor_examples)
 # In[14]:
 
 
-#ignored = []
+ignored = []
 
 
 # In[ ]:
@@ -141,6 +141,10 @@ def set_seed(seed=42):
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+    
+pickle.dump( test, open(f"{dataset_name}/test.pickle", "wb" ))
+pickle.dump( test_labels, open( f"{dataset_name}/test_labels.pickle", "wb" ))
+pickle.dump( anchor_examples, open( f"{dataset_name}/anchor_examples.pickle", "wb" ))
     
 my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, ignored,f"profile.pickle", optimize = True)
 set_seed()
