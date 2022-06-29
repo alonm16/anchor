@@ -20,6 +20,7 @@ class AnchorBaseBeam(object):
     # TODO: added static members
     words = None
     ignored = None
+    best_group = None
     
     def __init__(self):
         pass
@@ -133,7 +134,7 @@ class AnchorBaseBeam(object):
         labels = state['labels'][:current_idx]
         if len(previous_best) == 0:
             # TODO added if not in ignored
-            tuples = [(x, ) for x in all_features if AnchorBaseBeam.words[x] not in AnchorBaseBeam.ignored]
+            tuples = [(x, ) for x in all_features if (AnchorBaseBeam.words[x] not in AnchorBaseBeam.ignored) and AnchorBaseBeam.best_group.should_calculate(AnchorBaseBeam.words[x])]
             for x in tuples:
                 pres = data[:, x[0]].nonzero()[0]
                 # NEW
@@ -398,7 +399,11 @@ class AnchorBaseBeam(object):
 
                 #Todo
                 final_tuples.append(t)
-
+                
+                #TODO for lossy optimization
+                if mean >= desired_confidence:
+                    AnchorBaseBeam.best_group.update(AnchorBaseBeam.words[t[0]])
+            
                 if verbose:
                     print('%s mean = %.2f lb = %.2f ub = %.2f coverage: %.2f n: %d' % (t, mean, lb, ub, coverage, state['t_nsamples'][t]))
                 if mean >= desired_confidence and lb > desired_confidence - epsilon_stop:

@@ -82,7 +82,7 @@ nlp = spacy.load('en_core_web_sm')
 
 # In[10]:
 
-
+anchor_text.AnchorText.set_optimize(True)
 explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False)
 
 
@@ -131,6 +131,69 @@ ignored = get_ignored(anchor_examples)
 ignored = []
 
 
+from collections import Counter, defaultdict
+def get_occurences(sentences):
+    c = Counter()
+    for sentence in sentences:
+        c.update([x.text for x in nlp.tokenizer(sentence)])
+        
+    return c
+
+normal_occurences = get_occurences(anchor_examples)
+
+class BestGroup:
+    def __init__(self, occurences):
+        self.occurences_left = occurences
+        self.best = defaultdict(int)
+        self.all = defaultdict(int)
+        self.min_val = 0
+        self.min_name = None
+        self.full = False
+        self.factor = 0.75
+    
+    def update(self, anchor):
+        self.occurences_left[anchor]-=1
+        
+        self.all[anchor]+=1
+        
+        if anchor in self.best:
+            self.best[anchor]+=1
+            if anchor == self.min_name:
+                self._update_min(anchor, self.best[anchor])
+        elif not self.full:
+            self.best[anchor] = self.all[anchor]
+            
+            if len(self.best)==50:
+                self.full = True
+                self._update_min(anchor, self.best[anchor])
+        # in case anchor with equal value was outside the best
+        elif self.all[anchor] > self.min_val:
+            if self.min_name is not None:
+                del self.best[self.min_name]
+            self.best[anchor] = self.all[anchor]
+            self._update_min(anchor, self.best[anchor]) 
+            
+    def _update_min(self, candid_name, candid_val):
+        for anchor, value in self.best.items():
+            if value < candid_val:
+                candid_name, candid_val = anchor, value
+                break
+                
+        self.min_name = candid_name
+        self.min_val = candid_val
+    
+    def should_calculate(self, anchor):
+        b = (self.all[anchor]+self.occurences_left[anchor]) >= self.min_val*self.factor
+        if not b:
+            print('hi')
+        return b
+        
+        
+from modified_anchor import anchor_base
+anchor_base.AnchorBaseBeam.best_group = BestGroup(normal_occurences)
+
+
+
 # In[ ]:
 print(datetime.datetime.now())
 
@@ -142,9 +205,9 @@ def set_seed(seed=42):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
     
-pickle.dump( test, open(f"{dataset_name}/test.pickle", "wb" ))
-pickle.dump( test_labels, open( f"{dataset_name}/test_labels.pickle", "wb" ))
-pickle.dump( anchor_examples, open( f"{dataset_name}/anchor_examples.pickle", "wb" ))
+# pickle.dump( test, open(f"{dataset_name}/test.pickle", "wb" ))
+# pickle.dump( test_labels, open( f"{dataset_name}/test_labels.pickle", "wb" ))
+# pickle.dump( anchor_examples, open( f"{dataset_name}/anchor_examples.pickle", "wb" ))
     
 my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, ignored,f"profile.pickle", optimize = True)
 set_seed()
