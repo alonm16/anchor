@@ -119,15 +119,15 @@ def sentiment_dataset(path='dataset/sentiment-sentences'):
     
     review_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=5)
     
-    return review_parser, label_parser, ds_train, ds_val, ds_test
+    return review_parser, label_parser, ds_train, ds_val
 
 def not_finished_create_sentiment_dataset(path='dataset/sentiment-sentences'):
     def collate_batch(batch):
         label_list, text_list = [], []
         for (_text, _label) in batch:
-             label_list.append(_label)
-             processed_text = torch.tensor(text_pipeline(_text), dtype=torch.int64)
-             text_list.append(processed_text)
+            label_list.append(_label)
+            processed_text = torch.tensor(text_pipeline(_text), dtype=torch.int64)
+            text_list.append(processed_text)
         label_list = torch.tensor(label_list, dtype=torch.int64)
         text_list = torch.stack(text_list)
         return  text_list.to(device), label_list.to(device)
@@ -332,3 +332,18 @@ def offensive_dataset(path='dataset/offensive.csv'):
     review_parser, label_parser = build_vocabulary(text_field, label_field, ds_for_parser, min_freq=3)
     
     return review_parser, label_parser, ds_train, ds_val
+
+
+def get_dataset(ds_name):
+    ds_dict = {"sentiment":sentiment_dataset,
+               "offensive":offensive_dataset,
+               "spam": spam_dataset}
+    return ds_dict[ds_name]()
+
+def preprocess_examples(ds_train):
+    train =  [re.sub('\s+',' ',' '.join(example.text).strip()) for example in ds_train]
+    train_labels =  [example.label for example in ds_train]
+    test, test_labels = train, train_labels
+    anchor_examples = [example for example in train if len(example) < 90 and len(example)>20]
+    
+    return train, train_labels, test, test_labels, anchor_examples

@@ -1,6 +1,113 @@
 import numpy as np
 import pickle
 import pandas as pd
+import torch
+import spacy
+import numpy as np
+import random
+
+model = None
+text_parser = None
+nlp = spacy.load('en_core_web_sm')
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+
+def set_seed(seed=42):
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+# 1 = pad 2=sos 3 = eos
+def tokenize(text, max_len):
+    sentence = nlp.tokenizer(text)
+    input_tokens = [2] + [text_parser.vocab.stoi[word.text] for word in sentence] + [3] + [1]*(max_len-len(sentence))
+
+    return input_tokens
+
+def predict_sentences(sentences):
+    half_length = len(sentences)//2
+    if(half_length>100):
+        return np.concatenate([predict_sentences(sentences[:half_length]), predict_sentences(sentences[half_length:])])
+    max_len = max([len(sentence) for sentence in sentences])
+    sentences = torch.tensor([tokenize(sentence, max_len) for sentence in sentences], device=device)
+    input_tokens = torch.transpose(sentences, 0, 1)
+    output = model(input_tokens)
+
+    return torch.argmax(output, dim=1).cpu().numpy()
+
+from collections import Counter, defaultdict
+from nltk.corpus import stopwords
+def get_ignored(anchor_sentences):
+    stop_words = list(".,#&- \'\"\s\t[]?():!;")
+    stop_words.extend(["--", "'s", 'sos', 'eos'])
+    stop_words.extend(stopwords.words('english'))
+    
+    def get_below_occurences(sentences):
+        min_value = 1
+        c = Counter()
+        for sentence in sentences:
+            c.update(text_parser.tokenize(sentence))
+        return set(w for w in c if c[w]<=min_value)
+
+    return set(stop_words).union(get_below_occurences(anchor_sentences))
+
+def get_occurences(sentences):
+    c = Counter()
+    for sentence in sentences:
+        c.update([x.text for x in nlp.tokenizer(sentence)])
+        
+    return c
+
+class BestGroup:
+    def __init__(self, occurences):
+        self.occurences_left = occurences
+        self.best = defaultdict(int)
+        self.all = defaultdict(int)
+        self.normal = defaultdict(int)
+        self.min_val = 0
+        self.min_name = None
+        self.full = False
+        self.factor = 0.75
+        self.normal_factor = 0.1
+    
+    def update(self, anchor):
+        self.occurences_left[anchor]-=1
+        
+        self.all[anchor]+=1
+        
+        if anchor in self.best:
+            self.best[anchor]+=1
+            if anchor == self.min_name:
+                self._update_min(anchor, self.best[anchor])
+        elif not self.full:
+            self.best[anchor] = self.all[anchor]
+            
+            if len(self.best)==50:
+                self.full = True
+                self._update_min(anchor, self.best[anchor])
+        # in case anchor with equal value was outside the best
+        elif self.all[anchor] > self.min_val:
+            del self.best[self.min_name]
+            self.best[anchor] = self.all[anchor]
+            self._update_min(anchor, self.best[anchor]) 
+            
+    def _update_min(self, candid_name, candid_val):
+        for anchor, value in self.best.items():
+            if value < candid_val:
+                candid_name, candid_val = anchor, value
+                break
+                
+        self.min_name = candid_name
+        self.min_val = candid_val
+    
+    def should_calculate(self, anchor):
+        return (self.all[anchor]+self.occurences_left[anchor] - self.normal_factor*self.normal[anchor]) >= self.min_val*self.factor
+        
+
+    
 
 class MyExplanation:
     def __init__(self, index, fit_examples, test_cov, exp):
@@ -27,9 +134,7 @@ class ExtendedExplanation:
     
 # utils for the MODIFIED anchor algorithm
 class TextUtils:
-    
-    
-    def __init__(self, dataset, test, explainer, predict_fn, ignored, result_path = 'results/text_exps_bert.pickle', optimize = False):
+    def __init__(self, dataset, test, explainer, predict_fn, ignored, result_path, optimize = False):
         self.dataset = dataset
         self.explainer = explainer
         self.predict_fn = predict_fn

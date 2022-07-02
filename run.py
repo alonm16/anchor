@@ -1,210 +1,82 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# ## The modified algorithm returns the score for each word in the sentence instead of the best one, has option to ignore specific words like stop words of characters. in this notebook summing the scores bigger than the threshold (0.95) and dividing by the number of occurences. 
-
-# In[3]:
+# In[1]:
 
 
 # Setup
-import matplotlib.pyplot as plt
 import warnings
 import spacy
 from modified_anchor import anchor_text
 import pickle
+import myUtils
 from myUtils import *
 from transformer.utils import *
 from dataset.dataset_loader import *
 import datetime
-import re
+get_ipython().run_line_magic('load_ext', 'line_profiler')
 
 SEED = 84
 torch.manual_seed(SEED)
 warnings.simplefilter("ignore")
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
+
+# In[2]:
+
+
+# can be sentiment/spam/offensive
+dataset_name = 'sentiment'
+text_parser, label_parser, ds_train, ds_val = get_dataset(dataset_name)
+
+
+# In[3]:
+
+
+model = load_model('gru' , f'transformer/{dataset_name}/gru.pt', text_parser)
+myUtils.model = torch.jit.script(model)
+myUtils.text_parser = text_parser
 
 
 # In[4]:
 
 
-plt.rcParams['font.size'] = 20
-device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-print(device)
+nlp = spacy.load('en_core_web_sm')
 
 
 # In[5]:
 
 
-# can be sentiment/spam/offensive
-dataset_name = 'sentiment'
-review_parser, label_parser, ds_train, ds_val,_ = sentiment_dataset()
+train, train_labels, test, test_labels, anchor_examples = preprocess_examples(ds_train)
 
 
 # In[6]:
 
 
-model = load_model('gru' , f'transformer/{dataset_name}/gru.pt', review_parser)
-model = torch.jit.script(model)
-
-
-# In[7]:
-
-spacy_tokenizer = spacy.load("en_core_web_sm")
-
-# 1 = pad 2=sos 3 = eos
-def tokenize(text, max_len):
-    sentence = spacy_tokenizer.tokenizer(text)
-    input_tokens = [2] + [review_parser.vocab.stoi[word.text] for word in sentence] + [3] + [1]*(max_len-len(sentence))
-
-    return input_tokens
-
-
-# In[8]:
-
-def predict_sentences(sentences):
-    half_length = len(sentences)//2
-    if(half_length>100):
-        return np.concatenate([predict_sentences(sentences[:half_length]), predict_sentences(sentences[half_length:])])
-    max_len = max([len(sentence) for sentence in sentences])
-    sentences = torch.tensor([tokenize(sentence, max_len) for sentence in sentences], device=device)
-    input_tokens = torch.transpose(sentences, 0, 1)
-    output = model(input_tokens)
-
-    return torch.argmax(output, dim=1).cpu().numpy()
-
-
-# # Anchor Part
-
-# In[9]:
-
-
-nlp = spacy.load('en_core_web_sm')
-
-
-# In[10]:
-
-anchor_text.AnchorText.set_optimize(True)
-explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False)
-
-
-# In[11]:
-
-train, train_labels = [re.sub('\s+',' ',' '.join(example.text).strip()) for example in ds_train], [example.label for example in ds_train]
-test, test_labels = [re.sub('\s+',' ',' '.join(example.text).strip()) for example in ds_train], [example.label for example in ds_train]
-
-# In[12]:
-
-
-anchor_examples = [example for example in train if len(example) < 90 and len(example)>20]
-
-
-# In[13]:
-
-
-from collections import Counter, defaultdict
-from nltk.corpus import stopwords
-def get_ignored(anchor_sentences):
-    stop_words = list(".,#&- \'\"\s\t[]?():!;")
-    stop_words.extend(["--", "'s", 'sos', 'eos'])
-    stop_words.extend(stopwords.words('english'))
-    
-    def get_below_occurences(sentences):
-        min_value = 1
-        c = Counter()
-        for sentence in sentences:
-            c.update(review_parser.tokenize(sentence))
-        return set(w for w in c if c[w]<=min_value)
-
-    return set(stop_words).union(get_below_occurences(anchor_sentences))
-
-
-# In[14]:
-
-
 ignored = get_ignored(anchor_examples)
-
-
-# ## notice!
-
-# In[14]:
-
-
-ignored = []
-
-
-from collections import Counter, defaultdict
-def get_occurences(sentences):
-    c = Counter()
-    for sentence in sentences:
-        c.update([x.text for x in nlp.tokenizer(sentence)])
-        
-    return c
-
 normal_occurences = get_occurences(anchor_examples)
-
-class BestGroup:
-    def __init__(self, occurences):
-        self.occurences_left = occurences
-        self.best = defaultdict(int)
-        self.all = defaultdict(int)
-        self.min_val = 0
-        self.min_name = None
-        self.full = False
-        self.factor = 0.75
-    
-    def update(self, anchor):
-        self.occurences_left[anchor]-=1
-        
-        self.all[anchor]+=1
-        
-        if anchor in self.best:
-            self.best[anchor]+=1
-            if anchor == self.min_name:
-                self._update_min(anchor, self.best[anchor])
-        elif not self.full:
-            self.best[anchor] = self.all[anchor]
-            
-            if len(self.best)==50:
-                self.full = True
-                self._update_min(anchor, self.best[anchor])
-        # in case anchor with equal value was outside the best
-        elif self.all[anchor] > self.min_val:
-            if self.min_name is not None:
-                del self.best[self.min_name]
-            self.best[anchor] = self.all[anchor]
-            self._update_min(anchor, self.best[anchor]) 
-            
-    def _update_min(self, candid_name, candid_val):
-        for anchor, value in self.best.items():
-            if value < candid_val:
-                candid_name, candid_val = anchor, value
-                break
-                
-        self.min_name = candid_name
-        self.min_val = candid_val
-    
-    def should_calculate(self, anchor):
-        b = (self.all[anchor]+self.occurences_left[anchor]) >= self.min_val*self.factor
-        if not b:
-            print('hi')
-        return b
-        
-        
 from modified_anchor import anchor_base
 anchor_base.AnchorBaseBeam.best_group = BestGroup(normal_occurences)
 
 
+# ## notice!
 
-# In[ ]:
-print(datetime.datetime.now())
+# In[7]:
 
-def set_seed(seed=42):
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-    torch.cuda.manual_seed_all(seed)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
-    
+
+ignored = []
+
+# In[10]:
+
+
+optimize = True
+anchor_text.AnchorText.set_optimize(optimize)
+explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False)
+
+
+# In[16]:
+
+
 # pickle.dump( test, open(f"{dataset_name}/test.pickle", "wb" ))
 # pickle.dump( test_labels, open( f"{dataset_name}/test_labels.pickle", "wb" ))
 # pickle.dump( anchor_examples, open( f"{dataset_name}/anchor_examples.pickle", "wb" ))
