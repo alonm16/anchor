@@ -80,7 +80,7 @@ def create_binary_dataset():
     return review_parser, label_parser, ds_train, ds_valid, ds_test
 
 
-def create_sentiment_dataset(path='dataset/sentiment-sentences'):
+def sentiment_dataset(path='dataset/sentiment-sentences'):
 
     text_field = torchtext.legacy.data.Field(
         sequential=True, use_vocab=True, lower=True, dtype=torch.long,
@@ -119,15 +119,15 @@ def create_sentiment_dataset(path='dataset/sentiment-sentences'):
     
     review_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=5)
     
-    return review_parser, label_parser, ds_train, ds_val, ds_test
+    return review_parser, label_parser, ds_train, ds_val
 
 def not_finished_create_sentiment_dataset(path='dataset/sentiment-sentences'):
     def collate_batch(batch):
         label_list, text_list = [], []
         for (_text, _label) in batch:
-             label_list.append(_label)
-             processed_text = torch.tensor(text_pipeline(_text), dtype=torch.int64)
-             text_list.append(processed_text)
+            label_list.append(_label)
+            processed_text = torch.tensor(text_pipeline(_text), dtype=torch.int64)
+            text_list.append(processed_text)
         label_list = torch.tensor(label_list, dtype=torch.int64)
         text_list = torch.stack(text_list)
         return  text_list.to(device), label_list.to(device)
@@ -263,7 +263,7 @@ def spam_dataset(path='dataset/spam.csv'):
     
     return review_parser, label_parser, ds_train, ds_val
 
-def offensive_preprocess(text_string):
+def twitter_preprocess(text_string):
     """
     Accepts a text string and replaces:
     1) urls with URLHERE
@@ -277,9 +277,11 @@ def offensive_preprocess(text_string):
     giant_url_regex = ('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|'
         '[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
     mention_regex = '@[\w\-]+'
-    parsed_text = re.sub(space_pattern, ' ', text_string)
+    parsed_text = re.sub('#', '', text_string)
+    parsed_text = re.sub(space_pattern, ' ', parsed_text)
     parsed_text = re.sub(giant_url_regex, '', parsed_text)
     parsed_text = re.sub(mention_regex, '', parsed_text)
+   
     return parsed_text
 
 def offensive_dataset(path='dataset/offensive.csv'):
@@ -296,13 +298,13 @@ def offensive_dataset(path='dataset/offensive.csv'):
 
     fields = [('text', text_field), ('label', label_field)]
     
-    df = pd.read_csv(path).drop(columns=['Unnamed: 0', 'count'])
+    df = pd.read_csv(path, encoding = 'latin-1').drop(columns=['Unnamed: 0', 'count'])
     
     offensive =[]
     not_offensive = []
 
     for index, row in df.iterrows():
-        tweet = offensive_preprocess(row['tweet'])
+        tweet = twitter_preprocess(row['tweet'])
         if row['class'] == 1:
             target = 'positive'
             offensive.append(data.Example.fromlist([tweet, target], fields))
@@ -332,3 +334,63 @@ def offensive_dataset(path='dataset/offensive.csv'):
     review_parser, label_parser = build_vocabulary(text_field, label_field, ds_for_parser, min_freq=3)
     
     return review_parser, label_parser, ds_train, ds_val
+
+def corona_tweet_dataset(path='dataset/corona_train.csv'):
+
+    text_field = torchtext.legacy.data.Field(
+        sequential=True, use_vocab=True, lower=True, dtype=torch.long,
+        tokenize='spacy', tokenizer_language='en_core_web_sm', init_token='sos', eos_token='eos')
+
+    # This Field object converts the text labels into numeric values (0,1,2)
+    label_field = torchtext.legacy.data.Field(
+        is_target=True, sequential=False, unk_token=None, use_vocab=True)
+
+    fields = [('text', text_field), ('label', label_field)]
+
+    df = pd.read_csv(path, encoding='latin-1')
+    df = df[['OriginalTweet', 'Sentiment']]
+    positive =[]
+    negative = []
+
+    for index, row in df.iterrows():
+        tweet = twitter_preprocess(row['OriginalTweet'])
+        if row['Sentiment'] == 'Extremely Positive' or row['Sentiment'] == 'Positive':
+            target = 'positive'
+            positive.append(data.Example.fromlist([tweet, target], fields))
+        elif row['Sentiment'] == 'Extremely Negative' or row['Sentiment'] == 'Negative':
+            target = 'negative'
+            negative.append(data.Example.fromlist([tweet, target], fields))
+
+    random.seed(10)
+    random.shuffle(positive)
+    random.shuffle(negative)
+    print(len(positive))
+    print(len(negative))
+
+    train_examples = positive[:7000]
+    train_examples.extend(negative[:7000])
+    random.shuffle(train_examples)
+    val_examples = positive[7000:10000]
+    val_examples.extend(negative[7000:10000])
+    random.shuffle(val_examples)
+    ds_train = data.Dataset(examples=train_examples, fields=fields)
+    ds_val = data.Dataset(examples=val_examples, fields=fields)
+
+    text_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=3)
+
+    return text_parser, label_parser, ds_train, ds_val
+
+
+def get_dataset(ds_name):
+    ds_dict = {"sentiment":sentiment_dataset,
+               "offensive":offensive_dataset,
+               "spam": spam_dataset}
+    return ds_dict[ds_name]()
+
+def preprocess_examples(ds_train):
+    train =  [re.sub('\s+',' ',' '.join(example.text).strip()) for example in ds_train]
+    train_labels =  [example.label for example in ds_train]
+    test, test_labels = train, train_labels
+    anchor_examples = [example for example in train if len(example) < 90 and len(example)>20]
+    
+    return train, train_labels, test, test_labels, anchor_examples

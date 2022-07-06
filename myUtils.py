@@ -22,7 +22,7 @@ def set_seed(seed=42):
 
 # 1 = pad 2=sos 3 = eos
 def tokenize(text, max_len):
-    sentence = nlp.tokenizer(text)
+    sentence = nlp.tokenizer(str(text))
     input_tokens = [2] + [text_parser.vocab.stoi[word.text] for word in sentence] + [3] + [1]*(max_len-len(sentence))
 
     return input_tokens

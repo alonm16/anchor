@@ -7,14 +7,13 @@
 # Setup
 import warnings
 import spacy
-from modified_anchor import anchor_text
+from modified_anchor import anchor_text, anchor_base
 import pickle
 import myUtils
 from myUtils import *
 from transformer.utils import *
 from dataset.dataset_loader import *
 import datetime
-get_ipython().run_line_magic('load_ext', 'line_profiler')
 
 SEED = 84
 torch.manual_seed(SEED)
@@ -26,7 +25,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 # can be sentiment/spam/offensive
-dataset_name = 'sentiment'
+dataset_name = 'offensive'
 text_parser, label_parser, ds_train, ds_val = get_dataset(dataset_name)
 
 
@@ -55,7 +54,6 @@ train, train_labels, test, test_labels, anchor_examples = preprocess_examples(ds
 
 ignored = get_ignored(anchor_examples)
 normal_occurences = get_occurences(anchor_examples)
-from modified_anchor import anchor_base
 anchor_base.AnchorBaseBeam.best_group = BestGroup(normal_occurences)
 
 
