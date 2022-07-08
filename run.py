@@ -22,17 +22,18 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 # In[2]:
-
+examples_max_length = 150
+dont_ignore = False
 
 # can be sentiment/spam/offensive
-dataset_name = 'offensive'
-text_parser, label_parser, ds_train, ds_val = get_dataset(dataset_name)
+dataset_name = 'corona-lossy'
+text_parser, label_parser, ds_train, ds_val = get_dataset('corona')
 
 
 # In[3]:
 
 
-model = load_model('gru' , f'transformer/{dataset_name}/gru.pt', text_parser)
+model = load_model('gru' , f'transformer/corona/gru.pt', text_parser)
 myUtils.model = torch.jit.script(model)
 myUtils.text_parser = text_parser
 
@@ -46,7 +47,7 @@ nlp = spacy.load('en_core_web_sm')
 # In[5]:
 
 
-train, train_labels, test, test_labels, anchor_examples = preprocess_examples(ds_train)
+train, train_labels, test, test_labels, anchor_examples = preprocess_examples(ds_train, examples_max_length)
 
 
 # In[6]:
@@ -61,11 +62,13 @@ anchor_base.AnchorBaseBeam.best_group = BestGroup(normal_occurences)
 
 # In[7]:
 
+if dont_ignore:
+    ignored = []
 
-ignored = []
 
 # In[10]:
-
+print(dataset_name)
+print(datetime.datetime.now())
 
 optimize = True
 anchor_text.AnchorText.set_optimize(optimize)
@@ -75,9 +78,9 @@ explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distri
 # In[16]:
 
 
-# pickle.dump( test, open(f"{dataset_name}/test.pickle", "wb" ))
-# pickle.dump( test_labels, open( f"{dataset_name}/test_labels.pickle", "wb" ))
-# pickle.dump( anchor_examples, open( f"{dataset_name}/anchor_examples.pickle", "wb" ))
+pickle.dump( test, open(f"{dataset_name}/test.pickle", "wb" ))
+pickle.dump( test_labels, open( f"{dataset_name}/test_labels.pickle", "wb" ))
+pickle.dump( anchor_examples, open( f"{dataset_name}/anchor_examples.pickle", "wb" ))
     
 my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, ignored,f"profile.pickle", optimize = True)
 set_seed()

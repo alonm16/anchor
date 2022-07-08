@@ -335,7 +335,7 @@ def offensive_dataset(path='dataset/offensive.csv'):
     
     return review_parser, label_parser, ds_train, ds_val
 
-def corona_tweet_dataset(path='dataset/corona_train.csv'):
+def corona_twitt_dataset(path='dataset/corona_train.csv'):
 
     text_field = torchtext.legacy.data.Field(
         sequential=True, use_vocab=True, lower=True, dtype=torch.long,
@@ -384,13 +384,15 @@ def corona_tweet_dataset(path='dataset/corona_train.csv'):
 def get_dataset(ds_name):
     ds_dict = {"sentiment":sentiment_dataset,
                "offensive":offensive_dataset,
-               "spam": spam_dataset}
+               "spam": spam_dataset,
+               "corona": corona_twitt_dataset
+              }
     return ds_dict[ds_name]()
 
-def preprocess_examples(ds_train):
+def preprocess_examples(ds_train, max_example_len = 90):
     train =  [re.sub('\s+',' ',' '.join(example.text).strip()) for example in ds_train]
     train_labels =  [example.label for example in ds_train]
     test, test_labels = train, train_labels
-    anchor_examples = [example for example in train if len(example) < 90 and len(example)>20]
+    anchor_examples = [example for example in train if len(example) < max_example_len and len(example)>20]
     
     return train, train_labels, test, test_labels, anchor_examples
