@@ -7,7 +7,7 @@ import sklearn
 import collections
 
 optimize = False
-lossy_optimize = False
+topk_optimize = False
 
 
 def matrix_subset(matrix, n_samples):
@@ -135,9 +135,9 @@ class AnchorBaseBeam(object):
         labels = state['labels'][:current_idx]
         if len(previous_best) == 0:
             # TODO added if not in ignored
-            if lossy_optimize:
+            if topk_optimize:
                 tuples = [(x, ) for x in all_features if (AnchorBaseBeam.words[x] not in AnchorBaseBeam.ignored) and AnchorBaseBeam.best_group.should_calculate(AnchorBaseBeam.words[x])]  
-            if optimize:
+            elif optimize:
                 tuples = [(x, ) for x in all_features if (AnchorBaseBeam.words[x] not in AnchorBaseBeam.ignored)]
             else:
                 tuples = [(x, ) for x in all_features]
@@ -407,7 +407,7 @@ class AnchorBaseBeam(object):
                 #Todo
                 final_tuples.append(t)
                 
-                #TODO for lossy optimization
+                #TODO for topk optimization
                 if mean >= desired_confidence:
                     AnchorBaseBeam.best_group.update(AnchorBaseBeam.words[t[0]])
                 else: 

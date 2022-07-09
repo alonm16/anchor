@@ -23,10 +23,11 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 # In[2]:
 examples_max_length = 150
-dont_ignore = False
+do_ignore = False
+anchor_base.topk_optimize = True
 
 # can be sentiment/spam/offensive
-dataset_name = 'corona-lossy'
+dataset_name = 'corona-topk'
 text_parser, label_parser, ds_train, ds_val = get_dataset('corona')
 
 
@@ -53,7 +54,7 @@ train, train_labels, test, test_labels, anchor_examples = preprocess_examples(ds
 # In[6]:
 
 
-ignored = get_ignored(anchor_examples)
+
 normal_occurences = get_occurences(anchor_examples)
 anchor_base.AnchorBaseBeam.best_group = BestGroup(normal_occurences)
 
@@ -62,7 +63,9 @@ anchor_base.AnchorBaseBeam.best_group = BestGroup(normal_occurences)
 
 # In[7]:
 
-if dont_ignore:
+if do_ignore:
+    ignored = get_ignored(anchor_examples)
+else:
     ignored = []
 
 
