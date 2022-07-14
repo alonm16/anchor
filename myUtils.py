@@ -38,12 +38,18 @@ def predict_sentences(sentences):
 
     return torch.argmax(output, dim=1).cpu().numpy()
 
-from collections import Counter, defaultdict
 from nltk.corpus import stopwords
-def get_ignored(anchor_sentences):
-    stop_words = list(".,#&- \'\"\s\t[]?():!;")
+def get_stopwords():
+    stop_words = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '.', 
+                  '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', 
+                  '`', '{', '|', '}', '~', '»', '«', '“', '”', '\s', '\t']
     stop_words.extend(["--", "'s", 'sos', 'eos'])
     stop_words.extend(stopwords.words('english'))
+    return stop_words
+
+from collections import Counter, defaultdict
+def get_ignored(anchor_sentences):
+    stop_words = get_stopwords()
     
     def get_below_occurences(sentences):
         min_value = 1

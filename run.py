@@ -14,6 +14,7 @@ from myUtils import *
 from transformer.utils import *
 from dataset.dataset_loader import *
 import datetime
+import time
 
 SEED = 84
 torch.manual_seed(SEED)
@@ -24,10 +25,10 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # In[2]:
 examples_max_length = 150
 do_ignore = False
-anchor_base.topk_optimize = True
+anchor_base.topk_optimize = False
 
 # can be sentiment/spam/offensive
-dataset_name = 'corona-topk'
+dataset_name = 'corona'
 text_parser, label_parser, ds_train, ds_val = get_dataset('corona')
 
 
@@ -84,6 +85,8 @@ explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distri
 pickle.dump( test, open(f"{dataset_name}/test.pickle", "wb" ))
 pickle.dump( test_labels, open( f"{dataset_name}/test_labels.pickle", "wb" ))
 pickle.dump( anchor_examples, open( f"{dataset_name}/anchor_examples.pickle", "wb" ))
+
+st = time.time()
     
 my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, ignored,f"profile.pickle", optimize = True)
 set_seed()
@@ -97,3 +100,9 @@ pickle.dump( explanations, open( f"{dataset_name}/profile_list.pickle", "wb"))
 
 print(datetime.datetime.now())
 
+from csv import writer
+with open('times.csv', 'a+', newline='') as write_obj:
+        # Create a writer object from csv module
+        csv_writer = writer(write_obj)
+        # Add contents of list as last row in the csv file
+        csv_writer.writerow([dataset_name, (time.time()-st)/60, do_ignore, anchor_base.topk_optimize, examples_max_length])
