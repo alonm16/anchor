@@ -23,19 +23,19 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 # In[2]:
-examples_max_length = 150
+examples_max_length = 90
 do_ignore = False
 anchor_base.topk_optimize = False
 
 # can be sentiment/spam/offensive
-dataset_name = 'corona'
-text_parser, label_parser, ds_train, ds_val = get_dataset('corona')
+dataset_name = 'sentiment'
+text_parser, label_parser, ds_train, ds_val = get_dataset('sentiment')
 
 
 # In[3]:
 
 
-model = load_model('gru' , f'transformer/corona/gru.pt', text_parser)
+model = load_model('gru' , f'transformer/sentiment/gru.pt', text_parser)
 myUtils.model = torch.jit.script(model)
 myUtils.text_parser = text_parser
 
@@ -50,6 +50,9 @@ nlp = spacy.load('en_core_web_sm')
 
 
 train, train_labels, test, test_labels, anchor_examples = preprocess_examples(ds_train, examples_max_length)
+
+if anchor_base.topk_optimize:
+    anchor_examples = sort_sentences(anchor_examples, dataset_name)
 
 
 # In[6]:
