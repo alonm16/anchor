@@ -67,6 +67,47 @@ def get_occurences(sentences):
         
     return c
 
+def get_words_distribution(sentences, predictions, stop_words):
+    """ returns score between [-1, 1] of how much the word is in positive predicted sentences, ignoring stop words"""
+    c_pos = Counter()
+    c_neg = Counter()
+    c = Counter()
+    
+    for sentence, prediction in zip(sentences, predictions):
+        if prediction == 1:
+            
+            c_pos.update(set(sentence))
+        else:
+            c_neg.update(set(sentence))
+
+    all_words = list(c_pos.keys())
+    all_words.extend(c_neg.keys())
+    all_words = set(all_words)
+    
+    for word in all_words:
+        c[word] = (c_pos[word]-c_neg[word])/(c_pos[word]+c_neg[word])
+    for word in stop_words:
+        c[word]=0
+    
+    return c
+
+def sort_sentences(sentences, dataset_name):
+    """score calculated as average absolute positivity/negativity of non stop words, normalized by their non stop words percentage"""
+    stop_words = get_stopwords()
+    tok_sentences = [text_parser.tokenize(sentence) for sentence in sentences]
+    predictions = pickle.load(open( f"{dataset_name}/predictions.pickle", "rb" ))
+    words_distribution = get_words_distribution(tok_sentences, predictions, stop_words)
+    
+    def sentence_score(sentence):
+        num_stops = sum(word in stop_words for word in sentence)
+        avg_occurences = sum(words_distribution[word] for word in sentence if word not in stop_words)/(len(sentence)-num_stops)
+        
+        return avg_occurences*(len(sentence) - num_stops)/len(sentence)
+    
+    scored_sentences = [(sentences[i], sentence_score(sentence)) for i, sentence in enumerate(tok_sentences)]
+    scored_sentences.sort(key=lambda exp: -abs(exp[1]))
+    return [exp[0] for exp in scored_sentences]
+
 class BestGroup:
     def __init__(self, occurences):
         self.occurences_left = occurences
@@ -110,7 +151,10 @@ class BestGroup:
         self.min_val = candid_val
     
     def should_calculate(self, anchor):
-        return (self.all[anchor]+self.occurences_left[anchor] - self.normal_factor*self.normal[anchor]) >= self.min_val*self.factor
+        should = (self.all[anchor]+self.occurences_left[anchor] - self.normal_factor*self.normal[anchor]) >= self.min_val*self.factor
+        if should:
+            print('hi')
+        return should
         
 
     
