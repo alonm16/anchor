@@ -27,10 +27,9 @@ examples_max_length = 90
 do_ignore = False
 anchor_base.topk_optimize = False
 
-# can be sentiment/spam/offensive
+# can be sentiment/spam/offensive/corona
 dataset_name = 'sentiment'
 text_parser, label_parser, ds_train, ds_val = get_dataset('sentiment')
-
 
 # In[3]:
 
