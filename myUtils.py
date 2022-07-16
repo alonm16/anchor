@@ -152,11 +152,7 @@ class BestGroup:
     
     def should_calculate(self, anchor):
         should = (self.all[anchor]+self.occurences_left[anchor] - self.normal_factor*self.normal[anchor]) >= self.min_val*self.factor
-<<<<<<< HEAD
         if not should:
-=======
-        if should:
->>>>>>> 04743cceb8d7acc49ebc2d1b0f755b7e0c0839f0
             print('hi')
         return should
         
