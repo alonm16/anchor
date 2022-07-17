@@ -1,9 +1,10 @@
-dataset-optimization,time(minuts),stop-words,topk,sentence length
+dataset-optimization,time (minuts),stop-words optimization,topk optimization,sentence length
 corona,147.2058151,FALSE,FALSE,150
 corona-lossy,90.54826191,TRUE,FALSE,150
-sentiment,57.64448601,FALSE,FALSE,90
-offensive,53.71041292,FALSE,FALSE,90
-sentiment-lossy,27.18180523,TRUE,FALSE,90
-offensive-lossy,29.46988526,TRUE,FALSE,90
 corona-topk,125.5930475,FALSE,TRUE,150
+sentiment,57.64448601,FALSE,FALSE,90
+sentiment-lossy,27.18180523,TRUE,FALSE,90
 sentiment-topk,42.50431387,FALSE,TRUE,90
+offensive,53.71041292,FALSE,FALSE,90
+offensive-lossy,29.46988526,TRUE,FALSE,90
+offensive-topk,37.07225658,FALSE,TRUE,90
