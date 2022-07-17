@@ -91,7 +91,7 @@ def get_words_distribution(sentences, predictions, stop_words):
     
     return c
 
-def sort_sentences(sentences, dataset_name):
+def sort_sentences(sentences):
     """score calculated as average absolute positivity/negativity of non stop words, normalized by their non stop words percentage"""
     stop_words = get_stopwords()
     tok_sentences = [text_parser.tokenize(sentence) for sentence in sentences]

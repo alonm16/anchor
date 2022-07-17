@@ -28,19 +28,19 @@ do_ignore = False
 anchor_base.topk_optimize = True
 
 # can be sentiment/spam/offensive/corona
-dataset_name = 'corona-topk2'
-text_parser, label_parser, ds_train, ds_val = get_dataset('corona')
+dataset_name = 'corona'
+optimization = 'topk'
+folder_name = f'{dataset_name}-{optimization}' if len(optimization)>0 else dataset_name
+text_parser, label_parser, ds_train, ds_val = get_dataset(dataset_name)
 
 # In[3]:
 
-
-model = load_model('gru' , f'transformer/corona/gru.pt', text_parser)
+model = load_model('gru' , f'transformer/{dataset_name}/gru.pt', text_parser)
 myUtils.model = torch.jit.script(model)
 myUtils.text_parser = text_parser
 
 
 # In[4]:
-
 
 nlp = spacy.load('en_core_web_sm')
 
@@ -51,12 +51,10 @@ nlp = spacy.load('en_core_web_sm')
 train, train_labels, test, test_labels, anchor_examples = preprocess_examples(ds_train, examples_max_length)
 
 if anchor_base.topk_optimize:
-    anchor_examples = sort_sentences(anchor_examples, dataset_name)
+    anchor_examples = sort_sentences(anchor_examples)
 
 
 # In[6]:
-
-
 
 normal_occurences = get_occurences(anchor_examples)
 anchor_base.AnchorBaseBeam.best_group = BestGroup(normal_occurences)
@@ -73,7 +71,7 @@ else:
 
 
 # In[10]:
-print(dataset_name)
+print(folder_name)
 print(datetime.datetime.now())
 
 optimize = True
@@ -84,9 +82,9 @@ explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distri
 # In[16]:
 
 
-pickle.dump( test, open(f"{dataset_name}/test.pickle", "wb" ))
-pickle.dump( test_labels, open( f"{dataset_name}/test_labels.pickle", "wb" ))
-pickle.dump( anchor_examples, open( f"{dataset_name}/anchor_examples.pickle", "wb" ))
+pickle.dump( test, open(f"{folder_name}/test.pickle", "wb" ))
+pickle.dump( test_labels, open( f"{folder_name}/test_labels.pickle", "wb" ))
+pickle.dump( anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb" ))
 
 st = time.time()
     
@@ -94,7 +92,7 @@ my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, ignore
 set_seed()
 explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
 
-pickle.dump( explanations, open( f"{dataset_name}/profile_list.pickle", "wb"))
+pickle.dump( explanations, open( f"{folder_name}/profile_list.pickle", "wb"))
 
 
 # In[ ]:
@@ -107,4 +105,4 @@ with open('times.csv', 'a+', newline='') as write_obj:
         # Create a writer object from csv module
         csv_writer = writer(write_obj)
         # Add contents of list as last row in the csv file
-        csv_writer.writerow([dataset_name, (time.time()-st)/60, do_ignore, anchor_base.topk_optimize, examples_max_length])
+        csv_writer.writerow([folder_name, (time.time()-st)/60, do_ignore, anchor_base.topk_optimize, examples_max_length])
