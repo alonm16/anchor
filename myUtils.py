@@ -117,12 +117,9 @@ class BestGroup:
         self.min_val = 0
         self.min_name = None
         self.full = False
-        self.factor = 0.75
-        self.normal_factor = 0.1
+        self.normal_factor = 0.2
     
     def update(self, anchor):
-        self.occurences_left[anchor]-=1
-        
         self.all[anchor]+=1
         
         if anchor in self.best:
@@ -151,9 +148,9 @@ class BestGroup:
         self.min_val = candid_val
     
     def should_calculate(self, anchor):
-        should = (self.all[anchor]+self.occurences_left[anchor] - self.normal_factor*self.normal[anchor]) >= self.min_val*self.factor
-        if not should:
-            print('hi')
+        should = (self.all[anchor]+self.occurences_left[anchor] - self.normal_factor*self.normal[anchor]) >= (self.min_val - self.normal_factor*self.normal[self.min_name])
+        self.occurences_left[anchor]-=1
+
         return should
         
 

@@ -23,18 +23,18 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 # In[2]:
-examples_max_length = 90
+examples_max_length = 150
 do_ignore = False
-anchor_base.topk_optimize = False
+anchor_base.topk_optimize = True
 
 # can be sentiment/spam/offensive/corona
-dataset_name = 'sentiment'
-text_parser, label_parser, ds_train, ds_val = get_dataset('sentiment')
+dataset_name = 'corona-topk2'
+text_parser, label_parser, ds_train, ds_val = get_dataset('corona')
 
 # In[3]:
 
 
-model = load_model('gru' , f'transformer/sentiment/gru.pt', text_parser)
+model = load_model('gru' , f'transformer/corona/gru.pt', text_parser)
 myUtils.model = torch.jit.script(model)
 myUtils.text_parser = text_parser
 
