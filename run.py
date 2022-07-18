@@ -29,7 +29,7 @@ anchor_base.topk_optimize = True
 
 # can be sentiment/spam/offensive/corona
 dataset_name = 'corona'
-optimization = 'topk'
+optimization = 'topk2'
 folder_name = f'{dataset_name}-{optimization}' if len(optimization)>0 else dataset_name
 text_parser, label_parser, ds_train, ds_val = get_dataset(dataset_name)
 

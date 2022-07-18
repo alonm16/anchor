@@ -109,46 +109,52 @@ def sort_sentences(sentences):
     return [exp[0] for exp in scored_sentences]
 
 class BestGroup:
+    # better to update when a word is found normal, 
+    # and in keep all anchors sorted in case someone out of the best became 
+    # better than min because normal decreased the value of the min
     def __init__(self, occurences):
         self.occurences_left = occurences
-        self.best = defaultdict(int)
-        self.all = defaultdict(int)
+        self.best = set()
+        self.anchor_counts = defaultdict(int)
         self.normal = defaultdict(int)
-        self.min_val = 0
         self.min_name = None
         self.full = False
-        self.normal_factor = 0.2
+        self.normal_factor = 0.1
     
     def update(self, anchor):
-        self.all[anchor]+=1
+        self.anchor_counts[anchor]+=1
         
-        if anchor in self.best:
-            self.best[anchor]+=1
-            if anchor == self.min_name:
-                self._update_min(anchor, self.best[anchor])
+        if anchor == self.min_name:
+            self._update_min(anchor)
         elif not self.full:
-            self.best[anchor] = self.all[anchor]
+            self.best.add(anchor)
             
             if len(self.best)==50:
+                self._update_min(anchor)
                 self.full = True
-                self._update_min(anchor, self.best[anchor])
+                
         # in case anchor with equal value was outside the best
-        elif self.all[anchor] > self.min_val:
-            del self.best[self.min_name]
-            self.best[anchor] = self.all[anchor]
-            self._update_min(anchor, self.best[anchor]) 
+        elif (anchor not in self.best) and self.pseudo_score(anchor) > self.pseudo_score(self.min_name):
+            self.best.remove(self.min_name)
+            self.best.add(anchor)
+            self._update_min(anchor) 
             
-    def _update_min(self, candid_name, candid_val):
-        for anchor, value in self.best.items():
-            if value < candid_val:
-                candid_name, candid_val = anchor, value
-                break
+    def pseudo_score(self, anchor):
+        return self.anchor_counts[anchor] - self.normal_factor*self.normal[anchor]
+            
+    def _update_min(self, candid_name):
+        candid_val = self.pseudo_score(candid_name)
+        
+        for anchor in self.best:
+            cur_score = self.pseudo_score(anchor)
+            if cur_score < candid_val:
+                candid_name = anchor
+                candid_val = cur_score
                 
         self.min_name = candid_name
-        self.min_val = candid_val
     
     def should_calculate(self, anchor):
-        should = (self.all[anchor]+self.occurences_left[anchor] - self.normal_factor*self.normal[anchor]) >= (self.min_val - self.normal_factor*self.normal[self.min_name])
+        should = (self.pseudo_score(anchor) + self.occurences_left[anchor]) >= self.pseudo_score(self.min_name)
         self.occurences_left[anchor]-=1
 
         return should
