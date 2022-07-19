@@ -227,7 +227,7 @@ class AnchorText(object):
         anchor_base.AnchorBaseBeam.ignored = ignored
         
         exps = anchor_base.AnchorBaseBeam.anchor_beam(
-            sample_fn, delta=delta, epsilon=tau, batch_size=batch_size,
+            sample_fn, true_label, delta=delta, epsilon=tau, batch_size=batch_size,
             desired_confidence=threshold, stop_on_first=True,
             coverage_samples=1, max_anchor_size=1, **kwargs)
         explanations = []

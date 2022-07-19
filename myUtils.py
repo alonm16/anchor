@@ -38,6 +38,7 @@ def predict_sentences(sentences):
 
     return torch.argmax(output, dim=1).cpu().numpy()
 
+
 from nltk.corpus import stopwords
 def get_stopwords():
     stop_words = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '.', 
@@ -108,15 +109,33 @@ def sort_sentences(sentences):
     scored_sentences.sort(key=lambda exp: -abs(exp[1]))
     return [exp[0] for exp in scored_sentences]
 
-class BestGroup:
+    
+def sort_sentences_confidence(sentences):
+    """sorts them according to the prediction confidence"""
+    softmax = torch.nn.Softmax()
+    
+    def predict_sentence_logits(sentence):
+        sentence = torch.tensor([tokenize(sentence, len(sentence))], device=device)
+        input_tokens = torch.transpose(sentence, 0, 1)
+        return softmax(model(input_tokens))
+    
+    predictions = [predict_sentence_logits(str(sentence))[0] for sentence in sentences]
+    predictions_confidence = [prediction[torch.argmax(prediction, dim=1).item()] for prediction in predictions]
+    
+    scored_sentences = [(sentence, predictions_confidence[i]) for i, sentence in enumerate(sentences)]
+    scored_sentences.sort(key=lambda exp: -abs(exp[1]))
+    return [exp[0] for exp in scored_sentences]
+    
+
+class BestGroupInner:
     # better to update when a word is found normal, 
     # and in keep all anchors sorted in case someone out of the best became 
     # better than min because normal decreased the value of the min
-    def __init__(self, occurences):
+    def __init__(self, occurences, normal_counts, group_size=25):
         self.occurences_left = occurences
         self.best = set()
         self.anchor_counts = defaultdict(int)
-        self.normal = defaultdict(int)
+        self.normal_counts = normal_counts
         self.min_name = None
         self.full = False
         self.normal_factor = 0.1
@@ -140,7 +159,7 @@ class BestGroup:
             self._update_min(anchor) 
             
     def pseudo_score(self, anchor):
-        return self.anchor_counts[anchor] - self.normal_factor*self.normal[anchor]
+        return self.anchor_counts[anchor] - self.normal_factor*self.normal_counts[anchor]
             
     def _update_min(self, candid_name):
         candid_val = self.pseudo_score(candid_name)
@@ -158,7 +177,29 @@ class BestGroup:
         self.occurences_left[anchor]-=1
 
         return should
+    
+class BestGroup:
+    def __init__(self, occurences, group_size = 50):
+        self.occurences_left = occurences
+        self.normal_count = defaultdict(int)
+        self.pos_BG = BestGroupInner(occurences, self.normal_count, group_size//2)
+        self.neg_BG = BestGroupInner(occurences, self.normal_count, group_size//2)
+        self.cur_type = None
         
+    def update_anchor(self, anchor):
+        if self.cur_type == 1:
+            self.pos_BG.update(anchor)
+        else:
+            self.neg_BG.update(anchor)
+    
+    def update_normal(self, anchor):
+        self.normal_count[anchor]+=1
+        
+    def should_calculate(self, anchor):
+        if self.cur_type == 1:
+            return self.pos_BG.should_calculate(anchor)
+        else:
+            return self.neg_BG.should_calculate(anchor)
 
     
 

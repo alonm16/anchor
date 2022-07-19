@@ -289,11 +289,14 @@ class AnchorBaseBeam(object):
         return anchor
     
     @staticmethod
-    def anchor_beam(sample_fn, delta=0.05, epsilon=0.1, batch_size=10,
+    def anchor_beam(sample_fn, true_label, delta=0.05, epsilon=0.1, batch_size=10,
                     min_shared_samples=0, desired_confidence=1, beam_size=1,
                     verbose=False, epsilon_stop=0.05, min_samples_start=0,
                     max_anchor_size=None, verbose_every=1,
                     stop_on_first=False, coverage_samples=10000):
+        # TODO topk optimization
+        AnchorBaseBeam.best_group.cur_type = true_label
+        
         anchor = {'feature': [], 'mean': [], 'precision': [],
                   'coverage': [], 'examples': [], 'all_precision': 0}
         _, coverage_data, _ = sample_fn([], coverage_samples, compute_labels=False)
@@ -409,9 +412,9 @@ class AnchorBaseBeam(object):
                 
                 #TODO for topk optimization
                 if mean >= desired_confidence:
-                    AnchorBaseBeam.best_group.update(AnchorBaseBeam.words[t[0]])
+                    AnchorBaseBeam.best_group.update_anchor(AnchorBaseBeam.words[t[0]])
                 else: 
-                    AnchorBaseBeam.best_group.normal[AnchorBaseBeam.words[t[0]]]+=1
+                    AnchorBaseBeam.best_group.update_normal(AnchorBaseBeam.words[t[0]])
             
                 if verbose:
                     print('%s mean = %.2f lb = %.2f ub = %.2f coverage: %.2f n: %d' % (t, mean, lb, ub, coverage, state['t_nsamples'][t]))
