@@ -8,3 +8,13 @@ sentiment-topk,42.50431387,FALSE,TRUE,90
 offensive,53.71041292,FALSE,FALSE,90
 offensive-lossy,29.46988526,TRUE,FALSE,90
 offensive-topk,37.07225658,FALSE,TRUE,90
+server 2,topk3 means with confidence sorting,,,
+corona-topk2,86.8736357,FALSE,TRUE,150
+sentiment-topk2,34.73550941,FALSE,TRUE,90
+offensive-topk2,26.95133187,FALSE,TRUE,90
+sentiment,43.55269886,FALSE,FALSE,90
+corona-topk3,85.72191073,FALSE,TRUE,150
+sentiment-topk3,33.75451523,FALSE,TRUE,90
+corona,112.5472039,FALSE,FALSE,150
+,,,,
+fixed prediction,,,,

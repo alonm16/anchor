@@ -2,12 +2,13 @@ checkpoints/
 .vector_cache/
 .ipynb_checkpoints/
 nohup.out
+profile.txt
 profile.pickle
 DistilBertForMaskedLM.pt
 */exps.pickle
 */exps_list.pickle
 */extended_exps.pickle
-
+*/profile_list.pickle
 
 # Created by https://www.gitignore.io/api/python,pycharm,windows,osx,linux
 

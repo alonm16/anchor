@@ -21,9 +21,11 @@ def set_seed(seed=42):
     torch.backends.cudnn.benchmark = False
 
 # 1 = pad 2=sos 3 = eos
-def tokenize(text, max_len):
-    sentence = nlp.tokenizer(str(text))
-    input_tokens = [2] + [text_parser.vocab.stoi[word.text] for word in sentence] + [3] + [1]*(max_len-len(sentence))
+def tokenize(sentences):
+    sentences = [nlp.tokenizer(str(text)) for text in sentences]
+    max_len = max([len(sentence) for sentence in sentences])
+    input_tokens = [[2] + [text_parser.vocab.stoi[word.text] for word in sentence] + [3] + [1]*(max_len-len(sentence))
+                    for sentence in sentences]
 
     return input_tokens
 
@@ -31,8 +33,21 @@ def predict_sentences(sentences):
     half_length = len(sentences)//2
     if(half_length>100):
         return np.concatenate([predict_sentences(sentences[:half_length]), predict_sentences(sentences[half_length:])])
+    sentences = torch.tensor(tokenize(sentences), device=device)
+    
+    input_tokens = torch.transpose(sentences, 0, 1)
+    output = model(input_tokens)
+
+    return torch.argmax(output, dim=1).cpu().numpy()
+
+def predict_sentences_optimized(sentences):
+    half_length = len(sentences)//2
+    if(half_length>100):
+        return np.concatenate([predict_sentences(sentences[:half_length]), predict_sentences(sentences[half_length:])])
     max_len = max([len(sentence) for sentence in sentences])
-    sentences = torch.tensor([tokenize(sentence, max_len) for sentence in sentences], device=device)
+    tokenized_sentences = [[2] + [text_parser.vocab.stoi[str(word)] for word in text] + [3] + [1]*(max_len-len(text)) 
+                           for text in sentences]
+    sentences = torch.tensor(tokenized_sentences, device=device)
     input_tokens = torch.transpose(sentences, 0, 1)
     output = model(input_tokens)
 
@@ -120,7 +135,7 @@ def sort_sentences_confidence(sentences):
         return softmax(model(input_tokens))
     
     predictions = [predict_sentence_logits(str(sentence))[0] for sentence in sentences]
-    predictions_confidence = [prediction[torch.argmax(prediction, dim=1).item()] for prediction in predictions]
+    predictions_confidence = [prediction[torch.argmax(prediction, dim=-1).item()] for prediction in predictions]
     
     scored_sentences = [(sentence, predictions_confidence[i]) for i, sentence in enumerate(sentences)]
     scored_sentences.sort(key=lambda exp: -abs(exp[1]))

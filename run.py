@@ -7,7 +7,7 @@
 # Setup
 import warnings
 import spacy
-from modified_anchor import anchor_text, anchor_base
+from optimized_anchor import anchor_text, anchor_base
 import pickle
 import myUtils
 from myUtils import *
@@ -25,11 +25,11 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 # In[2]:
 examples_max_length = 150
 do_ignore = False
-anchor_base.topk_optimize = True
+anchor_base.topk_optimize = False
 
 # can be sentiment/spam/offensive/corona
 dataset_name = 'corona'
-optimization = 'topk2'
+optimization = ''
 folder_name = f'{dataset_name}-{optimization}' if len(optimization)>0 else dataset_name
 text_parser, label_parser, ds_train, ds_val = get_dataset(dataset_name)
 
@@ -88,7 +88,7 @@ pickle.dump( anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb
 
 st = time.time()
     
-my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, ignored,f"profile.pickle", optimize = True)
+my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences_optimized, ignored, f"profile.pickle", optimize = True)
 set_seed()
 explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
 
