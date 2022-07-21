@@ -1,20 +1,10 @@
 dataset-optimization,time (minuts),stop-words optimization,topk optimization,sentence length
-corona,147.2058151,FALSE,FALSE,150
-corona-lossy,90.54826191,TRUE,FALSE,150
-corona-topk,123.1357263,FALSE,TRUE,150
-sentiment,57.64448601,FALSE,FALSE,90
-sentiment-lossy,27.18180523,TRUE,FALSE,90
-sentiment-topk,42.50431387,FALSE,TRUE,90
-offensive,53.71041292,FALSE,FALSE,90
-offensive-lossy,29.46988526,TRUE,FALSE,90
-offensive-topk,37.07225658,FALSE,TRUE,90
-server 2,topk3 means with confidence sorting,,,
-corona-topk2,86.8736357,FALSE,TRUE,150
-sentiment-topk2,34.73550941,FALSE,TRUE,90
-offensive-topk2,26.95133187,FALSE,TRUE,90
-sentiment,43.55269886,FALSE,FALSE,90
-corona-topk3,85.72191073,FALSE,TRUE,150
-sentiment-topk3,33.75451523,FALSE,TRUE,90
-corona,112.5472039,FALSE,FALSE,150
-,,,,
-fixed prediction,,,,
+corona,102.5649664,FALSE,FALSE,150
+corona-lossy,61.17100519,TRUE,FALSE,150
+corona-topk,78.32208487,FALSE,TRUE,150
+sentiment,36.47984643,FALSE,FALSE,90
+sentiment-lossy,17.72693817,TRUE,FALSE,90
+sentiment-topk,27.58070929,FALSE,TRUE,90
+offensive,30.97743454,FALSE,FALSE,90
+offensive-lossy,16.80765316,TRUE,FALSE,90
+offensive-topk,23.75976343,FALSE,TRUE,90
