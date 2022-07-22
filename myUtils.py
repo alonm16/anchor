@@ -130,11 +130,11 @@ def sort_sentences_confidence(sentences):
     softmax = torch.nn.Softmax()
     
     def predict_sentence_logits(sentence):
-        sentence = torch.tensor([tokenize(sentence, len(sentence))], device=device)
+        sentence = torch.tensor(tokenize([sentence]), device=device)
         input_tokens = torch.transpose(sentence, 0, 1)
         return softmax(model(input_tokens))
     
-    predictions = [predict_sentence_logits(str(sentence))[0] for sentence in sentences]
+    predictions = [predict_sentence_logits(sentence)[0] for sentence in sentences]
     predictions_confidence = [prediction[torch.argmax(prediction, dim=-1).item()] for prediction in predictions]
     
     scored_sentences = [(sentence, predictions_confidence[i]) for i, sentence in enumerate(sentences)]

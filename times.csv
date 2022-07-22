@@ -8,3 +8,6 @@ sentiment-topk,27.58070929,FALSE,TRUE,90
 offensive,30.97743454,FALSE,FALSE,90
 offensive-lossy,16.80765316,TRUE,FALSE,90
 offensive-topk,23.75976343,FALSE,TRUE,90
+corona-topk-confidence,75.48717612,FALSE,TRUE,150
+sentiment-topk-confidence,27.88095882,FALSE,TRUE,90
+offensive-topk-confidence,23.80242343,FALSE,TRUE,90
