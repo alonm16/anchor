@@ -11,3 +11,4 @@ offensive-topk,23.75976343,FALSE,TRUE,90
 corona-topk-confidence,75.48717612,FALSE,TRUE,150
 sentiment-topk-confidence,27.88095882,FALSE,TRUE,90
 offensive-topk-confidence,23.80242343,FALSE,TRUE,90
+monitoring,,,,

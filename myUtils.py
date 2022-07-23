@@ -5,6 +5,7 @@ import torch
 import spacy
 import numpy as np
 import random
+from csv import writer
 
 model = None
 text_parser = None
@@ -154,6 +155,7 @@ class BestGroupInner:
         self.min_name = None
         self.full = False
         self.normal_factor = 0.1
+        self.group_size = group_size
     
     def update(self, anchor):
         self.anchor_counts[anchor]+=1
@@ -163,7 +165,7 @@ class BestGroupInner:
         elif not self.full:
             self.best.add(anchor)
             
-            if len(self.best)==50:
+            if len(self.best)==self.group_size:
                 self._update_min(anchor)
                 self.full = True
                 
@@ -194,12 +196,14 @@ class BestGroupInner:
         return should
     
 class BestGroup:
-    def __init__(self, occurences, group_size = 50):
+    def __init__(self, folder_name, occurences, group_size = 50):
         self.occurences_left = occurences
         self.normal_count = defaultdict(int)
         self.pos_BG = BestGroupInner(occurences, self.normal_count, group_size//2)
         self.neg_BG = BestGroupInner(occurences, self.normal_count, group_size//2)
         self.cur_type = None
+        self.pos_monitor_writer = writer(open(f'{folder_name}/pos_monitor.csv', 'a+', newline=''))
+        self.neg_monitor_writer = writer(open(f'{folder_name}/neg_monitor.csv', 'a+', newline=''))
         
     def update_anchor(self, anchor):
         if self.cur_type == 1:
@@ -215,7 +219,10 @@ class BestGroup:
             return self.pos_BG.should_calculate(anchor)
         else:
             return self.neg_BG.should_calculate(anchor)
-
+        
+    def monitor(self):
+        self.pos_monitor_writer.writerow(list(self.pos_BG.best))
+        self.neg_monitor_writer.writerow(list(self.neg_BG.best))
     
 
 class MyExplanation:

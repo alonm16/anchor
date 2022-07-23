@@ -379,6 +379,7 @@ class AnchorBaseBeam(object):
                     AnchorBaseBeam.best_group.update_anchor(AnchorBaseBeam.words[t[0]])
                 else: 
                     AnchorBaseBeam.best_group.update_normal(AnchorBaseBeam.words[t[0]])
+                
             
                 if verbose:
                     print('%s mean = %.2f lb = %.2f ub = %.2f coverage: %.2f n: %d' % (t, mean, lb, ub, coverage, state['t_nsamples'][t]))
@@ -417,6 +418,8 @@ class AnchorBaseBeam(object):
             best_tuple = tuples[chosen_tuples[0]]
         # return best_tuple, state
         """
+        # TODO topk optimization
+        AnchorBaseBeam.best_group.monitor()
         anchors = [AnchorBaseBeam.get_anchor_from_tuple(best_tuple, state) for best_tuple in final_tuples]
 
         return anchors

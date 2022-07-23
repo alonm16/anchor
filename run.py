@@ -24,7 +24,7 @@ sort_functions = {'polarity': sort_sentences, 'confidence': sort_sentences_confi
 parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona'])
 parser.add_argument("--optimization", default='')
 parser.add_argument("--sort_function", default='polarity', choices=['polarity', 'confidence'])
-parser.add_argument("--examples_max_length", default=90)
+parser.add_argument("--examples_max_length", default=90, type=int)
 args = parser.parse_args()
 
 examples_max_length = args.examples_max_length
@@ -62,7 +62,7 @@ if anchor_base.topk_optimize:
 # In[6]:
 
 normal_occurences = get_occurences(anchor_examples)
-anchor_base.AnchorBaseBeam.best_group = BestGroup(normal_occurences)
+anchor_base.AnchorBaseBeam.best_group = BestGroup(folder_name, normal_occurences)
 
 
 # ## notice!
@@ -87,9 +87,9 @@ explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distri
 # In[16]:
 
 
-pickle.dump( test, open(f"{folder_name}/test.pickle", "wb" ))
-pickle.dump( test_labels, open( f"{folder_name}/test_labels.pickle", "wb" ))
-pickle.dump( anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb" ))
+# pickle.dump( test, open(f"{folder_name}/test.pickle", "wb" ))
+# pickle.dump( test_labels, open( f"{folder_name}/test_labels.pickle", "wb" ))
+# pickle.dump( anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb" ))
 
 st = time.time()
     
