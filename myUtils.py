@@ -6,12 +6,13 @@ import spacy
 import numpy as np
 import random
 from csv import writer
+import time
 
 model = None
 text_parser = None
 nlp = spacy.load('en_core_web_sm')
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
+# notice change in show calculate!
 
 def set_seed(seed=42):
     random.seed(seed)
@@ -204,6 +205,8 @@ class BestGroup:
         self.cur_type = None
         self.pos_monitor_writer = writer(open(f'{folder_name}/pos_monitor.csv', 'a+', newline=''))
         self.neg_monitor_writer = writer(open(f'{folder_name}/neg_monitor.csv', 'a+', newline=''))
+        self.time_monitor_writer = writer(open(f'{folder_name}/time_monitor.csv', 'a+', newline=''))
+        self.st = time.time()
         
     def update_anchor(self, anchor):
         if self.cur_type == 1:
@@ -223,6 +226,8 @@ class BestGroup:
     def monitor(self):
         self.pos_monitor_writer.writerow(list(self.pos_BG.best))
         self.neg_monitor_writer.writerow(list(self.neg_BG.best))
+        self.time_monitor_writer.writerow([(time.time()-self.st)/60])
+
     
 
 class MyExplanation:

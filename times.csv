@@ -12,9 +12,17 @@ corona-topk-confidence,75.48717612,FALSE,TRUE,150
 sentiment-topk-confidence,27.88095882,FALSE,TRUE,90
 offensive-topk-confidence,23.80242343,FALSE,TRUE,90
 monitoring,,,,
-sentiment-topk,24.753062125047048,False,True,90
-sentiment-topk-confidence,24.994016047318777,False,True,90
-offensive-topk,21.55350921948751,False,True,90
-offensive-topk-confidence,22.585586098829904,False,True,90
-corona-topk,70.02944818735122,False,True,150
-corona-topk-confidence,70.7564428249995,False,True,150
+sentiment-topk,24.75306213,FALSE,TRUE,90
+sentiment-topk-confidence,24.99401605,FALSE,TRUE,90
+offensive-topk,21.55350922,FALSE,TRUE,90
+offensive-topk-confidence,22.5855861,FALSE,TRUE,90
+corona-topk,70.02944819,FALSE,TRUE,150
+corona-topk-confidence,70.75644282,FALSE,TRUE,150
+,,,,
+monitor again,,,,
+sentiment-topk,35.7737754146258,False,True,90
+sentiment-topk-confidence,36.1697270433108,False,True,90
+offensive-topk,31.100954393545788,False,True,90
+offensive-topk-confidence,31.35513242880503,False,True,90
+corona-topk,102.32664004166921,False,True,150
+corona-topk-confidence,103.13423033555348,False,True,150
