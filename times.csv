@@ -18,3 +18,11 @@ offensive-topk,21.55350922,FALSE,TRUE,90
 offensive-topk-confidence,22.5855861,FALSE,TRUE,90
 corona-topk,70.02944819,FALSE,TRUE,150
 corona-topk-confidence,70.75644282,FALSE,TRUE,150
+,,,,
+monitor no optimization,,,,
+sentiment-polarity,35.77377541,FALSE,TRUE,90
+sentiment-confidence,36.16972704,FALSE,TRUE,90
+offensive-polarity,31.10095439,FALSE,TRUE,90
+offensive-confidence,31.35513243,FALSE,TRUE,90
+corona-polarity,102.32664,FALSE,TRUE,150
+corona-confidence,103.1342303,FALSE,TRUE,150
