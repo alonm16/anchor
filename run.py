@@ -87,9 +87,9 @@ explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distri
 # In[16]:
 
 
-# pickle.dump( test, open(f"{folder_name}/test.pickle", "wb" ))
-# pickle.dump( test_labels, open( f"{folder_name}/test_labels.pickle", "wb" ))
-# pickle.dump( anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb" ))
+pickle.dump( test, open(f"{folder_name}/test.pickle", "wb" ))
+pickle.dump( test_labels, open( f"{folder_name}/test_labels.pickle", "wb" ))
+pickle.dump( anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb" ))
 
 st = time.time()
     

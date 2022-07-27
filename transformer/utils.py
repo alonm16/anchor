@@ -1,5 +1,5 @@
 import torch
-from transformer import hyperparams, models
+from transformers import hyperparams, models
 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')

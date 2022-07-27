@@ -26,3 +26,5 @@ offensive-polarity,31.10095439,FALSE,TRUE,90
 offensive-confidence,31.35513243,FALSE,TRUE,90
 corona-polarity,102.32664,FALSE,TRUE,150
 corona-confidence,103.1342303,FALSE,TRUE,150
+,,,,
+sentiment,41.55341004,FALSE,FALSE,90

@@ -80,17 +80,29 @@ def create_binary_dataset():
     return review_parser, label_parser, ds_train, ds_valid, ds_test
 
 
+def sentiment_preprocessor(text):
+    text =re.sub('<[^>]*>', '', text)
+    text = re.sub('\s+',' ', text)
+    text=text.replace('\n','')
+    text=text.replace('(\)','')
+    text=text.lower().strip()
+    text=text.replace('-',' ')
+    text=text.replace('\ ' ,'')
+    if text[-1]=='.':
+        text = text[:-1]
+    
+    return text
+
+
 def sentiment_dataset(path='dataset/sentiment-sentences'):
 
     text_field = torchtext.legacy.data.Field(
         sequential=True, use_vocab=True, lower=True, dtype=torch.long,
-        tokenize='spacy', tokenizer_language='en_core_web_sm', init_token='sos', eos_token='eos'
-    )
+        tokenize='spacy', tokenizer_language='en_core_web_sm', init_token='sos', eos_token='eos')
 
     # This Field object converts the text labels into numeric values (0,1,2)
     label_field = torchtext.legacy.data.Field(
-        is_target=True, sequential=False, unk_token=None, use_vocab=False, dtype=torch.long
-    )
+        is_target=True, sequential=False, unk_token=None, use_vocab=True)
 
     fields = [('text', text_field), ('label', label_field)]
 
@@ -104,20 +116,19 @@ def sentiment_dataset(path='dataset/sentiment-sentences'):
         for line in open(os.path.join(path, f), 'rb'):
             try:
                 line = line.decode('utf8')
+                line = sentiment_preprocessor(line)
             except:
                 continue
             examples.append(data.Example.fromlist([line, f_labels[l]], fields))
 
     random.seed(10)
     random.shuffle(examples)
-    train_examples = examples[:7000]
-    val_examples = examples[7000:8000]
-    test_examples = examples[8000:]
+    train_examples = examples[:9000]
+    val_examples = examples[9000:]
     ds_train = data.Dataset(examples=train_examples, fields=fields)
     ds_val = data.Dataset(examples=val_examples, fields=fields)
-    ds_test = data.Dataset(examples=test_examples, fields=fields)
     
-    review_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=5)
+    review_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=3)
     
     return review_parser, label_parser, ds_train, ds_val
 
@@ -269,7 +280,6 @@ def twitter_preprocess(text_string):
     1) urls with URLHERE
     2) lots of whitespace with one instance
     3) mentions with MENTIONHERE
-
     This allows us to get standardized counts of urls and mentions
     Without caring about specific people mentioned
     """
@@ -379,7 +389,6 @@ def corona_twitt_dataset(path='dataset/corona_train.csv'):
     text_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=3)
 
     return text_parser, label_parser, ds_train, ds_val
-
 
 def get_dataset(ds_name):
     ds_dict = {"sentiment":sentiment_dataset,

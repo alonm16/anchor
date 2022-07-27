@@ -112,7 +112,7 @@ class PositionalEncoding(nn.Module):
 class MultiHeadAttentionNet(nn.Module):
     def __init__(self, input_vocabulary, embed_dim, num_heads, dropout, output_classes, two_attention_layers = False):
         super().__init__()
-        self.embedding_layer, self.indices_to_zero  = create_embedding_layer(input_vocabulary, embed_dim)
+        self.embedding_layer, self.indices_to_zero  = create_embedding_layer(input_vocabulary, embed_dim, [])
         self.positional_embedded = PositionalEncoding(embed_dim, dropout)
 
         self.two_attention_layers = two_attention_layers
