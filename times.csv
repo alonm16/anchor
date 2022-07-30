@@ -13,6 +13,6 @@ sentiment-topk-confidence,27.88095882,FALSE,TRUE,90
 offensive-topk-confidence,23.80242343,FALSE,TRUE,90
 ,,,,
 sentiment,41.55341004,FALSE,FALSE,90
-corona-desired-polarity,77.55048498,FALSE,FALSE,150
-corona-desired-confidence,76.91160356,FALSE,FALSE,150
 sentiment_twitter,155.3537683,FALSE,FALSE,90
+corona-desired-polarity,61.21595254,FALSE,FALSE,150
+corona-desired-confidence,58.5569734,FALSE,FALSE,150

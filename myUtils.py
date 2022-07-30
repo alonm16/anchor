@@ -12,7 +12,6 @@ model = None
 text_parser = None
 nlp = spacy.load('en_core_web_sm')
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-# notice change in show calculate!
 
 def set_seed(seed=42):
     random.seed(seed)

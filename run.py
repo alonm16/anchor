@@ -30,6 +30,7 @@ args = parser.parse_args()
 examples_max_length = args.examples_max_length
 do_ignore = args.optimization=='lossy'
 topk_optimize = args.optimization.startswith('topk')
+desired_optimize = args.optimization.startswith('desired')
 sort_function = sort_functions[args.sort_function]
 
 # can be sentiment/spam/offensive/corona
@@ -61,7 +62,7 @@ anchor_examples = sort_function(anchor_examples)
 # In[6]:
 
 normal_occurences = get_occurences(anchor_examples)
-anchor_base.AnchorBaseBeam.best_group = BestGroup(folder_name, normal_occurences, filter_anchors = topk_optimize)
+anchor_base.AnchorBaseBeam.best_group = BestGroup(folder_name, normal_occurences, filter_anchors = topk_optimize, desired_optimize = desired_optimize)
 
 # In[7]:
 
