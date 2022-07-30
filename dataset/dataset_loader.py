@@ -390,11 +390,56 @@ def corona_twitt_dataset(path='dataset/corona_train.csv'):
 
     return text_parser, label_parser, ds_train, ds_val
 
+def sentiment_twitt_dataset(path = 'dataset/sentiment_twitter.csv'):    
+    text_field = torchtext.legacy.data.Field(
+    sequential=True, use_vocab=True, lower=True, dtype=torch.long,
+    tokenize='spacy', tokenizer_language='en_core_web_sm', init_token='sos', eos_token='eos')
+
+    # This Field object converts the text labels into numeric values (0,1,2)
+    label_field = torchtext.legacy.data.Field(
+        is_target=True, sequential=False, unk_token=None, use_vocab=True)
+
+    fields = [('text', text_field), ('label', label_field)]
+
+    df = pd.read_csv(path, encoding ='ISO-8859-1')
+    positive =[]
+    negative = []
+
+    for index, row in df.iterrows():
+        tweet = twitter_preprocess(row['text']).strip()
+        if row['target'] == 'POSITIVE':
+            target = 'positive'
+            positive.append(data.Example.fromlist([tweet, target], fields))
+        elif row['target'] == 'NEGATIVE':
+            target = 'negative'
+            negative.append(data.Example.fromlist([tweet, target], fields))
+
+    random.seed(10)
+    random.shuffle(positive)
+    random.shuffle(negative)
+    print(len(positive))
+    print(len(negative))
+
+    train_examples = positive[:7000]
+    train_examples.extend(negative[:7000])
+    random.shuffle(train_examples)
+    val_examples = positive[7000:10000]
+    val_examples.extend(negative[7000:10000])
+    random.shuffle(val_examples)
+    ds_train = data.Dataset(examples=train_examples, fields=fields)
+    ds_val = data.Dataset(examples=val_examples, fields=fields)
+
+    text_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=3)
+
+    return text_parser, label_parser, ds_train, ds_val
+    
+
 def get_dataset(ds_name):
     ds_dict = {"sentiment":sentiment_dataset,
                "offensive":offensive_dataset,
                "spam": spam_dataset,
-               "corona": corona_twitt_dataset
+               "corona": corona_twitt_dataset,
+               "sentiment_twitter": sentiment_twitt_dataset
               }
     return ds_dict[ds_name]()
 

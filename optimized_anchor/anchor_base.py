@@ -7,8 +7,6 @@ import sklearn
 import collections
 
 optimize = False
-topk_optimize = False
-
 
 def matrix_subset(matrix, n_samples):
     if matrix.shape[0] == 0:
@@ -135,10 +133,8 @@ class AnchorBaseBeam(object):
         labels = state['labels'][:current_idx]
         if len(previous_best) == 0:
             # TODO added if not in ignored
-            if topk_optimize:
+            if optimize:
                 tuples = [(x, ) for x in all_features if (AnchorBaseBeam.words[x] not in AnchorBaseBeam.ignored) and AnchorBaseBeam.best_group.should_calculate(AnchorBaseBeam.words[x])]  
-            elif optimize:
-                tuples = [(x, ) for x in all_features if (AnchorBaseBeam.words[x] not in AnchorBaseBeam.ignored)]
             else:
                 tuples = [(x, ) for x in all_features]
                           
@@ -359,10 +355,14 @@ class AnchorBaseBeam(object):
                 coverage = state['t_coverage'][t]
                 if verbose:
                     print(i, mean, lb, ub)
-                while ((mean >= desired_confidence and
-                       lb < desired_confidence - epsilon_stop) or
-                       (mean < desired_confidence and
-                        ub >= desired_confidence + epsilon_stop)):
+                    
+                # TODO confidence optimization
+                anchor_desired_confidence = desired_confidence - AnchorBaseBeam.best_group.desired_confidence_factor(AnchorBaseBeam.words[t[0]])
+                
+                while ((mean >= anchor_desired_confidence and
+                       lb < anchor_desired_confidence - epsilon_stop) or
+                       (mean < anchor_desired_confidence and
+                        ub >= anchor_desired_confidence + epsilon_stop)):
                     # print mean, lb, state['t_nsamples'][t]
                     sample_fns[i](batch_size)
                     mean = state['t_positives'][t] / state['t_nsamples'][t]
@@ -370,6 +370,18 @@ class AnchorBaseBeam(object):
                         mean, beta / state['t_nsamples'][t])
                     ub = AnchorBaseBeam.dup_bernoulli(
                         mean, beta / state['t_nsamples'][t])
+                
+                # while ((mean >= desired_confidence and
+                #        lb < desired_confidence - epsilon_stop) or
+                #        (mean < desired_confidence and
+                #         ub >= desired_confidence + epsilon_stop)):
+                #     # print mean, lb, state['t_nsamples'][t]
+                #     sample_fns[i](batch_size)
+                #     mean = state['t_positives'][t] / state['t_nsamples'][t]
+                #     lb = AnchorBaseBeam.dlow_bernoulli(
+                #         mean, beta / state['t_nsamples'][t])
+                #     ub = AnchorBaseBeam.dup_bernoulli(
+                #         mean, beta / state['t_nsamples'][t])
 
                 #Todo
                 final_tuples.append(t)

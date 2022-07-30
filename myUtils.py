@@ -197,15 +197,17 @@ class BestGroupInner:
         return should
     
 class BestGroup:
-    def __init__(self, folder_name, occurences, group_size = 50):
+    def __init__(self, folder_name, occurences, filter_anchors = False, desired_optimize = False ,group_size = 50):
         self.occurences_left = occurences
-        self.normal_count = defaultdict(int)
-        self.pos_BG = BestGroupInner(occurences, self.normal_count, group_size//2)
-        self.neg_BG = BestGroupInner(occurences, self.normal_count, group_size//2)
+        self.normal_counts = defaultdict(int)
+        self.pos_BG = BestGroupInner(occurences, self.normal_counts, group_size//2)
+        self.neg_BG = BestGroupInner(occurences, self.normal_counts, group_size//2)
         self.cur_type = None
         self.pos_monitor_writer = writer(open(f'{folder_name}/pos_monitor.csv', 'a+', newline=''))
         self.neg_monitor_writer = writer(open(f'{folder_name}/neg_monitor.csv', 'a+', newline=''))
         self.time_monitor_writer = writer(open(f'{folder_name}/time_monitor.csv', 'a+', newline=''))
+        self.filter_anchors = filter_anchors
+        self.desired_optimize = desired_optimize
         self.st = time.time()
         
     def update_anchor(self, anchor):
@@ -215,13 +217,34 @@ class BestGroup:
             self.neg_BG.update(anchor)
     
     def update_normal(self, anchor):
-        self.normal_count[anchor]+=1
+        self.normal_counts[anchor]+=1
         
     def should_calculate(self, anchor):
+        if not self.filter_anchors:
+            return True
         if self.cur_type == 1:
             return self.pos_BG.should_calculate(anchor)
         else:
             return self.neg_BG.should_calculate(anchor)
+    
+    def desired_confidence_factor(self, anchor):
+        """ 
+        NOT RELATED TO TOPK OPTIMIZATION
+        substract this factor from the desired confidence so if a word occured a lot as anchor, we need to calculate less
+        formula: 0.2*(#anchor - normal_factor * #normal)/#all
+        thus as the algorithm progresses the factor gets higher for the same pseudo score
+        multiply by 0.2 so the factor is in range (0, 0.2)
+        """
+        if not self.desired_optimize:
+            return 0
+        all_occurences = self.occurences_left[anchor] + self.normal_counts[anchor] + self.pos_BG.anchor_counts[anchor] + self.neg_BG.anchor_counts[anchor]
+        pseudo_score = 0
+        if self.cur_type == 1:
+            pseudo_score = self.pos_BG.pseudo_score(anchor)
+        else:
+            pseudo_score = self.neg_BG.pseudo_score(anchor)
+        
+        return 0.4*pseudo_score/all_occurences
         
     def monitor(self):
         self.pos_monitor_writer.writerow(list(self.pos_BG.best))

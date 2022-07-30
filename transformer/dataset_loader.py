@@ -292,7 +292,7 @@ def twitter_preprocess(text_string):
     parsed_text = re.sub(giant_url_regex, '', parsed_text)
     parsed_text = re.sub(mention_regex, '', parsed_text)
    
-    return parsed_text
+    return parsed_text.strip()
 
 def offensive_dataset(path='dataset/offensive.csv'):
 
@@ -390,11 +390,10 @@ def corona_twitt_dataset(path='dataset/corona_train.csv'):
 
     return text_parser, label_parser, ds_train, ds_val
 
-def imdb_ds(path='dataset/imdb.csv'):
-    from bs4 import BeautifulSoup
+def sentiment_twitt_dataset(path = 'dataset/sentiment_twitter.csv'):    
     text_field = torchtext.legacy.data.Field(
-        sequential=True, use_vocab=True, lower=True, dtype=torch.long,
-        tokenize='spacy', tokenizer_language='en_core_web_sm', init_token='sos', eos_token='eos')
+    sequential=True, use_vocab=True, lower=True, dtype=torch.long,
+    tokenize='spacy', tokenizer_language='en_core_web_sm', init_token='sos', eos_token='eos')
 
     # This Field object converts the text labels into numeric values (0,1,2)
     label_field = torchtext.legacy.data.Field(
@@ -402,21 +401,18 @@ def imdb_ds(path='dataset/imdb.csv'):
 
     fields = [('text', text_field), ('label', label_field)]
 
-    df = pd.read_csv(path)
+    df = pd.read_csv(path, encoding ='ISO-8859-1')
     positive =[]
     negative = []
 
     for index, row in df.iterrows():
-        review = sentiment_preprocessor(row['review'])
-        soup = BeautifulSoup(review, "html.parser")
-        review = soup.get_text()
-        review = re.sub('\[[^]]*\]', '', review)
-        if row['sentiment'] == 'positive':
+        tweet = twitter_preprocess(row['text'])
+        if row['target'] == 'POSITIVE':
             target = 'positive'
-            positive.append(data.Example.fromlist([review, target], fields))
-        elif row['sentiment'] == 'negative':
+            positive.append(data.Example.fromlist([tweet, target], fields))
+        elif row['target'] == 'NEGATIVE':
             target = 'negative'
-            negative.append(data.Example.fromlist([review, target], fields))
+            negative.append(data.Example.fromlist([tweet, target], fields))
 
     random.seed(10)
     random.shuffle(positive)
@@ -436,14 +432,13 @@ def imdb_ds(path='dataset/imdb.csv'):
     text_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=3)
 
     return text_parser, label_parser, ds_train, ds_val
-
+    
 
 def get_dataset(ds_name):
     ds_dict = {"sentiment":sentiment_dataset,
                "offensive":offensive_dataset,
                "spam": spam_dataset,
-               "corona": corona_twitt_dataset,
-               "imdb": imdb_ds
+               "corona": corona_twitt_dataset
               }
     return ds_dict[ds_name]()
 

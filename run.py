@@ -21,7 +21,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 sort_functions = {'polarity': sort_sentences, 'confidence': sort_sentences_confidence}
 
-parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona'])
+parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'sentiment_twitter'])
 parser.add_argument("--optimization", default='')
 parser.add_argument("--sort_function", default='polarity', choices=['polarity', 'confidence'])
 parser.add_argument("--examples_max_length", default=90, type=int)
@@ -29,7 +29,7 @@ args = parser.parse_args()
 
 examples_max_length = args.examples_max_length
 do_ignore = args.optimization=='lossy'
-anchor_base.topk_optimize = args.optimization.startswith('topk')
+topk_optimize = args.optimization.startswith('topk')
 sort_function = sort_functions[args.sort_function]
 
 # can be sentiment/spam/offensive/corona
@@ -55,17 +55,13 @@ nlp = spacy.load('en_core_web_sm')
 
 train, train_labels, test, test_labels, anchor_examples = preprocess_examples(ds_train, examples_max_length)
 
-if anchor_base.topk_optimize:
-    anchor_examples = sort_function(anchor_examples)
+anchor_examples = sort_function(anchor_examples)
 
 
 # In[6]:
 
 normal_occurences = get_occurences(anchor_examples)
-anchor_base.AnchorBaseBeam.best_group = BestGroup(folder_name, normal_occurences)
-
-
-# ## notice!
+anchor_base.AnchorBaseBeam.best_group = BestGroup(folder_name, normal_occurences, filter_anchors = topk_optimize)
 
 # In[7]:
 
@@ -110,4 +106,4 @@ with open('times.csv', 'a+', newline='') as write_obj:
         # Create a writer object from csv module
         csv_writer = writer(write_obj)
         # Add contents of list as last row in the csv file
-        csv_writer.writerow([folder_name[len('results/'):], (time.time()-st)/60, do_ignore, anchor_base.topk_optimize, examples_max_length])
+        csv_writer.writerow([folder_name[len('results/'):], (time.time()-st)/60, do_ignore, topk_optimize, examples_max_length])
