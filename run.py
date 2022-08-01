@@ -22,21 +22,22 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 sort_functions = {'polarity': sort_sentences, 'confidence': sort_sentences_confidence}
 
 parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'sentiment_twitter'])
-parser.add_argument("--optimization", default='')
 parser.add_argument("--sort_function", default='polarity', choices=['polarity', 'confidence'])
+parser.add_argument("--optimization", default='', choices = ['', 'topk', 'lossy', 'desired'])
 parser.add_argument("--examples_max_length", default=90, type=int)
 args = parser.parse_args()
 
 examples_max_length = args.examples_max_length
 do_ignore = args.optimization=='lossy'
-topk_optimize = args.optimization.startswith('topk')
-desired_optimize = args.optimization.startswith('desired')
+topk_optimize = args.optimization=='topk'
+desired_optimize = args.optimization=='desired'
 sort_function = sort_functions[args.sort_function]
 
 # can be sentiment/spam/offensive/corona
 dataset_name = args.dataset_name
+sorting = args.sort_function
 optimization = args.optimization
-folder_name = f'results/{dataset_name}-{optimization}' if len(optimization)>0 else f'results/{dataset_name}'
+folder_name = f'results/{dataset_name}/{sorting}/{optimization}' if len(optimization)>0 else f'results/{dataset_name}/{sorting}'
 text_parser, label_parser, ds_train, ds_val = get_dataset(dataset_name)
 
 # In[3]:
