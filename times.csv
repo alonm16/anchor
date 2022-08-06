@@ -24,3 +24,4 @@ tinybert/sentiment,33.79817207,FALSE,FALSE,90
 bertmini/corona,134.011458,FALSE,FALSE,150
 electra2/sentiment,92.67822336,FALSE,FALSE,90
 tinybert/corona,113.2366712,FALSE,FALSE,150
+tinybert/offensive,47.84326436,FALSE,FALSE,90

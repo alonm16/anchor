@@ -90,7 +90,7 @@ st = time.time()
     
 my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences_transformer, ignored, f"profile.pickle", optimize = True)
 set_seed()
-torch._C._jit_set_texpr_fuser_enabled(False)
+#torch._C._jit_set_texpr_fuser_enabled(False)
 explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
 
 pickle.dump( explanations, open( f"{folder_name}/profile_list.pickle", "wb"))
