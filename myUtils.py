@@ -149,6 +149,40 @@ def sort_sentences_confidence(sentences):
     scored_sentences = [(sentence, predictions_confidence[i]) for i, sentence in enumerate(sentences)]
     scored_sentences.sort(key=lambda exp: -abs(exp[1]))
     return [exp[0] for exp in scored_sentences]
+
+
+def sort_polarity_transformer(sentences):
+    """score calculated as average absolute positivity/negativity of non stop words, normalized by their non stop words percentage"""
+    stop_words = get_stopwords()
+    tok_sentences = [tokenizer.tokenize(sentence) for sentence in sentences]
+    predictions = [predict_sentences_transformer([str(anchor_example)])[0] for anchor_example in sentences]
+    words_distribution = get_words_distribution(tok_sentences, predictions, stop_words)
+    
+    def sentence_score(sentence):
+        num_stops = sum(word in stop_words for word in sentence)
+        avg_occurences = sum(words_distribution[word] for word in sentence if word not in stop_words)/(len(sentence)-num_stops)
+        
+        return avg_occurences*(len(sentence) - num_stops)/len(sentence)
+    
+    scored_sentences = [(sentences[i], sentence_score(sentence)) for i, sentence in enumerate(tok_sentences)]
+    scored_sentences.sort(key=lambda exp: -abs(exp[1]))
+    return [exp[0] for exp in scored_sentences]
+
+def sort_confidence_transformer(sentences):
+    """sorts them according to the prediction confidence"""
+    softmax = torch.nn.Softmax()
+    
+    def predict_sentence_logits(sentence):
+        encoded = tokenizer.encode(sentence, add_special_tokens=True, return_tensors="pt").to(device)
+        return softmax(model(encoded)[0])
+    
+    predictions = [predict_sentence_logits(sentence)[0] for sentence in sentences]
+    predictions_confidence = [prediction[torch.argmax(prediction, dim=-1).item()] for prediction in predictions]
+    
+    scored_sentences = [(sentence, predictions_confidence[i]) for i, sentence in enumerate(sentences)]
+    scored_sentences.sort(key=lambda exp: -abs(exp[1]))
+    return scored_sentences
+    return [exp[0] for exp in scored_sentences]
     
 
 class BestGroupInner:

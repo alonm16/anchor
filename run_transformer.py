@@ -20,7 +20,7 @@ torch.manual_seed(SEED)
 warnings.simplefilter("ignore")
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-sort_functions = {'polarity': sort_sentences, 'confidence': sort_sentences_confidence}
+sort_functions = {'polarity': sort_polarity_transformer, 'confidence': sort_confidence_transformer}
 
 parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'sentiment_twitter'])
 parser.add_argument("--sort_function", default='polarity', choices=['polarity', 'confidence'])
@@ -81,9 +81,6 @@ explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distri
 
 
 # In[16]:
-
-pickle.dump( test, open(f"{folder_name}/test.pickle", "wb" ))
-pickle.dump( test_labels, open( f"{folder_name}/test_labels.pickle", "wb" ))
 pickle.dump( anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb" ))
 
 st = time.time()
