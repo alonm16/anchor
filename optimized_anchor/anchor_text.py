@@ -8,7 +8,7 @@ import string
 import sys
 from io import open
 import numpy as np
-from transformers import DistilBertTokenizer, DistilBertForMaskedLM
+from transformers import AutoTokenizer, AutoModelForMaskedLM
 import torch
 from numba import jit, njit, float32
 
@@ -32,9 +32,9 @@ class TextGenerator(object):
         self.url = url
         if url is None:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-            self.bert_tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-cased')
+            self.bert_tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased', use_fast=False)
             if optimize:
-                self.bert = torch.jit.load('DistilBertForMaskedLM.pt').to(self.device)
+                self.bert = torch.jit.load('transformer/mlm_models/distil_mlm.pt').to(self.device)
             else:
                 self.bert = DistilBertForMaskedLM.from_pretrained('distilbert-base-cased', torchscript=True)
                 self.bert.to(self.device)
@@ -209,7 +209,8 @@ class AnchorText(object):
                     raw_data.append(r)
             labels = []
             if compute_labels:
-                labels = (classifier_fn(raw_data) == true_label).astype(int)
+                with torch.no_grad():
+                    labels = (classifier_fn(raw_data) == true_label).astype(int)
             labels = np.array(labels)
             return data, labels
         return words, positions, true_label, sample_fn

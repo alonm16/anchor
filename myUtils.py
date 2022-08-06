@@ -9,7 +9,7 @@ from csv import writer
 import time
 
 model = None
-text_parser = None
+tokenizer = None
 nlp = spacy.load('en_core_web_sm')
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -25,7 +25,7 @@ def set_seed(seed=42):
 def tokenize(sentences):
     sentences = [nlp.tokenizer(str(text)) for text in sentences]
     max_len = max([len(sentence) for sentence in sentences])
-    input_tokens = [[2] + [text_parser.vocab.stoi[word.text] for word in sentence] + [3] + [1]*(max_len-len(sentence))
+    input_tokens = [[2] + [tokenizer.vocab.stoi[word.text] for word in sentence] + [3] + [1]*(max_len-len(sentence))
                     for sentence in sentences]
 
     return input_tokens
@@ -46,13 +46,21 @@ def predict_sentences_optimized(sentences):
     if(half_length>100):
         return np.concatenate([predict_sentences(sentences[:half_length]), predict_sentences(sentences[half_length:])])
     max_len = max([len(sentence) for sentence in sentences])
-    tokenized_sentences = [[2] + [text_parser.vocab.stoi[str(word)] for word in text] + [3] + [1]*(max_len-len(text)) 
+    tokenized_sentences = [[2] + [tokenizer.vocab.stoi[str(word)] for word in text] + [3] + [1]*(max_len-len(text)) 
                            for text in sentences]
     sentences = torch.tensor(tokenized_sentences, device=device)
     input_tokens = torch.transpose(sentences, 0, 1)
     output = model(input_tokens)
 
     return torch.argmax(output, dim=1).cpu().numpy()
+
+def predict_sentences_transformer(sentences):
+    encoded = [[101] +[tokenizer._convert_token_to_id_with_added_voc(token) for token in tokens] + [102]         
+               for tokens in sentences]
+    #encoded = tokenizer.encode(sentences, add_special_tokens=True, return_tensors="pt").to(device)
+    to_pred = torch.tensor(encoded, device=device)
+    outputs = model(to_pred)[0]
+    return torch.argmax(outputs, dim=1).cpu().numpy()
 
 
 from nltk.corpus import stopwords
@@ -72,7 +80,7 @@ def get_ignored(anchor_sentences):
         min_value = 1
         c = Counter()
         for sentence in sentences:
-            c.update(text_parser.tokenize(sentence))
+            c.update(tokenizer.tokenize(sentence))
         return set(w for w in c if c[w]<=min_value)
 
     return set(stop_words).union(get_below_occurences(anchor_sentences))
@@ -111,7 +119,7 @@ def get_words_distribution(sentences, predictions, stop_words):
 def sort_sentences(sentences):
     """score calculated as average absolute positivity/negativity of non stop words, normalized by their non stop words percentage"""
     stop_words = get_stopwords()
-    tok_sentences = [text_parser.tokenize(sentence) for sentence in sentences]
+    tok_sentences = [tokenizer.tokenize(sentence) for sentence in sentences]
     predictions = [predict_sentences([str(anchor_example)])[0] for anchor_example in sentences]
     words_distribution = get_words_distribution(tok_sentences, predictions, stop_words)
     

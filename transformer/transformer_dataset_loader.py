@@ -1,0 +1,96 @@
+import re
+import random
+import numpy as np
+import torch
+from sklearn.model_selection import train_test_split
+import pandas as pd
+from datasets import Dataset, DatasetDict
+
+def set_seed(seed=42):
+    """
+    ensures same results every run
+    :param seed: seed for ensuring same results
+    """
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+
+def sentiment_preprocessor(text):
+    text =re.sub('<[^>]*>', '', text)
+    text = re.sub('\s+',' ', text)
+    text=text.replace('\n','')
+    text=text.replace('(\)','')
+    text=text.lower()
+    text=text.replace('-',' ')
+    text=text.replace('\ ' ,'')
+    if text[-1]=='.':
+        text = text[:-1]
+    
+    return text.strip()
+    
+def twitter_preprocess(text_string):
+    """
+    Accepts a text string and replaces:
+    1) urls with URLHERE
+    2) lots of whitespace with one instance
+    3) mentions with MENTIONHERE
+    This allows us to get standardized counts of urls and mentions
+    Without caring about specific people mentioned
+    """
+    space_pattern = '\s+'
+    giant_url_regex = ('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|'
+        '[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+    mention_regex = '@[\w\-]+'
+    parsed_text = re.sub('#', '', text_string)
+    parsed_text = re.sub(space_pattern, ' ', parsed_text)
+    parsed_text = re.sub(giant_url_regex, '', parsed_text)
+    parsed_text = re.sub(mention_regex, '', parsed_text)
+   
+    return parsed_text.strip()
+
+def sentiment_ds(path = '../dataset/sentiment.csv'):
+    df = pd.read_csv(path).drop(columns=['Unnamed: 0'])
+    df['label'] = df['label'].map({'positive': True, 'negative': False})
+    df['text'] = df['review'].apply(sentiment_preprocessor)
+    df = df[['text', 'label']]
+    return prepare_ds(df)
+
+def offensive_ds(path='../dataset/offensive.csv'):
+    df = pd.read_csv(path, encoding = 'latin-1').drop(columns=['Unnamed: 0', 'count'])
+    df = df[df['class'].isin([1,2])]
+    df['label'] = df['class'].map({1: True, 2: False}) 
+    df['text'] = df['tweet'].apply(twitter_preprocess)
+    df = df[['text', 'label']]
+    neg_df = df[df['label']==False]
+    pos_df = df[df['label']==True][:len(neg_df)]
+    df = pd.concat([pos_df, neg_df])
+    return prepare_ds(df)
+
+
+def corona_ds(path = '../dataset/corona_train.csv'):
+    df = pd.read_csv(path, encoding='latin-1')[['OriginalTweet', 'Sentiment']]
+    df = df[df['Sentiment']!='Neutral']
+    df['label'] = df['Sentiment'].map({'Positive': True, 'Extremely Positive': True,'Negative': False, 'Extremely Negative': False}) 
+    df['text'] = df['OriginalTweet'].apply(twitter_preprocess)
+    df = df[:10000][['text', 'label']]
+    
+    return prepare_ds(df)
+
+def prepare_ds(df):
+    set_seed()
+    train_df, test_df = train_test_split(df, test_size=0.2)
+    ds = DatasetDict()
+    ds['train'] = Dataset.from_pandas(train_df).remove_columns(['__index_level_0__'])
+    ds['test'] = Dataset.from_pandas(test_df).remove_columns(['__index_level_0__'])
+    return ds
+
+def get_ds(ds_name):
+    ds_dict = {
+                "sentiment": sentiment_ds,
+                "offensive": offensive_ds,
+                "corona": corona_ds
+              }
+    return ds_dict[ds_name]()

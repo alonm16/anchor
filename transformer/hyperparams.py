@@ -56,10 +56,10 @@ def hyperparams_for_attention_trinary():
 def hyperparams_for_gru_binary():
     hp = dict(
         embedding_dim=100,
-        batch_size=16,
+        batch_size=32,
         hidden_dim=256,
         num_layers=2,
-        dropout=0.5,
+        dropout=0.3,
         lr = 0.0001,
         early_stopping = 5,
         output_classes = 2

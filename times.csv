@@ -16,3 +16,11 @@ sentiment,41.55341004,FALSE,FALSE,90
 sentiment_twitter,155.3537683,FALSE,FALSE,90
 corona-desired-polarity,61.21595254,FALSE,FALSE,150
 corona-desired-confidence,58.5569734,FALSE,FALSE,150
+distil-corona,162.1488927,FALSE,FALSE,150
+distil-sentiment,46.88968926,FALSE,FALSE,90
+electra/corona,125.692215,FALSE,FALSE,150
+electra/sentiment,51.99120634,FALSE,FALSE,90
+tinybert/sentiment,33.79817207,FALSE,FALSE,90
+bertmini/corona,134.011458,FALSE,FALSE,150
+electra2/sentiment,92.67822336,FALSE,FALSE,90
+tinybert/corona,113.2366712,FALSE,FALSE,150
