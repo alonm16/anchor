@@ -6,9 +6,9 @@ profile.txt
 profile.pickle
 **/checkpoint*/
 **/model/
-transformer/electra/
-transformer/tinybert/
-transformer/mlm_models/
+models/electra/
+models/tinybert/
+models/mlm_models/
 **/exps.pickle
 **/exps_list.pickle
 **/extended_exps.pickle

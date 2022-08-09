@@ -21,41 +21,8 @@ def set_seed(seed=42):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
-# 1 = pad 2=sos 3 = eos
-def tokenize(sentences):
-    sentences = [nlp.tokenizer(str(text)) for text in sentences]
-    max_len = max([len(sentence) for sentence in sentences])
-    input_tokens = [[2] + [tokenizer.vocab.stoi[word.text] for word in sentence] + [3] + [1]*(max_len-len(sentence))
-                    for sentence in sentences]
-
-    return input_tokens
-
 def predict_sentences(sentences):
-    half_length = len(sentences)//2
-    if(half_length>100):
-        return np.concatenate([predict_sentences(sentences[:half_length]), predict_sentences(sentences[half_length:])])
-    sentences = torch.tensor(tokenize(sentences), device=device)
-    
-    input_tokens = torch.transpose(sentences, 0, 1)
-    output = model(input_tokens)
-
-    return torch.argmax(output, dim=1).cpu().numpy()
-
-def predict_sentences_optimized(sentences):
-    half_length = len(sentences)//2
-    if(half_length>100):
-        return np.concatenate([predict_sentences(sentences[:half_length]), predict_sentences(sentences[half_length:])])
-    max_len = max([len(sentence) for sentence in sentences])
-    tokenized_sentences = [[2] + [tokenizer.vocab.stoi[str(word)] for word in text] + [3] + [1]*(max_len-len(text)) 
-                           for text in sentences]
-    sentences = torch.tensor(tokenized_sentences, device=device)
-    input_tokens = torch.transpose(sentences, 0, 1)
-    output = model(input_tokens)
-
-    return torch.argmax(output, dim=1).cpu().numpy()
-
-def predict_sentences_transformer(sentences):
-    encoded = [[101] +[tokenizer._convert_token_to_id_with_added_voc(token) for token in tokens] + [102]         
+    encoded = [[101] +[tokenizer.vocab.get(token, 100) for token in tokens] + [102]         
                for tokens in sentences]
     #encoded = tokenizer.encode(sentences, add_special_tokens=True, return_tensors="pt").to(device)
     to_pred = torch.tensor(encoded, device=device)
@@ -80,7 +47,7 @@ def get_ignored(anchor_sentences):
         min_value = 1
         c = Counter()
         for sentence in sentences:
-            c.update(tokenizer.tokenize(sentence))
+            c.update(nlp.tokenizer(sentence))
         return set(w for w in c if c[w]<=min_value)
 
     return set(stop_words).union(get_below_occurences(anchor_sentences))
@@ -116,7 +83,8 @@ def get_words_distribution(sentences, predictions, stop_words):
     
     return c
 
-def sort_sentences(sentences):
+
+def sort_polarity(sentences):
     """score calculated as average absolute positivity/negativity of non stop words, normalized by their non stop words percentage"""
     stop_words = get_stopwords()
     tok_sentences = [tokenizer.tokenize(sentence) for sentence in sentences]
@@ -133,42 +101,7 @@ def sort_sentences(sentences):
     scored_sentences.sort(key=lambda exp: -abs(exp[1]))
     return [exp[0] for exp in scored_sentences]
 
-    
-def sort_sentences_confidence(sentences):
-    """sorts them according to the prediction confidence"""
-    softmax = torch.nn.Softmax()
-    
-    def predict_sentence_logits(sentence):
-        sentence = torch.tensor(tokenize([sentence]), device=device)
-        input_tokens = torch.transpose(sentence, 0, 1)
-        return softmax(model(input_tokens))
-    
-    predictions = [predict_sentence_logits(sentence)[0] for sentence in sentences]
-    predictions_confidence = [prediction[torch.argmax(prediction, dim=-1).item()] for prediction in predictions]
-    
-    scored_sentences = [(sentence, predictions_confidence[i]) for i, sentence in enumerate(sentences)]
-    scored_sentences.sort(key=lambda exp: -abs(exp[1]))
-    return [exp[0] for exp in scored_sentences]
-
-
-def sort_polarity_transformer(sentences):
-    """score calculated as average absolute positivity/negativity of non stop words, normalized by their non stop words percentage"""
-    stop_words = get_stopwords()
-    tok_sentences = [tokenizer.tokenize(sentence) for sentence in sentences]
-    predictions = [predict_sentences_transformer([str(anchor_example)])[0] for anchor_example in sentences]
-    words_distribution = get_words_distribution(tok_sentences, predictions, stop_words)
-    
-    def sentence_score(sentence):
-        num_stops = sum(word in stop_words for word in sentence)
-        avg_occurences = sum(words_distribution[word] for word in sentence if word not in stop_words)/(len(sentence)-num_stops)
-        
-        return avg_occurences*(len(sentence) - num_stops)/len(sentence)
-    
-    scored_sentences = [(sentences[i], sentence_score(sentence)) for i, sentence in enumerate(tok_sentences)]
-    scored_sentences.sort(key=lambda exp: -abs(exp[1]))
-    return [exp[0] for exp in scored_sentences]
-
-def sort_confidence_transformer(sentences):
+def sort_confidence(sentences):
     """sorts them according to the prediction confidence"""
     softmax = torch.nn.Softmax()
     
@@ -333,6 +266,8 @@ class TextUtils:
         return self.explainer.explain_instance(self.dataset[idx], self.predict_fn, self.ignored, delta=self.delta, threshold=0.95, verbose=False, onepass=True)
 
     def get_fit_examples(self,exp):
+        #irrelevant
+        return []
         exp_words = exp.names()
         is_holding = [all(word in example for word in exp_words) for example in self.test]
         return np.where(is_holding)[0]

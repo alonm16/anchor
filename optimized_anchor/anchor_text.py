@@ -34,7 +34,7 @@ class TextGenerator(object):
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
             self.bert_tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased', use_fast=False)
             if optimize:
-                self.bert = torch.jit.load('transformer/mlm_models/distil_mlm.pt').to(self.device)
+                self.bert = torch.jit.load('models/mlm_models/distil_mlm.pt').to(self.device)
             else:
                 self.bert = DistilBertForMaskedLM.from_pretrained('distilbert-base-cased', torchscript=True)
                 self.bert.to(self.device)
@@ -43,7 +43,8 @@ class TextGenerator(object):
     def unmask(self, text_with_mask):
         tokenizer = self.bert_tokenizer 
         model = self.bert
-        encoded = np.array(tokenizer.encode(text_with_mask, add_special_tokens=True))
+          # TODO: optimize, 100 is unk
+        encoded = np.array([101] +[tokenizer.vocab.get(token, 100) for token in tokenizer.tokenize(text_with_mask)] + [102])
         masked = (encoded == self.bert_tokenizer.mask_token_id).nonzero()[0]
         to_pred = torch.tensor([encoded], device=self.device)
         with torch.no_grad():
