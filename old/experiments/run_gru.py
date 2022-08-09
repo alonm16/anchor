@@ -7,13 +7,11 @@ from optimized_anchor import anchor_text, anchor_base
 import pickle
 import myUtils
 from myUtils import *
-from models.utils import *
+from transformer.utils import *
 from dataset.dataset_loader import *
 import datetime
 import time
 import argparse
-import os
-from models.utils import *
 parser = argparse.ArgumentParser()
 
 SEED = 84
@@ -21,42 +19,41 @@ torch.manual_seed(SEED)
 warnings.simplefilter("ignore")
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-sort_functions = {'polarity': sort_polarity, 'confidence': sort_confidence}
+sort_functions = {'polarity': sort_sentences, 'confidence': sort_sentences_confidence}
 
 parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'sentiment_twitter'])
-parser.add_argument("--sorting", default='polarity', choices=['polarity', 'confidence'])
+parser.add_argument("--sort_function", default='polarity', choices=['polarity', 'confidence'])
 parser.add_argument("--optimization", default='', choices = ['', 'topk', 'lossy', 'desired'])
 parser.add_argument("--examples_max_length", default=90, type=int)
-parser.add_argument("--delta", default=0.1, type=float)
-
 args = parser.parse_args()
 
 examples_max_length = args.examples_max_length
 do_ignore = args.optimization=='lossy'
 topk_optimize = args.optimization=='topk'
 desired_optimize = args.optimization=='desired'
-sort_function = sort_functions[args.sorting]
-delta = args.delta
+sort_function = sort_functions[args.sort_function]
 
-# can be sentiment/offensive/corona
+# can be sentiment/spam/offensive/corona
 dataset_name = args.dataset_name
-sorting = args.sorting
+sorting = args.sort_function
 optimization = args.optimization
-model_type = 'tinybert'
-model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-folder_name = f'results/{dataset_name}/{sorting}/{delta}'
-if not os.path.exists(folder_name):
-    os.makedirs(folder_name)
+folder_name = f'results/{dataset_name}/{sorting}/{optimization}' if len(optimization)>0 else f'results/{dataset_name}/{sorting}'
+text_parser, label_parser, ds_train, ds_val = get_dataset(dataset_name)
 
-tokenizer, label_parser, ds_train, ds_val = get_dataset(dataset_name)
+# In[3]:
 
-model = torch.jit.load(f'models/{model_type}/{dataset_name}/traced.pt').to(device)
-model = model.eval()
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-myUtils.model = model
-myUtils.tokenizer = tokenizer
+model = load_model('gru' , f'transformer/{dataset_name}/gru.pt', text_parser)
+myUtils.model = torch.jit.script(model)
+myUtils.text_parser = text_parser
+
+
+# In[4]:
 
 nlp = spacy.load('en_core_web_sm')
+
+
+# In[5]:
+
 
 train, train_labels, test, test_labels, anchor_examples = preprocess_examples(ds_train, examples_max_length)
 
@@ -86,16 +83,19 @@ explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distri
 
 
 # In[16]:
+
+
+pickle.dump( test, open(f"{folder_name}/test.pickle", "wb" ))
+pickle.dump( test_labels, open( f"{folder_name}/test_labels.pickle", "wb" ))
 pickle.dump( anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb" ))
 
 st = time.time()
     
-my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, ignored, f"profile.pickle", optimize = True, delta = delta)
+my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences_optimized, ignored, f"profile.pickle", optimize = True)
 set_seed()
-#torch._C._jit_set_texpr_fuser_enabled(False)
 explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
 
-pickle.dump(explanations, open( f"{folder_name}/profile_list.pickle", "wb"))
+pickle.dump( explanations, open( f"{folder_name}/profile_list.pickle", "wb"))
 
 
 # In[ ]:
@@ -108,4 +108,4 @@ with open('times.csv', 'a+', newline='') as write_obj:
         # Create a writer object from csv module
         csv_writer = writer(write_obj)
         # Add contents of list as last row in the csv file
-        csv_writer.writerow([folder_name, (time.time()-st)/60, do_ignore, topk_optimize, examples_max_length])
+        csv_writer.writerow([folder_name[len('results/'):], (time.time()-st)/60, do_ignore, topk_optimize, examples_max_length])
