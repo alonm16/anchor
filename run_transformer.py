@@ -12,6 +12,7 @@ from dataset.dataset_loader import *
 import datetime
 import time
 import argparse
+import os
 from transformer.transformer_utils import *
 parser = argparse.ArgumentParser()
 
@@ -26,6 +27,8 @@ parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment
 parser.add_argument("--sort_function", default='polarity', choices=['polarity', 'confidence'])
 parser.add_argument("--optimization", default='', choices = ['', 'topk', 'lossy', 'desired'])
 parser.add_argument("--examples_max_length", default=90, type=int)
+parser.add_argument("--delta", default=0.1, type=float)
+
 args = parser.parse_args()
 
 examples_max_length = args.examples_max_length
@@ -33,6 +36,7 @@ do_ignore = args.optimization=='lossy'
 topk_optimize = args.optimization=='topk'
 desired_optimize = args.optimization=='desired'
 sort_function = sort_functions[args.sort_function]
+delta = args.delta
 
 # can be sentiment/spam/offensive/corona
 dataset_name = args.dataset_name
@@ -40,7 +44,9 @@ sorting = args.sort_function
 optimization = args.optimization
 model_type = 'tinybert'
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-folder_name = f'{model_type}/{dataset_name}'
+folder_name = f'{model_type}/{dataset_name}/{sorting}/{delta}'
+if not os.path.exists(folder_name):
+    os.makedirs(folder_name)
 
 tokenizer, label_parser, ds_train, ds_val = get_dataset(dataset_name)
 
@@ -50,12 +56,11 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 myUtils.model = model
 myUtils.tokenizer = tokenizer
 
-
 nlp = spacy.load('en_core_web_sm')
 
 train, train_labels, test, test_labels, anchor_examples = preprocess_examples(ds_train, examples_max_length)
 
-#anchor_examples = sort_function(anchor_examples)
+anchor_examples = sort_function(anchor_examples)
 
 
 # In[6]:
@@ -85,12 +90,12 @@ pickle.dump( anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb
 
 st = time.time()
     
-my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences_transformer, ignored, f"profile.pickle", optimize = True)
+my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences_transformer, ignored, f"profile.pickle", optimize = True, delta = delta)
 set_seed()
 #torch._C._jit_set_texpr_fuser_enabled(False)
 explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
 
-pickle.dump( explanations, open( f"{folder_name}/profile_list.pickle", "wb"))
+pickle.dump(explanations, open( f"{folder_name}/profile_list.pickle", "wb"))
 
 
 # In[ ]:

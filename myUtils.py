@@ -181,7 +181,6 @@ def sort_confidence_transformer(sentences):
     
     scored_sentences = [(sentence, predictions_confidence[i]) for i, sentence in enumerate(sentences)]
     scored_sentences.sort(key=lambda exp: -abs(exp[1]))
-    return scored_sentences
     return [exp[0] for exp in scored_sentences]
     
 
@@ -319,18 +318,19 @@ class ExtendedExplanation:
     
 # utils for the MODIFIED anchor algorithm
 class TextUtils:
-    def __init__(self, dataset, test, explainer, predict_fn, ignored, result_path, optimize = False):
+    def __init__(self, dataset, test, explainer, predict_fn, ignored, result_path, optimize = False, delta=0.1):
         self.dataset = dataset
         self.explainer = explainer
         self.predict_fn = predict_fn
         self.test = test
         self.path = result_path
         self.ignored = ignored
+        self.delta = delta
         
         explainer.set_optimize(optimize)
 
     def get_exp(self,idx):
-        return self.explainer.explain_instance(self.dataset[idx], self.predict_fn, self.ignored, threshold=0.95, verbose=False, onepass=True)
+        return self.explainer.explain_instance(self.dataset[idx], self.predict_fn, self.ignored, delta=self.delta, threshold=0.95, verbose=False, onepass=True)
 
     def get_fit_examples(self,exp):
         exp_words = exp.names()
