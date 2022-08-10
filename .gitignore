@@ -4,6 +4,7 @@ checkpoints/
 nohup.out
 profile.txt
 profile.pickle
+check/*
 **/checkpoint*/
 **/model/
 models/electra/

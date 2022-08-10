@@ -40,44 +40,51 @@ class TextGenerator(object):
                 self.bert.to(self.device)
                 self.bert.eval()
             
-    def unmask(self, text_with_mask):
+    def unmask(self, texts_with_mask):
         tokenizer = self.bert_tokenizer 
         model = self.bert
-          # TODO: optimize, 100 is unk
-        encoded = np.array([101] +[tokenizer.vocab.get(token, 100) for token in tokenizer.tokenize(text_with_mask)] + [102])
-        masked = (encoded == self.bert_tokenizer.mask_token_id).nonzero()[0]
-        to_pred = torch.tensor([encoded], device=self.device)
+        # TODO: optimize, 100 is unk
+        masked_array = []
+        encoded_array = tokenizer(texts_with_mask, add_special_tokens=True, return_tensors="np", padding=True)["input_ids"]
+        masked_array = [(encoded_array[i] == self.bert_tokenizer.mask_token_id).nonzero()[0] for i in range(len(texts_with_mask))]
+
+        to_pred = torch.tensor(encoded_array, device=self.device)
         with torch.no_grad():
             outputs = model(to_pred)[0]
-        ret = []  
+        rets = []  
         
-        if optimize:
-            ids_to_tokens = tokenizer.ids_to_tokens
-            unk_token = tokenizer.unk_token
-            #### try change to 100!!!!!!!!!!!!!!!!!!!
-            v_array, top_preds_array = torch.topk(outputs[0, masked], 500)
-            top_preds_array = top_preds_array.tolist()
-            v_array = v_array.cpu().numpy()
-            
-            for i in range(len(masked)):
+        for j in range(len(texts_with_mask)):
+            ret = []  
+
+            if optimize:
+                ids_to_tokens = tokenizer.ids_to_tokens
+                unk_token = tokenizer.unk_token
+                #### try change to 100!!!!!!!!!!!!!!!!!!!
+                v_array, top_preds_array = torch.topk(outputs[j, masked_array[j]], 500)
+                top_preds_array = top_preds_array.tolist()
+                v_array = v_array.cpu().numpy()
+
+                for i in range(len(masked_array[j])):
+
+                    v, top_preds = v_array[i], top_preds_array[i]
+
+                    # optimized function of the tokenizer "convert_ids_to_tokens", added_tokens_decoder always empty
+                    words = [ids_to_tokens.get(index, unk_token) for index in top_preds]
+
+                    ret.append((words, v))
+
+            else:
+                for i in masked:
+                    v, top_preds = torch.topk(outputs[0, i], 500)
+
+                    words = tokenizer.convert_ids_to_tokens(top_preds)
+                    v = np.array([float(x) for x in v])
+
+                    ret.append((words, v))
+                    
+            rets.append(ret)
         
-                v, top_preds = v_array[i], top_preds_array[i]
-
-                # optimized function of the tokenizer "convert_ids_to_tokens", added_tokens_decoder always empty
-                words = [ids_to_tokens.get(index, unk_token) for index in top_preds]
-
-                ret.append((words, v))
-            
-        else:
-            for i in masked:
-                v, top_preds = torch.topk(outputs[0, i], 500)
-
-                words = tokenizer.convert_ids_to_tokens(top_preds)
-                v = np.array([float(x) for x in v])
-
-                ret.append((words, v))
-        
-        return ret
+        return rets
     
 
 class SentencePerturber:
@@ -93,36 +100,59 @@ class SentencePerturber:
             a = self.array.copy()
             a[i] = self.mask
             s = ' '.join(a)
-            w, p = self.probs(s)[0]
+            w, p = self.probs([s])[0][0]
             self.pr[i] =  min(0.5, dict(zip(w, p)).get(words[i], 0.01))
     def sample(self, data):
-        a = self.array.copy()
-        masks = np.where(data == 0)[0]
-        a[data != 1] = self.mask
+        arrays = []
+        texts = []
+        masks_array = []
+        for i in range(data.shape[0]):
+            a = self.array.copy()
+            masks_array.append(np.where(data[i] == 0)[0])
+            a[data[i] != 1] = self.mask
+            arrays.append(a)
+            texts.append(' '.join(a))
+            
         if self.onepass:
-            s = ' '.join(a)
-            rs = self.probs(s)
+            rs = self.probs(texts)
             # TODO optimize : faster this way
-            if optimize:
-                reps = [a[np.random.choice(len(a), p=p)] for a, p in rs]
-            else:
-                reps = [np.random.choice(a, p=p) for a, p in rs]
+            for i in range(len(rs)):
+                if optimize:
+                    reps = [a[np.random.choice(len(a), p=p)] for a, p in rs[i]]
+                    arrays[i][masks_array[i]] = reps
+                else:
+                    reps = [np.random.choice(a, p=p) for a, p in rs]
            
-            a[masks] = reps
+            #a[masks] = rep
         else:
             for i in masks:
                 s = ' '.join(a)
                 words, probs = self.probs(s)[0]
                 a[i] = np.random.choice(words, p=probs)
-        return a
+        return arrays
 
-    def probs(self, s):
-        if s not in self.cache:
-            r = self.tg.unmask(s)
-            self.cache[s] = [(a, exp_normalize(b)) for a, b in r]
-            if not self.onepass:
-                self.cache[s] = self.cache[s][:1]
-        return self.cache[s]
+    def probs(self, texts):
+        results = [None]*len(texts)
+        not_cached =[]
+        not_cached_idx = []
+        for i, text  in enumerate(texts):
+            if text in self.cache:
+                results[i] = self.cache[text]
+            else:
+                not_cached.append(text)
+                not_cached_idx.append(i)
+        if len(not_cached) > 0:
+            rs = self.tg.unmask(not_cached)
+            for i, r in zip(not_cached_idx, rs):
+                results[i] = [(a, exp_normalize(b)) for a, b in r] 
+                self.cache[texts[i]] = results[i] 
+        
+        # if s not in self.cache:
+        #     r = self.tg.unmask(s)
+        #     self.cache[s] = [(a, exp_normalize(b)) for a, b in r]
+        #     if not self.onepass:
+        #         self.cache[s] = self.cache[s][:1]
+        return results
 
 
     def perturb_sentence(present, n, prob_change=0.5):
@@ -203,11 +233,11 @@ class AnchorText(object):
                         data[:, i] = np.random.choice([0, 1], num_samples, p=probs)
                 data[:, present] = 1
                 raw_data = []
+                r = perturber.sample(data)
                 for i, d in enumerate(data):
-                    r = perturber.sample(d)
-                    data[i] = r == words
+                    data[i] = r[i] == words
                     # optimize: not cancat to string
-                    raw_data.append(r)
+                raw_data=r
             labels = []
             if compute_labels:
                 with torch.no_grad():
