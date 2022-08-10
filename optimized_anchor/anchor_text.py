@@ -35,17 +35,29 @@ class TextGenerator(object):
             self.bert_tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased', use_fast=False)
             if optimize:
                 self.bert = torch.jit.load('models/mlm_models/distil_mlm.pt').to(self.device)
+                self.ids_to_tokens = dict(self.bert_tokenizer.ids_to_tokens)
             else:
                 self.bert = DistilBertForMaskedLM.from_pretrained('distilbert-base-cased', torchscript=True)
                 self.bert.to(self.device)
                 self.bert.eval()
-            
+         
+    # TODO: optimize, process multiple texts
     def unmask(self, texts_with_mask):
         tokenizer = self.bert_tokenizer 
         model = self.bert
-        # TODO: optimize, 100 is unk
+        ids_to_tokens = self.ids_to_tokens
+        unk_token = tokenizer.unk_token
+        
+        def tokenize_text():
+            # TODO: optimize, 100 is unk
+            tokenized_array = [tokenizer.tokenize(text) for text in texts_with_mask]
+            add_pad = [len(t) for t in tokenized_array]
+            max_len = max(add_pad)
+            add_pad = [max_len-pad for pad in add_pad]
+            return np.array([[101] +[tokenizer.vocab.get(token, 100) for token in tokenized_text] + [102] + [0]*add_pad[i] for i, tokenized_text in enumerate(tokenized_array)])
         masked_array = []
-        encoded_array = tokenizer(texts_with_mask, add_special_tokens=True, return_tensors="np", padding=True)["input_ids"]
+        encoded_array = tokenize_text()
+        #encoded_array = tokenizer(texts_with_mask, add_special_tokens=True, return_tensors="np", padding=True)["input_ids"]
         masked_array = [(encoded_array[i] == self.bert_tokenizer.mask_token_id).nonzero()[0] for i in range(len(texts_with_mask))]
 
         to_pred = torch.tensor(encoded_array, device=self.device)
@@ -57,8 +69,6 @@ class TextGenerator(object):
             ret = []  
 
             if optimize:
-                ids_to_tokens = tokenizer.ids_to_tokens
-                unk_token = tokenizer.unk_token
                 #### try change to 100!!!!!!!!!!!!!!!!!!!
                 v_array, top_preds_array = torch.topk(outputs[j, masked_array[j]], 500)
                 top_preds_array = top_preds_array.tolist()
@@ -67,7 +77,7 @@ class TextGenerator(object):
                 for i in range(len(masked_array[j])):
 
                     v, top_preds = v_array[i], top_preds_array[i]
-
+                    
                     # optimized function of the tokenizer "convert_ids_to_tokens", added_tokens_decoder always empty
                     words = [ids_to_tokens.get(index, unk_token) for index in top_preds]
 
@@ -79,8 +89,6 @@ class TextGenerator(object):
 
                     words = tokenizer.convert_ids_to_tokens(top_preds)
                     v = np.array([float(x) for x in v])
-
-                    ret.append((words, v))
                     
             rets.append(ret)
         
@@ -100,8 +108,11 @@ class SentencePerturber:
             a = self.array.copy()
             a[i] = self.mask
             s = ' '.join(a)
+            # TODO: optimize, process multiple texts, so more [0]
             w, p = self.probs([s])[0][0]
             self.pr[i] =  min(0.5, dict(zip(w, p)).get(words[i], 0.01))
+            
+    # TODO: optimize, process multiple texts
     def sample(self, data):
         arrays = []
         texts = []
@@ -131,11 +142,12 @@ class SentencePerturber:
                 a[i] = np.random.choice(words, p=probs)
         return arrays
 
+    # TODO: optimize, process multiple texts
     def probs(self, texts):
         results = [None]*len(texts)
         not_cached =[]
         not_cached_idx = []
-        for i, text  in enumerate(texts):
+        for i, text in enumerate(texts):
             if text in self.cache:
                 results[i] = self.cache[text]
             else:
@@ -233,10 +245,11 @@ class AnchorText(object):
                         data[:, i] = np.random.choice([0, 1], num_samples, p=probs)
                 data[:, present] = 1
                 raw_data = []
+                # TODO: optimize, process multiple texts
                 r = perturber.sample(data)
-                for i, d in enumerate(data):
+                for i in range(len(data)):
                     data[i] = r[i] == words
-                    # optimize: not cancat to string
+                # optimize: not cancat to string, change!!
                 raw_data=r
             labels = []
             if compute_labels:
