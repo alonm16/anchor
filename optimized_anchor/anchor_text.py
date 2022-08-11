@@ -244,11 +244,11 @@ class AnchorText(object):
                         probs = [1 - perturber.pr[i], perturber.pr[i]]
                         data[:, i] = np.random.choice([0, 1], num_samples, p=probs)
                 data[:, present] = 1
-                raw_data = []
+                
                 # TODO: optimize, process multiple texts
                 r = perturber.sample(data)
-                for i in range(len(data)):
-                    data[i] = r[i] == words
+                data = r[:] == words
+         
                 # optimize: not cancat to string, change!!
                 raw_data=r
             labels = []
