@@ -43,23 +43,23 @@ class TextGenerator(object):
                 self.bert.eval()
          
     # TODO: optimize, process multiple texts
-    def unmask(self, texts_with_mask):
+    def unmask(self, encoded_array):
         tokenizer = self.bert_tokenizer 
         model = self.bert
         ids_to_tokens = self.ids_to_tokens
         unk_token = tokenizer.unk_token
         
-        encoded_array = np.array([[101] +[tokenizer.vocab.get(token) for token in tokenized_text] + [102] for tokenized_text in texts_with_mask])
+        encoded_array = np.array(encoded_array)
         masked_array = []
         #encoded_array = tokenizer(texts_with_mask, add_special_tokens=True, return_tensors="np", padding=True)["input_ids"]
-        masked_array = [(encoded_array[i] == self.bert_tokenizer.mask_token_id).nonzero()[0] for i in range(len(texts_with_mask))]
+        masked_array = [(encoded_array[i] == self.bert_tokenizer.mask_token_id).nonzero()[0] for i in range(len(encoded_array))]
 
         to_pred = torch.tensor(encoded_array, device=self.device)
         with torch.no_grad():
             outputs = model(to_pred)[0]
         rets = []  
         
-        for j in range(len(texts_with_mask)):
+        for j in range(len(encoded_array)):
             ret = []  
 
             if optimize:
@@ -73,9 +73,9 @@ class TextGenerator(object):
                     v, top_preds = v_array[i], top_preds_array[i]
                     
                     # optimized function of the tokenizer "convert_ids_to_tokens", added_tokens_decoder always empty
-                    words = [ids_to_tokens.get(index, unk_token) for index in top_preds]
+                    #words = [ids_to_tokens[index] for index in top_preds]
 
-                    ret.append((words, v))
+                    ret.append((top_preds, v))
 
             else:
                 for i in masked:
@@ -95,37 +95,50 @@ class SentencePerturber:
         self.words = words
         self.cache = {}
         self.mask = self.tg.bert_tokenizer.mask_token
+        self.mask_id = self.tg.bert_tokenizer.mask_token_id
         self.array = np.array(words, '|U80')
         self.onepass = onepass
         self.rng = default_rng(42)
         self.choice = self.rng.choice
+        self.tokenized_array = np.array([101] +[self.tg.bert_tokenizer.vocab[token] for token in self.words] + [102])
         self.pr = np.zeros(len(self.words))
+        # not including [cls], [sep] tokens
         for i in range(len(words)):
             a = self.array.copy()
             a[i] = self.mask
+            tokenized_a = self.tokenized_array.copy()
+            tokenized_a[i+1] = self.mask_id
             s = ' '.join(a)
             # TODO: optimize, process multiple texts, so more [0]
-            w, p = self.probs([s], [a])[0][0]
+            w, p = self.probs([s], [tokenized_a])[0][0]
+            w = [self.tg.ids_to_tokens[w_i] for w_i in w]
             self.pr[i] =  min(0.5, dict(zip(w, p)).get(words[i], 0.01))
+            
+                
             
     # TODO: optimize, process multiple texts
     def sample(self, data):
         arrays = []
+        tokenized_arrays = []
         texts = []
         masks_array = []
         for i in range(data.shape[0]):
             a = self.array.copy()
             masks_array.append(np.where(data[i] == 0)[0])
             a[data[i] != 1] = self.mask
-            arrays.append(a)
             texts.append(' '.join(a))
+            arrays.append(a)
+            tokenized_a = self.tokenized_array.copy()
+            tokenized_a[1:-1][data[i] != 1] = self.mask_id
+            tokenized_arrays.append(tokenized_a)
+            
             
         if self.onepass:
-            rs = self.probs(texts, arrays)
+            rs = self.probs(texts, tokenized_arrays)
             # TODO optimize : faster this way
             for i in range(len(rs)):
                 if optimize:
-                    reps = [a[self.choice(len(a), p=p)] for a, p in rs[i]]
+                    reps = [self.tg.ids_to_tokens[a[self.choice(len(a), p=p)]] for a, p in rs[i]]
                     arrays[i][masks_array[i]] = reps
                 else:
                     reps = [np.random.choice(a, p=p) for a, p in rs]
@@ -168,9 +181,9 @@ class SentencePerturber:
         data = np.ones((n, len(self.words)))
 
 #maybe use instead of np.random.choice
-#@njit(int64(float32[:]), cache=True)
-#def choice(p): 
-#    return np.argmax(np.random.multinomial(1, p))
+# @njit(int64(float32[:]), cache=True)
+# def choice(p): 
+#     return np.argmax(np.random.multinomial(1, p))
         
 class AnchorText(object):
     """bla"""

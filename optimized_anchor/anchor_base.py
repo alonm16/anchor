@@ -134,7 +134,7 @@ class AnchorBaseBeam(object):
         if len(previous_best) == 0:
             # TODO added if not in ignored
             if optimize:
-                tuples = [(x, ) for x in all_features if (AnchorBaseBeam.words[x] not in AnchorBaseBeam.ignored) and AnchorBaseBeam.best_group.should_calculate(AnchorBaseBeam.words[x])]  
+                tuples = [(x, ) for x in all_features if (AnchorBaseBeam.words[x] not in AnchorBaseBeam.ignored) and AnchorBaseBeam.best_group.should_calculate(AnchorBaseBeam.words[x]) and (not AnchorBaseBeam.words[x].startswith("##"))]
             else:
                 tuples = [(x, ) for x in all_features]
                           
