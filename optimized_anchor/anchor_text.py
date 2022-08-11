@@ -11,6 +11,7 @@ import numpy as np
 from transformers import AutoTokenizer, AutoModelForMaskedLM
 import torch
 from numba import jit, njit, float32
+from numpy.random import default_rng
 
 optimize = False
 
@@ -48,15 +49,8 @@ class TextGenerator(object):
         ids_to_tokens = self.ids_to_tokens
         unk_token = tokenizer.unk_token
         
-        def tokenize_text():
-            # TODO: optimize, 100 is unk
-            tokenized_array = [tokenizer.tokenize(text) for text in texts_with_mask]
-            add_pad = [len(t) for t in tokenized_array]
-            max_len = max(add_pad)
-            add_pad = [max_len-pad for pad in add_pad]
-            return np.array([[101] +[tokenizer.vocab.get(token, 100) for token in tokenized_text] + [102] + [0]*add_pad[i] for i, tokenized_text in enumerate(tokenized_array)])
+        encoded_array = np.array([[101] +[tokenizer.vocab.get(token) for token in tokenized_text] + [102] for tokenized_text in texts_with_mask])
         masked_array = []
-        encoded_array = tokenize_text()
         #encoded_array = tokenizer(texts_with_mask, add_special_tokens=True, return_tensors="np", padding=True)["input_ids"]
         masked_array = [(encoded_array[i] == self.bert_tokenizer.mask_token_id).nonzero()[0] for i in range(len(texts_with_mask))]
 
@@ -103,13 +97,15 @@ class SentencePerturber:
         self.mask = self.tg.bert_tokenizer.mask_token
         self.array = np.array(words, '|U80')
         self.onepass = onepass
+        self.rng = default_rng(42)
+        self.choice = self.rng.choice
         self.pr = np.zeros(len(self.words))
         for i in range(len(words)):
             a = self.array.copy()
             a[i] = self.mask
             s = ' '.join(a)
             # TODO: optimize, process multiple texts, so more [0]
-            w, p = self.probs([s])[0][0]
+            w, p = self.probs([s], [a])[0][0]
             self.pr[i] =  min(0.5, dict(zip(w, p)).get(words[i], 0.01))
             
     # TODO: optimize, process multiple texts
@@ -125,11 +121,11 @@ class SentencePerturber:
             texts.append(' '.join(a))
             
         if self.onepass:
-            rs = self.probs(texts)
+            rs = self.probs(texts, arrays)
             # TODO optimize : faster this way
             for i in range(len(rs)):
                 if optimize:
-                    reps = [a[np.random.choice(len(a), p=p)] for a, p in rs[i]]
+                    reps = [a[self.choice(len(a), p=p)] for a, p in rs[i]]
                     arrays[i][masks_array[i]] = reps
                 else:
                     reps = [np.random.choice(a, p=p) for a, p in rs]
@@ -143,7 +139,7 @@ class SentencePerturber:
         return arrays
 
     # TODO: optimize, process multiple texts
-    def probs(self, texts):
+    def probs(self, texts, arrays):
         results = [None]*len(texts)
         not_cached =[]
         not_cached_idx = []
@@ -151,7 +147,7 @@ class SentencePerturber:
             if text in self.cache:
                 results[i] = self.cache[text]
             else:
-                not_cached.append(text)
+                not_cached.append(arrays[i])
                 not_cached_idx.append(i)
         if len(not_cached) > 0:
             rs = self.tg.unmask(not_cached)
@@ -207,13 +203,10 @@ class AnchorText(object):
 
     def get_sample_fn(self, text, classifier_fn, onepass=False, use_proba=False):
         # for changed predict_sentences
-        tok_text = self.nlp.tokenizer(text)
-        tok_text = [word.text for word in tok_text]
-        
-        true_label = classifier_fn([tok_text])[0]
-        processed = self.nlp(text)
-        words = np.array([x.text for x in processed], dtype='|U80')
-        positions = [x.idx for x in processed]
+        processed = self.tg.bert_tokenizer.tokenize(text)
+        true_label = classifier_fn([processed])[0]
+        words = np.array(processed, dtype='|U80')
+        positions = [x.idx for x in self.nlp(text)]
         # positions = list(range(len(words)))
         perturber = None
         if not self.use_unk_distribution:
@@ -246,11 +239,9 @@ class AnchorText(object):
                 data[:, present] = 1
                 
                 # TODO: optimize, process multiple texts
-                r = perturber.sample(data)
-                data = r[:] == words
+                raw_data = perturber.sample(data)
+                data = raw_data[:] == words
          
-                # optimize: not cancat to string, change!!
-                raw_data=r
             labels = []
             if compute_labels:
                 with torch.no_grad():
@@ -280,7 +271,7 @@ class AnchorText(object):
         explanations = []
         for exp in exps:
             exp['names'] = [words[x] for x in exp['feature']]
-            exp['positions'] = [positions[x] for x in exp['feature']]
+            #exp['positions'] = [positions[x] for x in exp['feature']]
             exp['instance'] = text
             exp['prediction'] = true_label
             print(exp['precision'])

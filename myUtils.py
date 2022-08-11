@@ -22,7 +22,7 @@ def set_seed(seed=42):
     torch.backends.cudnn.benchmark = False
 
 def predict_sentences(sentences):
-    encoded = [[101] +[tokenizer.vocab.get(token, 100) for token in tokens] + [102]         
+    encoded = [[101] +[tokenizer.vocab.get(token) for token in tokens] + [102]         
                for tokens in sentences]
     #encoded = tokenizer.encode(sentences, add_special_tokens=True, return_tensors="pt").to(device)
     to_pred = torch.tensor(encoded, device=device)
