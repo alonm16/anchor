@@ -88,7 +88,7 @@ def sort_polarity(sentences):
     """score calculated as average absolute positivity/negativity of non stop words, normalized by their non stop words percentage"""
     stop_words = get_stopwords()
     tok_sentences = [tokenizer.tokenize(sentence) for sentence in sentences]
-    predictions = [predict_sentences([str(anchor_example)])[0] for anchor_example in sentences]
+    predictions = [predict_sentences([example])[0] for example in tok_sentences]
     words_distribution = get_words_distribution(tok_sentences, predictions, stop_words)
     
     def sentence_score(sentence):
