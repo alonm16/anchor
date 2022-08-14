@@ -44,7 +44,7 @@ sorting = args.sorting
 optimization = args.optimization
 model_type = 'tinybert'
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-folder_name = f'results_new/{dataset_name}/{sorting}/{optimization}'
+folder_name = f'results/{dataset_name}/{sorting}/{optimization}'
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
 

@@ -10,7 +10,6 @@ import time
 
 model = None
 tokenizer = None
-nlp = spacy.load('en_core_web_sm')
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def set_seed(seed=42):
@@ -47,7 +46,7 @@ def get_ignored(anchor_sentences):
         min_value = 1
         c = Counter()
         for sentence in sentences:
-            c.update(nlp.tokenizer(sentence))
+            c.update(tokenizer.tokenize(sentence))
         return set(w for w in c if c[w]<=min_value)
 
     return set(stop_words).union(get_below_occurences(anchor_sentences))
@@ -55,7 +54,7 @@ def get_ignored(anchor_sentences):
 def get_occurences(sentences):
     c = Counter()
     for sentence in sentences:
-        c.update([x.text for x in nlp.tokenizer(sentence)])
+        c.update(tokenizer.tokenize(sentence))
         
     return c
 
