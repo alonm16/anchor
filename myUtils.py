@@ -204,9 +204,9 @@ class BestGroup:
         """ 
         NOT RELATED TO TOPK OPTIMIZATION
         substract this factor from the desired confidence so if a word occured a lot as anchor, we need to calculate less
-        formula: 0.2*(#anchor - normal_factor * #normal)/#all
+        formula: 0.4*(#anchor - normal_factor * #normal)/#all
         thus as the algorithm progresses the factor gets higher for the same pseudo score
-        multiply by 0.2 so the factor is in range (0, 0.2)
+        multiply by 0.4 so the factor is in range (0, 0.4)
         """
         if not self.desired_optimize:
             return 0

@@ -44,7 +44,7 @@ sorting = args.sorting
 optimization = args.optimization
 model_type = 'tinybert'
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-folder_name = f'results/{dataset_name}/{sorting}/{delta}'
+folder_name = f'results_new/{dataset_name}/{sorting}/{optimization}'
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
 
@@ -95,7 +95,7 @@ set_seed()
 #torch._C._jit_set_texpr_fuser_enabled(False)
 explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
 
-pickle.dump(explanations, open( f"{folder_name}/profile_list.pickle", "wb"))
+pickle.dump(explanations, open( f"{folder_name}/exps_list.pickle", "wb"))
 
 
 # In[ ]:

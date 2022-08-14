@@ -42,13 +42,12 @@ class TextGenerator(object):
                 self.bert.to(self.device)
                 self.bert.eval()
          
-    # TODO: optimize, process multiple texts
+    # TODO: optimize, process multiple texts, get the texts already encoded
     def unmask(self, encoded_array):
         tokenizer = self.bert_tokenizer 
         model = self.bert
         ids_to_tokens = self.ids_to_tokens
         unk_token = tokenizer.unk_token
-        
         encoded_array = np.array(encoded_array)
         masked_array = []
         #encoded_array = tokenizer(texts_with_mask, add_special_tokens=True, return_tensors="np", padding=True)["input_ids"]
@@ -71,10 +70,7 @@ class TextGenerator(object):
                 for i in range(len(masked_array[j])):
 
                     v, top_preds = v_array[i], top_preds_array[i]
-                    
-                    # optimized function of the tokenizer "convert_ids_to_tokens", added_tokens_decoder always empty
-                    #words = [ids_to_tokens[index] for index in top_preds]
-
+                    # optimize: doesn't convert the ids to tokens here, only later for the chosen tokens
                     ret.append((top_preds, v))
 
             else:
@@ -102,6 +98,7 @@ class SentencePerturber:
         self.choice = self.rng.choice
         self.tokenized_array = np.array([101] +[self.tg.bert_tokenizer.vocab[token] for token in self.words] + [102])
         self.pr = np.zeros(len(self.words))
+        # optimize: changed beacuse of unmask optimization
         # not including [cls], [sep] tokens
         for i in range(len(words)):
             a = self.array.copy()
@@ -116,7 +113,8 @@ class SentencePerturber:
             
                 
             
-    # TODO: optimize, process multiple texts
+    # TODO: optimize, process multiple texts, and sending sentences as tokens, 
+    # the sentence is encoded only once without masks, so only need to copy and change where the mask is
     def sample(self, data):
         arrays = []
         tokenized_arrays = []
