@@ -16,8 +16,6 @@ import os
 from models.utils import *
 parser = argparse.ArgumentParser()
 
-SEED = 84
-torch.manual_seed(SEED)
 warnings.simplefilter("ignore")
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -28,6 +26,7 @@ parser.add_argument("--sorting", default='polarity', choices=['polarity', 'confi
 parser.add_argument("--optimization", default='', choices = ['', 'topk', 'lossy', 'desired'])
 parser.add_argument("--examples_max_length", default=90, type=int)
 parser.add_argument("--delta", default=0.1, type=float)
+parser.add_argument("--seed", default=42, type=int)
 
 args = parser.parse_args()
 
@@ -44,7 +43,7 @@ sorting = args.sorting
 optimization = args.optimization
 model_type = 'tinybert'
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-folder_name = f'results/{dataset_name}/{sorting}/{optimization}' if optimization!='' else f'results/{dataset_name}/{sorting}/{delta}'
+folder_name = f'results/{dataset_name}/{sorting}/seed/{seed}'
 
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
@@ -91,7 +90,7 @@ pickle.dump( anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb
 st = time.time()
     
 my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, ignored, f"profile.pickle", optimize = True, delta = delta)
-set_seed()
+set_seed(seed)
 #torch._C._jit_set_texpr_fuser_enabled(False)
 explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
 

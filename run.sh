@@ -1,15 +1,22 @@
-python run.py --dataset_name sentiment --sorting polarity --optimization topk
-python run.py --dataset_name sentiment --sorting confidence --optimization topk
-python run.py --dataset_name corona --sorting polarity --optimization topk --examples_max_length 150 
-python run.py --dataset_name corona --sorting confidence --optimization topk --examples_max_length 150 
-python run.py --dataset_name sentiment --sorting polarity --optimization lossy
-python run.py --dataset_name sentiment --sorting confidence --optimization lossy
-python run.py --dataset_name corona --sorting polarity --optimization lossy --examples_max_length 150 
-python run.py --dataset_name corona --sorting confidence --optimization lossy --examples_max_length 150
-python run.py --dataset_name sentiment --sorting polarity --optimization desired
-python run.py --dataset_name sentiment --sorting confidence --optimization desired
-python run.py --dataset_name corona --sorting polarity --optimization desired --examples_max_length 150 
-python run.py --dataset_name corona --sorting confidence --optimization desired --examples_max_length 150 
+python run.py --dataset_name sentiment --sorting polarity --delta 0.25
+python run.py --dataset_name sentiment --sorting polarity --delta 0.30
+python run.py --dataset_name sentiment --sorting confidence --delta 0.25
+python run.py --dataset_name sentiment --sorting confidence --delta 0.30
+python run.py --dataset_name corona --sorting polarity --examples_max_length 150 --delta 0.25
+python run.py --dataset_name corona --sorting polarity --examples_max_length 150 --delta 0.30
+python run.py --dataset_name corona --sorting confidence --examples_max_length 150 --delta 0.25
+python run.py --dataset_name corona --sorting confidence --examples_max_length 150 --delta 0.30
+python run.py --dataset_name offensive --sorting polarity --delta 0.1
+python run.py --dataset_name offensive --sorting confidence --delta 0.1
+python run_seed.py --dataset_name sentiment --sorting confidence --seed 42
+python run_seed.py --dataset_name sentiment --sorting confidence --seed 84
+python run_seed.py --dataset_name sentiment --sorting confidence --seed 126
+python run_seed.py --dataset_name sentiment --sorting confidence --seed 168
+python run_seed.py --dataset_name corona --sorting confidence --seed 42
+python run_seed.py --dataset_name corona --sorting confidence --seed 84
+python run_seed.py --dataset_name corona --sorting confidence --seed 126
+python run_seed.py --dataset_name corona --sorting confidence --seed 168
+
 
 <<note
 python run.py --dataset_name sentiment --sorting polarity --delta 0.1
