@@ -36,6 +36,7 @@ topk_optimize = args.optimization=='topk'
 desired_optimize = args.optimization=='desired'
 sort_function = sort_functions[args.sorting]
 delta = args.delta
+seed = args.seed
 
 # can be sentiment/offensive/corona
 dataset_name = args.dataset_name
