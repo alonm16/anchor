@@ -1,3 +1,10 @@
+python run_seed.py --dataset_name corona --sorting confidence --examples_max_length 150 --seed 42
+python run_seed.py --dataset_name corona --sorting confidence --examples_max_length 150 --seed 84
+python run_seed.py --dataset_name corona --sorting confidence --examples_max_length 150 --seed 126
+python run_seed.py --dataset_name corona --sorting confidence --examples_max_length 150 --seed 168
+
+
+<<note
 python run.py --dataset_name sentiment --sorting polarity --delta 0.25
 python run.py --dataset_name sentiment --sorting polarity --delta 0.30
 python run.py --dataset_name sentiment --sorting confidence --delta 0.25
@@ -6,19 +13,10 @@ python run.py --dataset_name corona --sorting polarity --examples_max_length 150
 python run.py --dataset_name corona --sorting polarity --examples_max_length 150 --delta 0.30
 python run.py --dataset_name corona --sorting confidence --examples_max_length 150 --delta 0.25
 python run.py --dataset_name corona --sorting confidence --examples_max_length 150 --delta 0.30
-python run.py --dataset_name offensive --sorting polarity --delta 0.1
-python run.py --dataset_name offensive --sorting confidence --delta 0.1
 python run_seed.py --dataset_name sentiment --sorting confidence --seed 42
 python run_seed.py --dataset_name sentiment --sorting confidence --seed 84
 python run_seed.py --dataset_name sentiment --sorting confidence --seed 126
 python run_seed.py --dataset_name sentiment --sorting confidence --seed 168
-python run_seed.py --dataset_name corona --sorting confidence --seed 42
-python run_seed.py --dataset_name corona --sorting confidence --seed 84
-python run_seed.py --dataset_name corona --sorting confidence --seed 126
-python run_seed.py --dataset_name corona --sorting confidence --seed 168
-
-
-<<note
 python run.py --dataset_name sentiment --sorting polarity --delta 0.1
 python run.py --dataset_name sentiment --sorting polarity --delta 0.15
 python run.py --dataset_name sentiment --sorting polarity --delta 0.2
