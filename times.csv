@@ -99,3 +99,7 @@ results/corona/confidence/topk-reverse,57.012566057840985,False,True,False,150
 results/corona/polarity/topk-reverse,58.9406396428744,False,True,False,150
 results/corona/polarity/0.1-reverse,77.10409978628158,False,False,False,150
 results/corona/confidence/0.1-reverse,78.86924509207408,False,False,False,150
+results/corona/confidence/seed/42-shuffle,79.68650665680568,False,False,False,150
+results/corona/confidence/seed/84-shuffle,77.4079044063886,False,False,False,150
+results/corona/confidence/seed/126-shuffle,82.06602023442586,False,False,False,150
+results/corona/confidence/seed/168-shuffle,83.05262311299641,False,False,False,150

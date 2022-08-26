@@ -1,9 +1,7 @@
-python run_reverse.py --dataset_name corona --sorting confidence --examples_max_length 150 --optimization topk
-python run_reverse.py --dataset_name corona --sorting polarity --examples_max_length 150 --optimization topk
-python run_reverse.py --dataset_name corona --sorting polarity --examples_max_length 150 --delta 0.1
-python run_reverse.py --dataset_name corona --sorting confidence --examples_max_length 150 --delta 0.1
+
 
 <<note
+change back to not shuffle and return dir name!!!!!!!!!!!!
 python run_seed.py --dataset_name corona --sorting confidence --examples_max_length 150 --seed 42
 python run_seed.py --dataset_name corona --sorting confidence --examples_max_length 150 --seed 84
 python run_seed.py --dataset_name corona --sorting confidence --examples_max_length 150 --seed 126

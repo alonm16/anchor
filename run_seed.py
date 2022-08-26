@@ -63,7 +63,6 @@ train, train_labels, test, test_labels, anchor_examples = preprocess_examples(ds
 
 anchor_examples = sort_function(anchor_examples)
 
-
 # In[6]:
 
 normal_occurences = get_occurences(anchor_examples)
