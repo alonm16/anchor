@@ -29,11 +29,12 @@ def predict_sentences(sentences):
     return torch.argmax(outputs, dim=1).cpu().numpy()
 
 def predict_scores(sentences):
+    softmax = torch.nn.Softmax()
     encoded = [[101] +[tokenizer.vocab[token] for token in tokens] + [102]         
                for tokens in sentences]
     #encoded = tokenizer.encode(sentences, add_special_tokens=True, return_tensors="pt").to(device)
     to_pred = torch.tensor(encoded, device=device)
-    outputs = model(to_pred)[0]
+    outputs = softmax(model(to_pred)[0])
     return outputs.detach().cpu().numpy()
 
 
