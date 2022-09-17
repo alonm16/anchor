@@ -2,6 +2,7 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+from collections import Counter
 from myUtils import set_seed
 
 class APOC:
@@ -12,24 +13,47 @@ class APOC:
         self.softmax = torch.nn.Softmax()
         self.pos_tokens = pos_tokens
         self.neg_tokens = neg_tokens
+        self.formula_type = 'v1'
         
-        self.pos_sentences, self.pos_shuffled_tokens, self.pos_reversed_tokens = APOC.prepare_apoc(pos_tokens, sentences, labels, 1)
-        self.neg_sentences, self.neg_shuffled_tokens, self.neg_reversed_tokens = APOC.prepare_apoc(neg_tokens, sentences, labels, 0)
+        self.pos_sentences, self.pos_shuffled_tokens, self.pos_reversed_tokens, self.pos_w = APOC.prepare_apoc(tokenizer, pos_tokens, sentences, labels, 1)
+        self.neg_sentences, self.neg_shuffled_tokens, self.neg_reversed_tokens, self.neg_w = APOC.prepare_apoc(tokenizer, neg_tokens, sentences, labels, 0)
+        
+        self.cur_w = None
         
     @staticmethod
-    def prepare_apoc(tokens, sentences, labels, desired_label):
-        sentences = [e for i, e in enumerate(sentences) if labels[i]==desired_label]
-        shuffled_tokens = tokens.copy()
-        set_seed()
-        random.shuffle(shuffled_tokens)
+    def _calculate_w(sentences, tokens):
+        tokens_counter = Counter()
+        for s in sentences:
+            tokens_counter.update(s)
+        tokens_counter = {k: v for k, v in tokens_counter.items() if k in tokens}
+        max_occur = max(tokens_counter.values())
+        w = np.ones(len(sentences))
+        for i, s in enumerate(sentences):
+            for t in tokens:
+                if t in s:
+                    w[i] = max(w[i], max_occur/tokens_counter[t])
+        return w
+    
+    @staticmethod
+    def prepare_apoc(tokenizer, tokens, sentences, labels, desired_label):
+        sentences = [tokenizer.tokenize(s) for i, s in enumerate(sentences) if labels[i]==desired_label]
+        # need only sentences with anchors
+        sentences = [s for s in sentences if any(t in s for t in tokens)]
+                    
+        shuffled_tokens_arr = []
+        for i in range(1,6):
+            set_seed(i)
+            shuffled_tokens = tokens.copy()
+            random.shuffle(shuffled_tokens)
+            shuffled_tokens_arr.append(shuffled_tokens)
         reversed_tokens = tokens[::-1]
+        w = APOC._calculate_w(sentences, tokens)
         
-        return sentences, shuffled_tokens, reversed_tokens
+        return sentences, shuffled_tokens_arr, reversed_tokens, w
     
     def _predict_scores(self, sentences):
         encoded = [[101] +[self.tokenizer.vocab[token] for token in tokens] + [102]         
                    for tokens in sentences]
-        #encoded = tokenizer.encode(sentences, add_special_tokens=True, return_tensors="pt").to(device)
         to_pred = torch.tensor(encoded, device=self.device)
         outputs = self.softmax(self.model(to_pred)[0])
         return outputs.detach().cpu().numpy()
@@ -43,23 +67,27 @@ class APOC:
             predictions = [self._predict_scores([sentence])[0][label] for sentence, label in zip(sentences, labels)]
             predictions_arr.append(predictions)
         return predictions_arr
+    
+    def _apoc_formula(self, orig_predictions, predictions_arr, k):
+        N = len(orig_predictions)
+        
+        return sum([sum((orig_predictions - predictions_arr[i]))/N for i in range(k+1)])/(k+1)
+    
+    def _apoc_formula_v2(self, orig_predictions, predictions_arr, k):
+        N = len(orig_predictions)
+        return sum((orig_predictions - predictions_arr[k]))/N 
 
-    def _apoc_formula(self, predictions_arr):
+    def _calc_apoc(self, predictions_arr):
         predictions_arr = np.array(predictions_arr)
         orig_predictions = np.array(predictions_arr[0])
-        N = len(orig_predictions)
-        values = []
-
-        for k in range(len(predictions_arr)):
-            value = sum([sum(orig_predictions - predictions_arr[i])/N for i in range(k+1)])/(k+1)
-            values.append(value) 
-        return values
+        formula_fn = self._apoc_formula if self.formula_type == 'v1' else self._apoc_formula_v2
+        
+        return [formula_fn(orig_predictions, predictions_arr, k) for k in range(len(predictions_arr))]
 
     def _apoc_global(self, tokens_to_remove, sentences, labels):
-        tokenized_sentences = [self.tokenizer.tokenize(example) for example in sentences]
-        removed_sentences_arr = [self._remove_tokens(tokens_to_remove[:i], tokenized_sentences) for i in range(len(tokens_to_remove)+1)]
+        removed_sentences_arr = [self._remove_tokens(tokens_to_remove[:i], sentences) for i in range(len(tokens_to_remove)+1)]
         predictions_arr = self._apoc_predictions(removed_sentences_arr, labels)
-        apoc_scores = self._apoc_formula(predictions_arr)
+        apoc_scores = self._calc_apoc(predictions_arr)
         return apoc_scores
         
     def _plot_apoc(self, scores_arr, titles, graph_title):
@@ -73,15 +101,26 @@ class APOC:
         plt.title(graph_title)
         plt.show()
         
-    def apoc_global(self):
+    def apoc_global(self, formula_type = 'v1'):
+        self.formula_type = formula_type
+        legends =  ['regular', 'random', 'reverse']
+        
+        self.cur_w = self.pos_w
         normal_scores = self._apoc_global(self.pos_tokens, self.pos_sentences, [1]*len(self.pos_sentences))
-        random_scores = self._apoc_global(self.pos_shuffled_tokens, self.pos_sentences, [1]*len(self.pos_sentences))
+        random_scores = np.zeros(len(self.pos_tokens)+1)
+        for i in range(5):
+            random_scores += np.array(self._apoc_global(self.pos_shuffled_tokens[i], self.pos_sentences, [1]*len(self.pos_sentences)))
+        random_scores/=5
         reverse_scores = self._apoc_global(self.pos_reversed_tokens, self.pos_sentences, [1]*len(self.pos_sentences))
         
-        self._plot_apoc([normal_scores, random_scores, reverse_scores], ['regular', 'random', 'reverse'], 'positive')
+        self._plot_apoc([normal_scores, random_scores, reverse_scores], legends , f'positive - {formula_type}' )
         
+        self.cur_w = self.neg_w
         normal_scores = self._apoc_global(self.neg_tokens, self.neg_sentences, [0]*len(self.neg_sentences))
-        random_scores = self._apoc_global(self.neg_shuffled_tokens, self.neg_sentences, [0]*len(self.neg_sentences))
+        random_scores = np.zeros(len(self.neg_tokens)+1)
+        for i in range(5):
+            random_scores += np.array(self._apoc_global(self.neg_shuffled_tokens[i], self.neg_sentences, [0]*len(self.neg_sentences)))
+        random_scores/=5
         reverse_scores = self._apoc_global(self.neg_reversed_tokens, self.neg_sentences, [0]*len(self.neg_sentences))
 
-        self._plot_apoc([normal_scores, random_scores, reverse_scores], ['regular', 'random', 'reverse'], 'negative')
+        self._plot_apoc([normal_scores, random_scores, reverse_scores], legends, f'negative - {formula_type}')
