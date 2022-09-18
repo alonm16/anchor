@@ -3,17 +3,21 @@ import matplotlib.pyplot as plt
 import numpy as np
 import random
 from collections import Counter
+from transformers import pipeline
 from myUtils import set_seed
+import copy
 
 class APOC:
     def __init__(self, model, tokenizer, sentences, labels, pos_tokens, neg_tokens):
         self.model = model
         self.tokenizer = tokenizer
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.unmasker = pipeline('fill-mask', model='distilbert-base-uncased')
         self.softmax = torch.nn.Softmax()
         self.pos_tokens = pos_tokens
         self.neg_tokens = neg_tokens
         self.formula_type = 'v1'
+        self.tokens_method = None
         
         self.pos_sentences, self.pos_shuffled_tokens, self.pos_reversed_tokens, self.pos_w = APOC.prepare_apoc(tokenizer, pos_tokens, sentences, labels, 1)
         self.neg_sentences, self.neg_shuffled_tokens, self.neg_reversed_tokens, self.neg_w = APOC.prepare_apoc(tokenizer, neg_tokens, sentences, labels, 0)
@@ -60,6 +64,24 @@ class APOC:
 
     def _remove_tokens(self, removed_tokens, sentences):
         return [['[PAD]' if token in removed_tokens else token for token in sentence] for sentence in sentences]
+    
+    def _replace_tokens(self, removed_tokens, sentences):
+        replaced_sentences = []
+        for s in sentences:
+            tokenized_sentence = copy.deepcopy(s)
+            for i in range(len(tokenized_sentence)):
+                token = tokenized_sentence[i]
+                if token in removed_tokens:
+                    tokenized_sentence[i] = '[MASK]'
+                    sentence = self.tokenizer.decode(self.tokenizer.encode(tokenized_sentence))
+                    results = self.unmasker(sentence, top_k=2)
+                    for r in results:
+                        if r['token_str']!=token:
+                            tokenized_sentence[i] = r['token_str']
+                            break
+
+            replaced_sentences.append(tokenized_sentence)
+        return replaced_sentences      
 
     def _apoc_predictions(self, sentences_arr, labels):
         predictions_arr = []
@@ -69,13 +91,12 @@ class APOC:
         return predictions_arr
     
     def _apoc_formula(self, orig_predictions, predictions_arr, k):
-        N = len(orig_predictions)
-        
-        return sum([sum((orig_predictions - predictions_arr[i]))/N for i in range(k+1)])/(k+1)
+        N = len(orig_predictions)    
+        return sum([sum(orig_predictions - predictions_arr[i])/N for i in range(k+1)])/(k+1)
     
     def _apoc_formula_v2(self, orig_predictions, predictions_arr, k):
         N = len(orig_predictions)
-        return sum((orig_predictions - predictions_arr[k]))/N 
+        return sum(orig_predictions - predictions_arr[k])/N 
 
     def _calc_apoc(self, predictions_arr):
         predictions_arr = np.array(predictions_arr)
@@ -85,7 +106,11 @@ class APOC:
         return [formula_fn(orig_predictions, predictions_arr, k) for k in range(len(predictions_arr))]
 
     def _apoc_global(self, tokens_to_remove, sentences, labels):
-        removed_sentences_arr = [self._remove_tokens(tokens_to_remove[:i], sentences) for i in range(len(tokens_to_remove)+1)]
+        removed_sentences_arr = []
+        removed_sentences = sentences
+        for i in range(len(tokens_to_remove)+1):
+            removed_sentences = self.tokens_method(tokens_to_remove[:i], removed_sentences)
+            removed_sentences_arr.append(removed_sentences) 
         predictions_arr = self._apoc_predictions(removed_sentences_arr, labels)
         apoc_scores = self._calc_apoc(predictions_arr)
         return apoc_scores
@@ -101,8 +126,9 @@ class APOC:
         plt.title(graph_title)
         plt.show()
         
-    def apoc_global(self, formula_type = 'v1'):
+    def apoc_global(self, formula_type = 'v1', tokens_method = 'remove'):
         self.formula_type = formula_type
+        self.tokens_method = self._remove_tokens if tokens_method=='remove' else self._replace_tokens
         legends =  ['regular', 'random', 'reverse']
         
         self.cur_w = self.pos_w
