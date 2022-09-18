@@ -4,11 +4,11 @@ import numpy as np
 import random
 from collections import Counter
 from transformers import pipeline
-from myUtils import set_seed
 import copy
+from myUtils import set_seed
 
 class APOC:
-    def __init__(self, model, tokenizer, sentences, labels, pos_tokens, neg_tokens):
+    def __init__(self, model, tokenizer, sentences, labels, pos_tokens, neg_tokens, title):
         self.model = model
         self.tokenizer = tokenizer
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -18,6 +18,7 @@ class APOC:
         self.neg_tokens = neg_tokens
         self.formula_type = 'v1'
         self.tokens_method = None
+        self.title = title
         
         self.pos_sentences, self.pos_shuffled_tokens, self.pos_reversed_tokens, self.pos_w = APOC.prepare_apoc(tokenizer, pos_tokens, sentences, labels, 1)
         self.neg_sentences, self.neg_shuffled_tokens, self.neg_reversed_tokens, self.neg_w = APOC.prepare_apoc(tokenizer, neg_tokens, sentences, labels, 0)
@@ -92,11 +93,11 @@ class APOC:
     
     def _apoc_formula(self, orig_predictions, predictions_arr, k):
         N = len(orig_predictions)    
-        return sum([sum(orig_predictions - predictions_arr[i])/N for i in range(k+1)])/(k+1)
+        return sum([sum((orig_predictions - predictions_arr[i]))/N for i in range(k+1)])/(k+1)
     
     def _apoc_formula_v2(self, orig_predictions, predictions_arr, k):
         N = len(orig_predictions)
-        return sum(orig_predictions - predictions_arr[k])/N 
+        return sum((orig_predictions - predictions_arr[k])/N 
 
     def _calc_apoc(self, predictions_arr):
         predictions_arr = np.array(predictions_arr)
@@ -123,7 +124,7 @@ class APOC:
             plt.plot(range(len(scores)), scores, label = title)
         
         plt.legend()
-        plt.title(graph_title)
+        plt.title(self.title + graph_title)
         plt.show()
         
     def apoc_global(self, formula_type = 'v1', tokens_method = 'remove'):
@@ -139,7 +140,7 @@ class APOC:
         random_scores/=5
         reverse_scores = self._apoc_global(self.pos_reversed_tokens, self.pos_sentences, [1]*len(self.pos_sentences))
         
-        self._plot_apoc([normal_scores, random_scores, reverse_scores], legends , f'positive - {formula_type}' )
+        self._plot_apoc([normal_scores, random_scores, reverse_scores], legends , f' positive - {formula_type}' )
         
         self.cur_w = self.neg_w
         normal_scores = self._apoc_global(self.neg_tokens, self.neg_sentences, [0]*len(self.neg_sentences))
@@ -149,4 +150,18 @@ class APOC:
         random_scores/=5
         reverse_scores = self._apoc_global(self.neg_reversed_tokens, self.neg_sentences, [0]*len(self.neg_sentences))
 
-        self._plot_apoc([normal_scores, random_scores, reverse_scores], legends, f'negative - {formula_type}')
+        self._plot_apoc([normal_scores, random_scores, reverse_scores], legends, f' negative - {formula_type}')
+        
+        
+        @staticmethod
+        def compare_apocs(model, tokenizer, sentences, labels, pos_tokens_arr, neg_tokens_arr, deltas): 
+            pos_scores = []
+            neg_scores = []
+            for i in range(len(deltas)):
+                apoc = APOC(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], "") 
+                pos_scores.append(apoc._apoc_global(apoc.pos_tokens, apoc.pos_sentences, [1]*len(apoc.pos_sentences)))
+                neg_scores.append(apoc._apoc_global(apoc.neg_tokens, apoc.neg_sentences, [0]*len(apoc.neg_sentences)))
+               
+            # doesn't matter which apoc plots it
+            apoc._plot_apoc(pos_scores, deltas, 'positive')
+            apoc._plot_apoc(neg_scores, deltas, 'negative')
