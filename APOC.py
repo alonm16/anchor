@@ -98,7 +98,6 @@ class APOC:
         predictions_arr = np.array(predictions_arr)
         orig_predictions = np.array(predictions_arr[0])
         formula_fn = self._apoc_formula if self.formula_type == 'v1' else self._apoc_formula_v2
-        
         return [formula_fn(orig_predictions, predictions_arr, k) for k in range(len(predictions_arr))]
 
     def _apoc_global(self, tokens, sentences, labels):
@@ -154,7 +153,7 @@ class APOC:
             apoc = APOC(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], "") 
             pos_scores.append(apoc._apoc_global(apoc.pos_tokens, apoc.pos_sentences, [1]*len(apoc.pos_sentences)))
             neg_scores.append(apoc._apoc_global(apoc.neg_tokens, apoc.neg_sentences, [0]*len(apoc.neg_sentences)))
-
+        
         # doesn't matter which apoc plots it
         apoc._plot_apoc(pos_scores, deltas, 'positive')
         apoc._plot_apoc(neg_scores, deltas, 'negative')
