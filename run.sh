@@ -1,4 +1,6 @@
 
+python run_mp.py --dataset_name corona --sorting confidence --examples_max_length 150
+python run_mp.py --dataset_name sentiment --sorting confidence 
 
 <<note
 change back to not shuffle and return dir name!!!!!!!!!!!!
