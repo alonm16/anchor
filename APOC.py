@@ -146,14 +146,14 @@ class APOC:
         
         
     @staticmethod
-    def compare_apocs(model, tokenizer, sentences, labels, pos_tokens_arr, neg_tokens_arr, deltas): 
+    def compare_apocs(model, tokenizer, sentences, labels, pos_tokens_arr, neg_tokens_arr, legends): 
         pos_scores = []
         neg_scores = []
-        for i in range(len(deltas)):
+        for i in range(len(legends)):
             apoc = APOC(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], "") 
             pos_scores.append(apoc._apoc_global(apoc.pos_tokens, apoc.pos_sentences, [1]*len(apoc.pos_sentences)))
             neg_scores.append(apoc._apoc_global(apoc.neg_tokens, apoc.neg_sentences, [0]*len(apoc.neg_sentences)))
         
         # doesn't matter which apoc plots it
-        apoc._plot_apoc(pos_scores, deltas, 'positive')
-        apoc._plot_apoc(neg_scores, deltas, 'negative')
+        apoc._plot_apoc(pos_scores, legends, 'positive')
+        apoc._plot_apoc(neg_scores, legends, 'negative')
