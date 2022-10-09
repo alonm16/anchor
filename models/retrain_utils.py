@@ -2,8 +2,15 @@ from transformers import pipeline, AutoTokenizer
 import pickle
 import pandas as pd
 import copy
+from datasets import Dataset
+from enum import IntEnum
 
-class retrainUtils:
+class RetrainAction(IntEnum):
+    ADD = 1
+    REPLACE = 2
+    REMOVE = 3
+
+class RetrainUtils:
     def __init__(self, model_name, ds_name):
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast = False)
         self.ds_name = ds_name
@@ -20,19 +27,17 @@ class retrainUtils:
         neg_keys = df[f'{alpha}-negative'].dropna().tolist()
         neg_values = df.iloc[:, list(df.columns).index(f'{alpha}-negative')+1].tolist()
         neg_scores =dict(zip(neg_keys, neg_values))
-        max_neg = sum(df.head(top).iloc[:, list(df.columns).index(f'{alpha}-negative')+1])
-
 
         pos_keys = df[f'{alpha}-positive'].dropna().tolist()
         pos_values = df.iloc[:, list(df.columns).index(f'{alpha}-positive')+1].tolist()
         pos_scores = dict(zip(pos_keys, pos_values))
-        max_pos = sum(df.head(top).iloc[:, list(df.columns).index(f'{alpha}-positive')+1])
 
-        return pos_scores, neg_scores, max_pos, max_neg
+        return pos_scores, neg_scores
 
     def _replace_tokens(self, tokens, sentences, labels):
         replaced_sentences = []
-        for s, l in zip(sentences, labels):
+        replaced_indices = []
+        for idx, (s, l) in enumerate(zip(sentences, labels)):
             tokenized_sentence = copy.deepcopy(s)
             replaced = False
             for i in range(len(tokenized_sentence)):
@@ -48,17 +53,31 @@ class retrainUtils:
                             break
             if replaced:
                 replaced_sentences.append([self.tokenizer.decode(self.tokenizer.encode(tokenized_sentence)[1:-1]), l])
-
-        return replaced_sentences
+                replaced_indices.append(idx)
+                
+        return replaced_sentences, replaced_indices
         
-    def replace_sentences(self):
-        pos_scores, neg_scores, _, _ = self.get_scores_dict(trail_path = "scores.xlsx")
-        pos_tokens = [k for k, v in sorted(pos_scores.items(), key=lambda item: -item[1])][:25]
-        neg_tokens = [k for k, v in sorted(neg_scores.items(), key=lambda item: -item[1])][:25]
+    def replace_sentences(self, train_df, action = RetrainAction.ADD):
+        top = 10
+        pos_scores, neg_scores = self.get_scores_dict(trail_path = "scores.xlsx", top = top)
+        pos_tokens = [k for k, v in sorted(pos_scores.items(), key=lambda item: -item[1])][:top]
+        neg_tokens = [k for k, v in sorted(neg_scores.items(), key=lambda item: -item[1])][:top]
         all_tokens = pos_tokens + neg_tokens
         sentences = [self.tokenizer.tokenize(s) for s in self.anchor_sentences] 
         
-        examples = self._replace_tokens(all_tokens, sentences, self.labels)
-        df =  pd.DataFrame(examples, columns=['text', 'label'])
+        examples, replaced_indices = self._replace_tokens(all_tokens, sentences, self.labels)
+    
+        df = pd.DataFrame(examples, columns=['text', 'label'])
         df['label'] = df['label'].map({1: True, 0: False})
-        return df
+        
+        new_train = None
+  
+        if action == RetrainAction.ADD:
+            new_train = pd.concat([train_df, df], ignore_index=True)
+        elif action == RetrainAction.REPLACE:
+            new_train = train_df.copy()
+            new_train.iloc[replaced_indices] = df
+        elif action == RetrainAction.REMOVE:
+            new_train = train_df.drop(replaced_indices)      
+        
+        return Dataset.from_pandas(new_train)
