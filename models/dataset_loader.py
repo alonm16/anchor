@@ -79,6 +79,23 @@ def corona_ds(path = '../dataset/corona_train.csv'):
     
     return prepare_ds(df)
 
+def sentiment_twitt_dataset(path = '../dataset/sentiment_twitter.csv'):    
+    df = pd.read_csv(path, encoding ='ISO-8859-1')
+    df['label'] = df['target'].map({'POSITIVE': True, 'NEGATIVE': False})
+    df['text'] = df['text'].apply(twitter_preprocess)
+    df = df[['text', 'label']]
+    neg_df = df[df['label']==False][:5000]
+    pos_df = df[df['label']==True][:len(neg_df)]
+    df = pd.concat([pos_df, neg_df])
+    return prepare_ds(df) 
+    
+def counter_dataset(path = '../dataset/counter_ds.csv'):  
+    df = pd.read_csv(path)
+    df['label'] = df['Sentiment'].map({'Positive': True, 'Negative': False})
+    df['text'] = df['Text'].apply(sentiment_preprocessor)
+    df = df[['text', 'label']]
+    return prepare_ds(df)
+    
 def prepare_ds(df):
     set_seed()
     train_df, test_df = train_test_split(df, test_size=0.2)
@@ -91,6 +108,8 @@ def get_ds(ds_name):
     ds_dict = {
                 "sentiment": sentiment_ds,
                 "offensive": offensive_ds,
-                "corona": corona_ds
+                "corona": corona_ds,
+                "sentiment_twitter": sentiment_twitt_dataset,
+                "counter": counter_dataset
               }
     return ds_dict[ds_name]()
