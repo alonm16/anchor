@@ -4,6 +4,9 @@ import pandas as pd
 import copy
 from datasets import Dataset
 from enum import IntEnum
+import torch
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 
 class RetrainAction(IntEnum):
     ADD = 1
@@ -81,3 +84,26 @@ class RetrainUtils:
             new_train = train_df.drop(replaced_indices)      
         
         return Dataset.from_pandas(new_train)
+    
+class Ensemble(torch.nn.Module):
+    def __init__(self, m1, m2, threshold):
+        super(Ensemble, self).__init__()
+        self.m1 = m1
+        self.m2 = m2
+        self.softmax = torch.nn.Softmax()
+        self.threshold = threshold
+        
+    def forward(self, x):
+        outputs = self.m1(x)[0]
+        scores = self.softmax(outputs)
+        if torch.max(scores, 1).values.item() > self.threshold:
+            return torch.argmax(outputs, dim=1).cpu().numpy()
+        outputs = self.m2(x)[0]
+        return torch.argmax(outputs, dim=1).cpu().numpy()
+    
+def calc_accuracy(m, test, tokenizer):
+    labels = list(map(int, test['label']))
+    sentences = [tokenizer(s)['input_ids'] for s in test['text']]
+    sentences = [torch.tensor([s], device = device) for s in sentences]
+    predictions = [m(sentence) for sentence in sentences]
+    return sum(p==l for l, p in zip(predictions, labels))/len(labels)
