@@ -1,10 +1,32 @@
 from pathlib import Path
 import random
 import torch
+import torch.nn as nn
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, TrainingArguments, Trainer
 from datasets import load_dataset, load_metric
 from sklearn.metrics import accuracy_score
 import numpy as np
+
+class MyGRU(nn.Module):
+    def __init__(self, model_name, hidden_dim, num_layers, output_dim, dropout):
+        super().__init__()
+        self.embedding = load_model(model_name).get_input_embeddings()
+        self.GRU_layer = nn.GRU(input_size=self.embedding.embedding_dim, hidden_size=hidden_dim, num_layers=num_layers, dropout=dropout)
+        self.dropout = nn.Dropout(dropout)
+        self.fc = nn.Linear(in_features=hidden_dim, out_features=output_dim)
+        self.criterion = nn.CrossEntropyLoss()
+
+    def forward(self, input_ids, labels = None):
+        input_ids = torch.transpose(input_ids, 0, 1)
+        embedded = self.embedding(input_ids)
+        out, _ = self.GRU_layer(embedded)
+        out = self.dropout(out)
+        out = self.fc(out[-1])
+        
+        if labels is not None: 
+            return (self.criterion(out, labels), out)
+        
+        return (out,)
 
 def set_seed(seed=42):
     """
@@ -25,6 +47,13 @@ def load_model(model_name = 'huawei-noah/TinyBERT_General_4L_312D'):
     :return: loaded model
     """
     return AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
+
+def load_gru(path):
+    model_name = 'huawei-noah/TinyBERT_General_4L_312D'
+    model = MyGRU(model_name, hidden_dim=256, num_layers=2, output_dim=2, dropout=0.0)
+    saved_state = torch.load(f'{path}/pytorch_model.bin')
+    model.load_state_dict(saved_state)
+    return model
 
 def load_data(train_path, dev_path=None):
     """
