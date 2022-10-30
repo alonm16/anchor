@@ -84,10 +84,10 @@ class RetrainUtils:
             new_train = train_df.drop(replaced_indices)      
         
         return Dataset.from_pandas(new_train)
-    
+        
 class Ensemble(torch.nn.Module):
     def __init__(self, m1, m2, threshold):
-        super(Ensemble, self).__init__()
+        super().__init__()
         self.m1 = m1
         self.m2 = m2
         self.softmax = torch.nn.Softmax()
@@ -100,10 +100,11 @@ class Ensemble(torch.nn.Module):
             return torch.argmax(outputs, dim=1).cpu().numpy()
         outputs = self.m2(x)[0]
         return torch.argmax(outputs, dim=1).cpu().numpy()
+        
     
 def calc_accuracy(m, test, tokenizer):
     labels = list(map(int, test['label']))
-    sentences = [tokenizer(s)['input_ids'] for s in test['text']]
+    sentences = [tokenizer(s, padding='max_length', max_length = 64)['input_ids'] for s in test['text']]
     sentences = [torch.tensor([s], device = device) for s in sentences]
     predictions = [m(sentence) for sentence in sentences]
     return sum(p==l for l, p in zip(predictions, labels))/len(labels)
