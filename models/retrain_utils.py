@@ -102,9 +102,13 @@ class Ensemble(torch.nn.Module):
         return torch.argmax(outputs, dim=1).cpu().numpy()
         
     
-def calc_accuracy(m, test, tokenizer):
+def calc_accuracy(m, test, tokenizer, pad = False):
+    # pad for gru
     labels = list(map(int, test['label']))
-    sentences = [tokenizer(s, padding='max_length', max_length = 64)['input_ids'] for s in test['text']]
+    if pad:
+        sentences = [tokenizer(s, padding='max_length', max_length = 64)['input_ids'] for s in test['text']]
+    else: 
+        sentences = [tokenizer(s)['input_ids'] for s in test['text']]
     sentences = [torch.tensor([s], device = device) for s in sentences]
     predictions = [m(sentence) for sentence in sentences]
     return sum(p==l for l, p in zip(predictions, labels))/len(labels)

@@ -196,7 +196,7 @@ class APOCModified(APOC):
         pos_scores = []
         neg_scores = []
         for i in range(len(legends)):
-            apoc = APOCModified(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], "") 
+            apoc = APOCModified(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], "", num_removes = 25) 
             pos_scores.append(apoc._apoc_global(apoc.pos_tokens, apoc.pos_sentences, [1]*len(apoc.pos_sentences)))
             neg_scores.append(apoc._apoc_global(apoc.neg_tokens, apoc.neg_sentences, [0]*len(apoc.neg_sentences)))
         
