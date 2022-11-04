@@ -11,13 +11,25 @@ import re
 from torchtext.legacy import data
 from torch.utils.data import DataLoader
 from torchtext.data.functional import to_map_style_dataset
+import numpy as np
+from sklearn.model_selection import train_test_split
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 data_dir = os.path.expanduser('~/.pytorch-datasets')
 
 
-# Preparing Dataset
+def set_seed(seed=42):
+    """
+    ensures same results every run
+    :param seed: seed for ensuring same results
+    """
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 def load_sst(fine_grained = False):
     # torchtext Field objects parse text (e.g. a review) and create a tensor representation
@@ -432,6 +444,43 @@ def sentiment_twitt_dataset(path = 'dataset/sentiment_twitter.csv'):
     text_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=3)
 
     return text_parser, label_parser, ds_train, ds_val
+
+def dilemma_dataset(path = 'dataset/TheSocialDilemma.csv'):  
+    text_field = torchtext.legacy.data.Field(
+        sequential=True, use_vocab=True, lower=True, dtype=torch.long,
+        tokenize='spacy', tokenizer_language='en_core_web_sm', init_token='sos', eos_token='eos')
+
+    # This Field object converts the text labels into numeric values (0,1,2)
+    label_field = torchtext.legacy.data.Field(
+        is_target=True, sequential=False, unk_token=None, use_vocab=True)
+
+    fields = [('text', text_field), ('label', label_field)]
+    
+    df = pd.read_csv(path)
+    df = df[df['Sentiment']!='Neutral']
+    df['label'] = df['Sentiment']
+    df['text'] = df['text'].apply(twitter_preprocess)
+    df = df[['text', 'label']]
+    neg_df = df[df['label']=='Negative'][:3573]
+    pos_df = df[df['label']=='Positive'][:len(neg_df)]
+    df = pd.concat([pos_df, neg_df])
+    
+    set_seed()
+    train_df, test_df = train_test_split(df, test_size=0.15)
+    
+    train_examples, val_examples = [], []
+    for index, row in train_df.iterrows():
+        train_examples.append(data.Example.fromlist([row['text'], row['label'].lower()], fields))
+    for index, row in test_df.iterrows():
+        val_examples.append(data.Example.fromlist([row['text'], row['label'].lower()], fields))
+
+    
+    ds_train = data.Dataset(examples=train_examples, fields=fields)
+    ds_val = data.Dataset(examples=val_examples, fields=fields)
+
+    text_parser, label_parser = build_vocabulary(text_field, label_field, ds_train, min_freq=3)
+
+    return text_parser, label_parser, ds_train, ds_val
     
 
 def get_dataset(ds_name):
@@ -439,7 +488,8 @@ def get_dataset(ds_name):
                "offensive":offensive_dataset,
                "spam": spam_dataset,
                "corona": corona_twitt_dataset,
-               "sentiment_twitter": sentiment_twitt_dataset
+               "sentiment_twitter": sentiment_twitt_dataset,
+               "dilemma": dilemma_dataset
               }
     return ds_dict[ds_name]()
 

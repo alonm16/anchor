@@ -82,3 +82,4 @@ gru/sentiment/confidence/desired,13.89101121,FALSE,FALSE,TRUE,90
 gru/corona/confidence/lossy,55.61976062,TRUE,FALSE,FALSE,150
 gru/corona/confidence/topk,71.68495741,FALSE,TRUE,FALSE,150
 gru/corona/confidence/desired,68.44206266,FALSE,FALSE,TRUE,150
+results/dilemma/confidence/0.1,104.31682084798813,False,False,False,150

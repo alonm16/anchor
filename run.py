@@ -23,7 +23,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 sort_functions = {'polarity': sort_polarity, 'confidence': sort_confidence}
 
-parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'sentiment_twitter'])
+parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'sentiment_twitter', "dilemma"])
 parser.add_argument("--sorting", default='polarity', choices=['polarity', 'confidence'])
 parser.add_argument("--optimization", default='', choices = ['', 'topk', 'lossy', 'desired'])
 parser.add_argument("--examples_max_length", default=90, type=int)
@@ -50,6 +50,8 @@ if not os.path.exists(folder_name):
     os.makedirs(folder_name)
 
 tokenizer, label_parser, ds_train, ds_val = get_dataset(dataset_name)
+# when apply torchscript to models sometimes
+torch._C._jit_set_texpr_fuser_enabled(False)
 
 model = torch.jit.load(f'models/{model_type}/{dataset_name}/traced.pt').to(device)
 model = model.eval()

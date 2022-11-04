@@ -95,10 +95,22 @@ def counter_dataset(path = '../dataset/counter_ds.csv'):
     df['text'] = df['Text'].apply(sentiment_preprocessor)
     df = df[['text', 'label']]
     return prepare_ds(df)
+
+def dilemma_dataset(path = '../dataset/TheSocialDilemma.csv'):  
+    df = pd.read_csv(path)
+    df = df[df['Sentiment']!='Neutral']
+    df['label'] = df['Sentiment'].map({'Positive': True, 'Negative': False})
+    df['text'] = df['text'].apply(twitter_preprocess)
+    df = df[['text', 'label']]
+    neg_df = df[df['label']==False][:3573]
+    pos_df = df[df['label']==True][:len(neg_df)]
+    df = pd.concat([pos_df, neg_df])
+    return prepare_ds(df, 0.15)
     
-def prepare_ds(df):
+    
+def prepare_ds(df, test_size = 0.2):
     set_seed()
-    train_df, test_df = train_test_split(df, test_size=0.2)
+    train_df, test_df = train_test_split(df, test_size=test_size)
     ds = DatasetDict()
     ds['train'] = Dataset.from_pandas(train_df).remove_columns(['__index_level_0__'])
     ds['test'] = Dataset.from_pandas(test_df).remove_columns(['__index_level_0__'])
@@ -110,6 +122,7 @@ def get_ds(ds_name):
                 "offensive": offensive_ds,
                 "corona": corona_ds,
                 "sentiment_twitter": sentiment_twitt_dataset,
-                "counter": counter_dataset
+                "counter": counter_dataset,
+                "dilemma": dilemma_dataset
               }
     return ds_dict[ds_name]()
