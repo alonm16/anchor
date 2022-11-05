@@ -192,11 +192,11 @@ class APOCModified(APOC):
         return sentences, sentences_tokens, shuffled_tokens_arr, reversed_tokens
     
     @staticmethod
-    def compare_apocs(model, tokenizer, sentences, labels, pos_tokens_arr, neg_tokens_arr, legends): 
+    def compare_apocs(model, tokenizer, sentences, labels, pos_tokens_arr, neg_tokens_arr, legends, num_removes = 25): 
         pos_scores = []
         neg_scores = []
         for i in range(len(legends)):
-            apoc = APOCModified(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], "", num_removes = 25) 
+            apoc = APOCModified(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], "", num_removes = num_removes) 
             pos_scores.append(apoc._apoc_global(apoc.pos_tokens, apoc.pos_sentences, [1]*len(apoc.pos_sentences)))
             neg_scores.append(apoc._apoc_global(apoc.neg_tokens, apoc.neg_sentences, [0]*len(apoc.neg_sentences)))
         

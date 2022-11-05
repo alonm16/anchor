@@ -83,3 +83,10 @@ gru/corona/confidence/lossy,55.61976062,TRUE,FALSE,FALSE,150
 gru/corona/confidence/topk,71.68495741,FALSE,TRUE,FALSE,150
 gru/corona/confidence/desired,68.44206266,FALSE,FALSE,TRUE,150
 results/dilemma/confidence/0.1,104.31682084798813,False,False,False,150
+results/dilemma/confidence/0.15,75.11830817461014,False,False,False,150
+results/dilemma/confidence/0.2,64.76685592333476,False,False,False,150
+results/dilemma/confidence/0.35,57.50923488934835,False,False,False,150
+results/dilemma/confidence/0.5,47.18686303297679,False,False,False,150
+results/dilemma/confidence/lossy,60.17807176907857,True,False,False,150
+results/dilemma/confidence/topk,88.35177331765493,False,True,False,150
+results/dilemma/confidence/desired,52.825838482379915,False,False,True,150
