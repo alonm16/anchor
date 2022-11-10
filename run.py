@@ -8,12 +8,11 @@ import pickle
 import myUtils
 from myUtils import *
 from models.utils import *
-from dataset.dataset_loader import *
+from models.dataset_loader import *
 import datetime
 import time
 import argparse
 import os
-from models.utils import *
 parser = argparse.ArgumentParser()
 
 SEED = 84
@@ -49,7 +48,7 @@ folder_name = f'results/{dataset_name}/{sorting}/{optimization}' if optimization
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
 
-tokenizer, label_parser, ds_train, ds_val = get_dataset(dataset_name)
+ds = get_ds(dataset_name)
 # when apply torchscript to models sometimes
 torch._C._jit_set_texpr_fuser_enabled(False)
 
@@ -61,7 +60,7 @@ myUtils.tokenizer = tokenizer
 
 nlp = spacy.load('en_core_web_sm')
 
-train, train_labels, test, test_labels, anchor_examples = preprocess_examples(ds_train, examples_max_length)
+anchor_examples = preprocess_examples(ds, examples_max_length)
 
 anchor_examples = sort_function(anchor_examples)
 
@@ -92,7 +91,7 @@ pickle.dump( anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb
 
 st = time.time()
     
-my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, ignored, f"profile.pickle", optimize = True, delta = delta)
+my_utils = TextUtils(anchor_examples, anchor_examples, explainer, predict_sentences, ignored, f"profile.pickle", optimize = True, delta = delta)
 set_seed()
 #torch._C._jit_set_texpr_fuser_enabled(False)
 explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))

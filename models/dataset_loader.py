@@ -126,3 +126,8 @@ def get_ds(ds_name):
                 "dilemma": dilemma_dataset
               }
     return ds_dict[ds_name]()
+
+def preprocess_examples(ds, max_example_len = 90):
+    examples = ds['train'].filter(lambda x: 20 < len(x['text']) < max_example_len )
+    return examples
+    
