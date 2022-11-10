@@ -8,7 +8,7 @@ import copy
 from myUtils import set_seed
 
 class APOC:
-    def __init__(self, model, tokenizer, sentences, labels, pos_tokens, neg_tokens, title, num_removes = 10):
+    def __init__(self, model, tokenizer, sentences, labels, pos_tokens, neg_tokens, title, num_removes = 25, modified = False):
         self.model = model
         self.tokenizer = tokenizer
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -18,13 +18,15 @@ class APOC:
         self.tokens_method = self._remove_tokens
         self.title = title
         self.num_removes = num_removes
+        self.modified = modified
         
-        self.pos_sentences, self.pos_tokens, self.pos_shuffled_tokens, self.pos_reversed_tokens = APOC.prepare_apoc(tokenizer, pos_tokens, sentences, labels, 1)
-        self.neg_sentences, self.neg_tokens, self.neg_shuffled_tokens, self.neg_reversed_tokens = APOC.prepare_apoc(tokenizer, neg_tokens, sentences, labels, 0)
+        self.pos_sentences, self.pos_tokens, self.pos_shuffled_tokens, self.pos_reversed_tokens = self.prepare_apoc(tokenizer, pos_tokens, sentences, labels, 1)
+        self.neg_sentences, self.neg_tokens, self.neg_shuffled_tokens, self.neg_reversed_tokens = self.prepare_apoc(tokenizer, neg_tokens, sentences, labels, 0)
     
-    @staticmethod
-    def prepare_apoc(tokenizer, tokens, sentences, labels, desired_label):
-        def get_tokens_arr(s_arr, t_arr, reverse = False):
+    def get_tokens_arr(self, s_arr, t_arr, reverse = False):
+            if self.modified:
+                return [t_arr for _ in s_arr]
+
             sentences_tokens = []
             for sentence in s_arr:
                 sentence_tokens = [t for t in t_arr if t in sentence]
@@ -38,17 +40,18 @@ class APOC:
                     sentence_tokens = not_anchors
                 sentences_tokens.append(sentence_tokens)
             return sentences_tokens
-        
+    
+    def prepare_apoc(self, tokenizer, tokens, sentences, labels, desired_label):       
         sentences = [tokenizer.tokenize(s) for i, s in enumerate(sentences) if labels[i]==desired_label]
-        sentences_tokens = get_tokens_arr(sentences, tokens)
+        sentences_tokens = self.get_tokens_arr(sentences, tokens)
 
         shuffled_tokens_arr = []
         for i in range(1,6):
             set_seed(i*100)
             shuffled_tokens = tokens.copy()
             random.shuffle(shuffled_tokens)
-            shuffled_tokens_arr.append(get_tokens_arr(sentences, shuffled_tokens))
-        reversed_tokens = get_tokens_arr(sentences, tokens[::-1], reverse=True)      
+            shuffled_tokens_arr.append(self.get_tokens_arr(sentences, shuffled_tokens))
+        reversed_tokens = self.get_tokens_arr(sentences, tokens[::-1], reverse=True)      
         return sentences, sentences_tokens, shuffled_tokens_arr, reversed_tokens
     
     def _predict_scores(self, sentences):
@@ -146,47 +149,14 @@ class APOC:
         
         
     @classmethod
-    def compare_apocs(cls, model, tokenizer, sentences, labels, pos_tokens_arr, neg_tokens_arr, legends): 
+    def compare_apocs(cls, model, tokenizer, sentences, labels, pos_tokens_arr, neg_tokens_arr, legends, modified = False): 
         pos_scores = []
         neg_scores = []
         for i in range(len(legends)):
-            apoc = cls(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], "") 
+            apoc = cls(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], "", modified = modified) 
             pos_scores.append(apoc._apoc_global(apoc.pos_tokens, apoc.pos_sentences, [1]*len(apoc.pos_sentences)))
             neg_scores.append(apoc._apoc_global(apoc.neg_tokens, apoc.neg_sentences, [0]*len(apoc.neg_sentences)))
         
         # doesn't matter which apoc plots it
         apoc._plot_apoc(pos_scores, legends, 'positive')
         apoc._plot_apoc(neg_scores, legends, 'negative')
-
-        
-class APOCModified(APOC):
-    def __init__(self, model, tokenizer, sentences, labels, pos_tokens, neg_tokens, title, num_removes = 25):
-        self.model = model
-        self.tokenizer = tokenizer
-        self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-        self.unmasker = pipeline('fill-mask', model='distilbert-base-uncased')
-        self.softmax = torch.nn.Softmax()
-        self.formula_type = 'v1'
-        self.tokens_method = self._remove_tokens
-        self.title = title
-        self.num_removes = num_removes
-        
-        self.pos_sentences, self.pos_tokens, self.pos_shuffled_tokens, self.pos_reversed_tokens = APOCModified.prepare_apoc(tokenizer, pos_tokens, sentences, labels, 1)
-        self.neg_sentences, self.neg_tokens, self.neg_shuffled_tokens, self.neg_reversed_tokens = APOCModified.prepare_apoc(tokenizer, neg_tokens, sentences, labels, 0)
-    
-    @staticmethod
-    def prepare_apoc(tokenizer, tokens, sentences, labels, desired_label):
-        def get_tokens_arr(s_arr, t_arr, reverse = False):
-            return [t_arr for _ in s_arr]
-        
-        sentences = [tokenizer.tokenize(s) for i, s in enumerate(sentences) if labels[i]==desired_label]
-        sentences_tokens = get_tokens_arr(sentences, tokens)
-
-        shuffled_tokens_arr = []
-        for i in range(1,6):
-            set_seed(i*100)
-            shuffled_tokens = tokens.copy()
-            random.shuffle(shuffled_tokens)
-            shuffled_tokens_arr.append(get_tokens_arr(sentences, shuffled_tokens))
-        reversed_tokens = get_tokens_arr(sentences, tokens[::-1], reverse=True)      
-        return sentences, sentences_tokens, shuffled_tokens_arr, reversed_tokens
