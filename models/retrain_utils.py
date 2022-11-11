@@ -101,9 +101,9 @@ class Ensemble(torch.nn.Module):
         outputs = self.m2(x)[0]
         return torch.argmax(outputs, dim=1).cpu().numpy()
         
-    
+        
 def calc_accuracy(m, test, tokenizer, pad = False):
-    # pad for gru
+    """pad for gru"""
     labels = list(map(int, test['label']))
     if pad:
         sentences = [tokenizer(s, padding='max_length', max_length = 64)['input_ids'] for s in test['text']]

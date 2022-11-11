@@ -3,7 +3,7 @@ import random
 import torch
 import torch.nn as nn
 from transformers import AutoModelForSequenceClassification, AutoTokenizer, TrainingArguments, Trainer
-from datasets import load_dataset, load_metric
+from datasets import load_dataset, load_metric, DatasetDict
 from sklearn.metrics import accuracy_score
 import numpy as np
 
@@ -39,6 +39,14 @@ def set_seed(seed=42):
     torch.cuda.manual_seed_all(seed)
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
+    
+def predict_sentences(model, tokenizer, device, sentences):
+    encoded = [[101] +[tokenizer._convert_token_to_id_with_added_voc(token) for token in tokens] + [102]         
+               for tokens in sentences]
+    to_pred = torch.tensor(encoded, device=device)
+    outputs = model(to_pred)[0]
+    print(outputs)
+    return torch.argmax(outputs, dim=1).cpu().numpy()
     
 def load_model(model_name = 'huawei-noah/TinyBERT_General_4L_312D'):
     """
@@ -125,18 +133,18 @@ def train(model_seq_classification, tokenized_datasets, path, evaluate=False, nu
     else:
         return trainer.train()
         
-def evaluate(model, tokenizer_name, data_path):
-    data_files = {
-        'test': data_path
-    }
+def per_class_accuracy(folder_name, model_name, dataset_name):
+    def eval_filtered(filter_label):
+        filtered = ds['test'].filter(lambda x: x['label'] == filter_label)
+        filtered_ds = DatasetDict()
+        filtered_ds['train'] = filtered
+        filtered_ds['test'] = filtered
+        filtered_data = tokenize_dataset(filtered_ds, tokenizer_name = model_name, max_length = 64)
+        return train(model, filtered_data, path=f'', evaluate = True)['eval_accuracy']
+            
+    from dataset_loader import get_ds
+    ds = get_ds(dataset_name)
+    model = AutoModelForSequenceClassification.from_pretrained(f'{folder_name}/{dataset_name}/model', num_labels=2, torchscript=True).eval()
     
-    raw_datasets = load_dataset("csv", data_files=data_files).remove_columns(['Unnamed: 0'])
-    
-    tokenized_data = tokenize_dataset(raw_datasets, tokenizer_name=tokenizer_name)
-    
-    tokenized_data['train'] = None
-    
-    if type(model) == str:
-        model = load_model(model_name)
-    
-    return train(model, tokenized_data, evaluate=True)
+    print(f"positive accuracy {eval_filtered(1)}")
+    print(f"negative_accuracy {eval_filtered(0)}")
