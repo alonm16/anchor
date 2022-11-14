@@ -54,7 +54,9 @@ def load_model(model_name = 'huawei-noah/TinyBERT_General_4L_312D'):
     :param model_name: name for model
     :return: loaded model
     """
-    return AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2)
+    if 'gru' in model_name:
+        return load_gru(model_name)
+    return AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2, torchscript = True)
 
 def load_gru(path):
     model_name = 'huawei-noah/TinyBERT_General_4L_312D'

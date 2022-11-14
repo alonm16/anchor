@@ -1,12 +1,13 @@
-from transformers import pipeline, AutoTokenizer
+from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 import pickle
 import pandas as pd
 import copy
 from datasets import Dataset
 from enum import IntEnum
 import torch
+import matplotlib.pyplot as plt
+from utils import load_model
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
 
 class RetrainAction(IntEnum):
     ADD = 1
@@ -112,3 +113,27 @@ def calc_accuracy(m, test, tokenizer, pad = False):
     sentences = [torch.tensor([s], device = device) for s in sentences]
     predictions = [m(sentence) for sentence in sentences]
     return sum(p==l for l, p in zip(predictions, labels))/len(labels)
+
+def ensemble_results(folder_name, model_name, ds_name, eval_name, validation, test, model_path = 'updated_model', orig_model_path = 'model', pad = False):
+    from dataset_loader import get_ds
+    def plot_ax(ax, m1, m2, thresholds, test_ds, title, legend):
+        accs = []
+        for th in thresholds:
+            ensemble = Ensemble(m1, m2, th)
+            acc = calc_accuracy(ensemble, test_ds, tokenizer, pad)[0]
+            accs.append(acc)
+        ax.scatter(thresholds, accs)
+        ax.set_title(f'{ds_name} {title}')
+        ax.legend([f'eval {legend}'])
+        
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    model = load_model(f'{folder_name}/{ds_name}/{model_path}').to(device).eval()
+    orig_model = load_model(f'{folder_name}/{ds_name}/{orig_model_path}').to(device).eval()
+    ths1=[0.0, 0.5 , 0.55, 0.6 , 0.65, 0.7 , 0.75, 0.8 , 0.85, 0.9 , 0.95, 0.96, 0.97, 0.98, 0.99, 0.993, 1]
+    ths2=[0.0, 0.5 , 0.55, 0.6 , 0.65, 0.7 , 0.75, 0.8 , 0.85, 0.9 , 0.95, 1]
+    
+    fig, axs = plt.subplots(2, 2, figsize=(14, 8))
+    plot_ax(axs[0,0], model, orig_model, ths1, validation, '(retrained, original)', ds_name)       
+    plot_ax(axs[0,1], model, orig_model, ths1, test, '(retrained, original)', eval_name)  
+    plot_ax(axs[1,0], orig_model, model, ths2, validation, '(original, retrained)', ds_name)       
+    plot_ax(axs[1,1], orig_model, model, ths2, test, '(original, retrained)', eval_name)   
