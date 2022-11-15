@@ -299,3 +299,73 @@ class ApocUtils:
             cur_col+= len(columns) + 1
 
         writer.save()
+        
+    @staticmethod
+    def calculate_percent_scores(folder_name, tokenizer, anchor_examples, explanations, labels, percent):
+        """ calculates the scores for specific time during the running of anchor """
+        alphas = [0.95, 0.8, 0.65, 0.5]
+        dfs = []
+        columns = ['name', 'anchor score', 'type occurences', 'total occurences','+%', '-%', 'both', 'normal']
+
+        exps = get_best(explanations)
+        pos_exps = [exp for exp in exps if labels[exp.index]==0]
+        neg_exps = [exp for exp in exps if labels[exp.index]==1]
+
+        anchor_occurences = get_anchor_occurences(exps)
+        pos_occurences = get_anchor_occurences(pos_exps)
+        neg_occurences = get_anchor_occurences(neg_exps)
+
+        normal_occurences = get_normal_occurences(anchor_examples, anchor_occurences)
+        smooth_before(normal_occurences, [pos_occurences, neg_occurences])
+
+        teta0 = calculate_teta0(normal_occurences)
+
+
+        for alpha in alphas:
+            df_pos, df_neg = [], []
+
+            teta_pos = calculate_teta1(pos_occurences, teta0, alpha)
+            smooth_after(teta_pos, pos_occurences)
+
+            teta_neg = calculate_teta1(neg_occurences, teta0, alpha)
+            smooth_after(teta_neg, neg_occurences)
+
+            # substracting 1 because of the smoothing
+            for anchor, score in teta_pos.items():
+                pos_percent = round((pos_occurences[anchor]-1)/anchor_occurences[anchor], 2)
+                neg_percent = 1-pos_percent
+                both = (pos_occurences[anchor]-1)>0 and (neg_occurences[anchor]-1)>0
+                df_pos.append([anchor, score , pos_occurences[anchor]-1, anchor_occurences[anchor], pos_percent, neg_percent, both,  normal_occurences[anchor]-1]) 
+
+
+            for anchor, score in teta_neg.items():
+                pos_percent = round((pos_occurences[anchor]-1)/anchor_occurences[anchor], 2)
+                neg_percent = 1-pos_percent
+                both = (pos_occurences[anchor]-1)>0 and (neg_occurences[anchor]-1)>0
+                df_neg.append([anchor, score , neg_occurences[anchor]-1, anchor_occurences[anchor], pos_percent, neg_percent, both,  normal_occurences[anchor]-1]) 
+
+            df_pos.sort(key=lambda exp: -exp[1])
+            df_neg.sort(key=lambda exp: -exp[1])
+            df_pos = pd.DataFrame(data = df_pos, columns = columns ).set_index('name')
+            df_neg = pd.DataFrame(data = df_neg, columns = columns ).set_index('name')
+
+            dfs.extend([df_pos, df_neg])
+
+        writer = pd.ExcelWriter(f'{folder_name}/time/scores-{percent}.xlsx', engine='xlsxwriter') 
+
+        workbook=writer.book
+        worksheet=workbook.add_worksheet('Sheet1')
+        writer.sheets['Sheet1'] = worksheet
+
+        cur_col = 0
+        is_positive = False
+        alphas = np.repeat(alphas, 2)
+
+        for df, alpha in zip(dfs, alphas):
+            cur_type = 'positive' if is_positive else 'negative'
+            is_positive = not is_positive
+            worksheet.write(0, cur_col, f'{alpha}-{cur_type}')
+            df.to_excel(writer, sheet_name=f'Sheet1', startrow=1, startcol=cur_col)
+            cur_col+= len(columns) + 1
+
+        writer.save() 
