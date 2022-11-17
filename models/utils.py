@@ -6,6 +6,8 @@ from transformers import AutoModelForSequenceClassification, AutoTokenizer, Trai
 from datasets import load_dataset, load_metric, DatasetDict
 from sklearn.metrics import accuracy_score
 import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.svm import SVC
 
 class MyGRU(nn.Module):
     def __init__(self, model_name, hidden_dim, num_layers, output_dim, dropout):
@@ -49,8 +51,8 @@ class MySVM(nn.Module):
         svm.fit(train_vectors, train_labels)
         test_pred = svm.predict(test_vectors)
         train_pred = svm.predict(train_vectors)
-        print('Train accuracy', sklearn.metrics.accuracy_score(train_labels, train_pred))
-        print('Validation accuracy', sklearn.metrics.accuracy_score(test_labels, test_pred))
+        print('Train accuracy', accuracy_score(train_labels, train_pred))
+        print('Validation accuracy', accuracy_score(test_labels, test_pred))
         
         self.svm = svm
 

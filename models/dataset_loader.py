@@ -70,7 +70,7 @@ def offensive_ds(path='../dataset/offensive.csv'):
     return prepare_ds(df)
 
 
-def corona_ds(path = '../dataset/corona_train.csv'):
+def corona_ds(path = 'dataset/corona_train.csv'):
     df = pd.read_csv(path, encoding='latin-1')[['OriginalTweet', 'Sentiment']]
     df = df[df['Sentiment']!='Neutral']
     df['label'] = df['Sentiment'].map({'Positive': True, 'Extremely Positive': True,'Negative': False, 'Extremely Negative': False}) 
