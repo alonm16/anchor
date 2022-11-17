@@ -13,6 +13,7 @@ import datetime
 import time
 import argparse
 import os
+from joblib import load
 parser = argparse.ArgumentParser()
 
 SEED = 84
@@ -43,7 +44,7 @@ sorting = args.sorting
 optimization = args.optimization
 model_type = 'tinybert'
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-folder_name = f'results/{dataset_name}/{sorting}/{optimization}' if optimization!='' else f'results/{dataset_name}/{sorting}/{delta}'
+folder_name = f'results/svm/{dataset_name}/{sorting}/{optimization}' if optimization!='' else f'results/svm/{dataset_name}/{sorting}/{delta}'
 
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
@@ -52,8 +53,7 @@ ds = get_ds(dataset_name)
 # when apply torchscript to models sometimes
 torch._C._jit_set_texpr_fuser_enabled(False)
 
-model = torch.jit.load(f'models/{model_type}/{dataset_name}/traced.pt').to(device)
-model = model.eval()
+model = load(f'models/svm/{dataset_name}/model.joblib') 
 tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast = False)
 myUtils.model = model
 myUtils.tokenizer = tokenizer

@@ -27,6 +27,39 @@ class MyGRU(nn.Module):
             return (self.criterion(out, labels), out)
         
         return (out,)
+    
+class MySVM(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.svm = None
+        self.vectorizer = None
+        
+    def train(self, ds, tokenizer):
+        train_labels = np.array(ds['train']['label'])
+        train = [' '.join(map(str, tokenizer.encode(x))) for x in ds['train']['text']]
+        test_labels = np.array(ds['test']['label'])
+        test = [' '.join(map(str, tokenizer.encode(x))) for x in ds['test']['text']]
+        
+        self.vectorizer = CountVectorizer(min_df=1)
+        self.vectorizer.fit(train)
+        train_vectors = self.vectorizer.transform(train)
+        test_vectors = self.vectorizer.transform(test)
+        
+        svm = SVC(probability = True)
+        svm.fit(train_vectors, train_labels)
+        test_pred = svm.predict(test_vectors)
+        train_pred = svm.predict(train_vectors)
+        print('Train accuracy', sklearn.metrics.accuracy_score(train_labels, train_pred))
+        print('Validation accuracy', sklearn.metrics.accuracy_score(test_labels, test_pred))
+        
+        self.svm = svm
+
+    def forward(self, input_ids):
+        str_input = [' '.join(map(str, cur_input_ids)) for cur_input_ids in input_ids]
+        str_input = self.vectorizer.transform(str_input)
+        out = self.svm.predict_proba(str_input)
+        out = torch.from_numpy(out)
+        return (out,)
 
 def set_seed(seed=42):
     """
@@ -40,8 +73,8 @@ def set_seed(seed=42):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
     
-def predict_sentences(model, tokenizer, device, sentences):
-    encoded = [[101] +[tokenizer._convert_token_to_id_with_added_voc(token) for token in tokens] + [102]         
+def predicting_sentences(model, tokenizer, device, sentences):
+    encoded = [[101] +[tokenizer._convert_token_to_id_with_added_voc(token) for token in tokens] + [102]     
                for tokens in sentences]
     to_pred = torch.tensor(encoded, device=device)
     outputs = model(to_pred)[0]
