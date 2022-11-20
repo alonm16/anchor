@@ -95,3 +95,14 @@ results/corona/confidence/0.15,46.96329604784648,False,False,False,150
 results/corona/confidence/0.2,40.96231694221497,False,False,False,150
 results/corona/confidence/0.35,34.658128186066946,False,False,False,150
 results/corona/confidence/0.5,29.45069553454717,False,False,False,150
+results/corona/confidence/lossy,40.17543816169103,True,False,False,150
+results/corona/confidence/topk,48.22250467141469,False,True,False,150
+results/corona/confidence/desired,34.41430486838023,False,False,True,150
+results/svm/corona/confidence/0.1,281.74816188017525,False,False,False,150
+results/svm/corona/confidence/0.15,212.13092015186945,False,False,False,150
+results/svm/corona/confidence/0.2,162.55551032622654,False,False,False,150
+results/svm/corona/confidence/0.35,127.77729104359945,False,False,False,150
+results/svm/corona/confidence/0.5,75.68023773034413,False,False,False,150
+results/svm/corona/confidence/lossy,151.61736296017963,True,False,False,150
+results/svm/corona/confidence/topk,188.74878060817719,False,True,False,150
+results/svm/corona/confidence/desired,215.54158700704573,False,False,True,150
