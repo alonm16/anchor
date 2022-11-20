@@ -1,8 +1,3 @@
-python run.py --dataset_name corona --sorting confidence --examples_max_length 150 --optimization lossy
-python run.py --dataset_name corona --sorting confidence --examples_max_length 150 --optimization topk
-python run.py --dataset_name corona --sorting confidence --examples_max_length 150 --optimization desired
-
-
 python run_svm.py --dataset_name corona --sorting confidence --examples_max_length 150 --delta 0.1
 python run_svm.py --dataset_name corona --sorting confidence --examples_max_length 150 --delta 0.15
 python run_svm.py --dataset_name corona --sorting confidence --examples_max_length 150 --delta 0.2

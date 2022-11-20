@@ -246,6 +246,48 @@ class ApocUtils:
         return avgs
     
     @staticmethod
+    def smooth_before(normal_occurences, anchor_occurences_list):
+        for w in normal_occurences:
+            normal_occurences[w]+=1
+            for anchor_occurences in anchor_occurences_list:
+                anchor_occurences[w]+=1
+
+    @staticmethod
+    def smooth_after(teta1, type_occurences):
+        # removing words we added 1 at the start smooth
+        words = list(teta1.keys())
+        for word in words:
+            if type_occurences[word]<=1:
+                del teta1[word]
+
+        min_val = min(teta1.values()) 
+        if min_val<0:
+            for w in teta1:
+                teta1[w]-= min_val
+            sum_val = sum(teta1.values())
+            for w in teta1:
+                teta1[w]= teta1[w]/sum_val
+    
+    @staticmethod
+    def calculate_teta0(normal_occurences):
+        teta0 = dict()
+        sum_occurences = sum(normal_occurences.values())
+        for word, count in normal_occurences.items():
+            teta0[word] = count/sum_occurences
+
+        return teta0
+
+    @staticmethod
+    def calculate_teta1(anchor_occurences, teta0, alpha):
+        teta1 = dict()
+        sum_occurences = sum(anchor_occurences.values())
+        for word, count in anchor_occurences.items():
+            teta1[word] = count/sum_occurences -(1-alpha)*teta0[word]
+            teta1[word] = teta1[word]/alpha
+
+        return teta1
+    
+    @staticmethod
     def calculate_score(folder_name, tokenizer, anchor_examples, explanations, labels, agg_name):
         aggs = {'sum': ApocUtils.calculate_sum, 'avg': ApocUtils.calculate_avg}
         columns = ['name', 'anchor score', 'type occurences', 'total occurences','+%', '-%', 'both', 'normal']
@@ -307,28 +349,28 @@ class ApocUtils:
         dfs = []
         columns = ['name', 'anchor score', 'type occurences', 'total occurences','+%', '-%', 'both', 'normal']
 
-        exps = get_best(explanations)
+        exps = ApocUtils.get_best(explanations)
         pos_exps = [exp for exp in exps if labels[exp.index]==0]
         neg_exps = [exp for exp in exps if labels[exp.index]==1]
 
-        anchor_occurences = get_anchor_occurences(exps)
-        pos_occurences = get_anchor_occurences(pos_exps)
-        neg_occurences = get_anchor_occurences(neg_exps)
+        anchor_occurences = ApocUtils.get_anchor_occurences(exps)
+        pos_occurences = ApocUtils.get_anchor_occurences(pos_exps)
+        neg_occurences = ApocUtils.get_anchor_occurences(neg_exps)
 
-        normal_occurences = get_normal_occurences(anchor_examples, anchor_occurences)
-        smooth_before(normal_occurences, [pos_occurences, neg_occurences])
+        normal_occurences = ApocUtils.get_normal_occurences(anchor_examples, anchor_occurences, tokenizer)
+        ApocUtils.smooth_before(normal_occurences, [pos_occurences, neg_occurences])
 
-        teta0 = calculate_teta0(normal_occurences)
+        teta0 = ApocUtils.calculate_teta0(normal_occurences)
 
 
         for alpha in alphas:
             df_pos, df_neg = [], []
 
-            teta_pos = calculate_teta1(pos_occurences, teta0, alpha)
-            smooth_after(teta_pos, pos_occurences)
+            teta_pos = ApocUtils.calculate_teta1(pos_occurences, teta0, alpha)
+            ApocUtils.smooth_after(teta_pos, pos_occurences)
 
-            teta_neg = calculate_teta1(neg_occurences, teta0, alpha)
-            smooth_after(teta_neg, neg_occurences)
+            teta_neg = ApocUtils.calculate_teta1(neg_occurences, teta0, alpha)
+            ApocUtils.smooth_after(teta_neg, neg_occurences)
 
             # substracting 1 because of the smoothing
             for anchor, score in teta_pos.items():
