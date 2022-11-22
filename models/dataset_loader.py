@@ -6,6 +6,8 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 from datasets import Dataset, DatasetDict
 
+ds_dir = '/home/almr16/anchor/dataset/'
+
 def set_seed(seed=42):
     """
     ensures same results every run
@@ -51,14 +53,14 @@ def twitter_preprocess(text_string):
    
     return parsed_text.strip()
 
-def sentiment_ds(path = '../dataset/sentiment.csv'):
+def sentiment_ds(path = f'{ds_dir}/sentiment.csv'):
     df = pd.read_csv(path).drop(columns=['Unnamed: 0'])
     df['label'] = df['label'].map({'positive': True, 'negative': False})
     df['text'] = df['review'].apply(sentiment_preprocessor)
     df = df[['text', 'label']]
     return prepare_ds(df)
 
-def offensive_ds(path='../dataset/offensive.csv'):
+def offensive_ds(path=f'{ds_dir}/offensive.csv'):
     df = pd.read_csv(path, encoding = 'latin-1').drop(columns=['Unnamed: 0', 'count'])
     df = df[df['class'].isin([1,2])]
     df['label'] = df['class'].map({1: True, 2: False}) 
@@ -70,7 +72,7 @@ def offensive_ds(path='../dataset/offensive.csv'):
     return prepare_ds(df)
 
 
-def corona_ds(path = 'dataset/corona_train.csv'):
+def corona_ds(path = f'{ds_dir}/corona_train.csv'):
     df = pd.read_csv(path, encoding='latin-1')[['OriginalTweet', 'Sentiment']]
     df = df[df['Sentiment']!='Neutral']
     df['label'] = df['Sentiment'].map({'Positive': True, 'Extremely Positive': True,'Negative': False, 'Extremely Negative': False}) 
@@ -79,7 +81,7 @@ def corona_ds(path = 'dataset/corona_train.csv'):
     
     return prepare_ds(df)
 
-def sentiment_twitt_dataset(path = '../dataset/sentiment_twitter.csv'):    
+def sentiment_twitt_dataset(path = f'{ds_dir}/sentiment_twitter.csv'):    
     df = pd.read_csv(path, encoding ='ISO-8859-1')
     df['label'] = df['target'].map({'POSITIVE': True, 'NEGATIVE': False})
     df['text'] = df['text'].apply(twitter_preprocess)
@@ -89,14 +91,14 @@ def sentiment_twitt_dataset(path = '../dataset/sentiment_twitter.csv'):
     df = pd.concat([pos_df, neg_df])
     return prepare_ds(df) 
     
-def counter_dataset(path = '../dataset/counter_ds.csv'):  
+def counter_dataset(path = f'{ds_dir}/counter_ds.csv'):  
     df = pd.read_csv(path)
     df['label'] = df['Sentiment'].map({'Positive': True, 'Negative': False})
     df['text'] = df['Text'].apply(sentiment_preprocessor)
     df = df[['text', 'label']]
     return prepare_ds(df)
 
-def dilemma_dataset(path = '../dataset/TheSocialDilemma.csv'):  
+def dilemma_dataset(path = f'{ds_dir}/TheSocialDilemma.csv'):  
     df = pd.read_csv(path)
     df = df[df['Sentiment']!='Neutral']
     df['label'] = df['Sentiment'].map({'Positive': True, 'Negative': False})
