@@ -1,12 +1,23 @@
-python run_svm.py --dataset_name corona --sorting confidence --examples_max_length 150 --delta 0.1
-python run_svm.py --dataset_name corona --sorting confidence --examples_max_length 150 --delta 0.15
-python run_svm.py --dataset_name corona --sorting confidence --examples_max_length 150 --delta 0.2
-python run_svm.py --dataset_name corona --sorting confidence --examples_max_length 150 --delta 0.35
-python run_svm.py --dataset_name corona --sorting confidence --examples_max_length 150 --delta 0.5
+python run_svm.py --dataset_name dilemma --sorting confidence --examples_max_length 150 --delta 0.1
+python run_svm.py --dataset_name dilemma --sorting confidence --examples_max_length 150 --delta 0.15
+python run_svm.py --dataset_name dilemma --sorting confidence --examples_max_length 150 --delta 0.2
+python run_svm.py --dataset_name dilemma --sorting confidence --examples_max_length 150 --delta 0.35
+python run_svm.py --dataset_name dilemma --sorting confidence --examples_max_length 150 --delta 0.5
 
-python run_svm.py --dataset_name corona --sorting confidence --examples_max_length 150 --optimization lossy
-python run_svm.py --dataset_name corona --sorting confidence --examples_max_length 150 --optimization topk
-python run_svm.py --dataset_name corona --sorting confidence --examples_max_length 150 --optimization desired
+python run_svm.py --dataset_name dilemma --sorting confidence --examples_max_length 150 --optimization lossy
+python run_svm.py --dataset_name dilemma --sorting confidence --examples_max_length 150 --optimization topk
+python run_svm.py --dataset_name dilemma --sorting confidence --examples_max_length 150 --optimization desired
+
+
+python run_svm.py --dataset_name sentiment --sorting confidence --delta 0.1
+python run_svm.py --dataset_name sentiment --sorting confidence --delta 0.15
+python run_svm.py --dataset_name sentiment --sorting confidence --delta 0.2
+python run_svm.py --dataset_name sentiment --sorting confidence --delta 0.35
+python run_svm.py --dataset_name sentiment --sorting confidence --delta 0.5
+
+python run_svm.py --dataset_name sentiment --sorting confidence --optimization lossy
+python run_svm.py --dataset_name sentiment --sorting confidence --optimization topk
+python run_svm.py --dataset_name sentiment --sorting confidence --optimization desired
 
 
 <<note
