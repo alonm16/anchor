@@ -55,6 +55,9 @@ class MySVM(nn.Module):
         print('Validation accuracy', accuracy_score(test_labels, test_pred))
         
         self.svm = svm
+        
+    def eval(self):
+        return self
 
     def forward(self, input_ids):
         str_input = [' '.join(map(str, cur_input_ids)) for cur_input_ids in input_ids]
@@ -76,8 +79,7 @@ def set_seed(seed=42):
     torch.backends.cudnn.benchmark = False
     
 def predicting_sentences(model, tokenizer, device, sentences):
-    encoded = [[101] +[tokenizer._convert_token_to_id_with_added_voc(token) for token in tokens] + [102]     
-               for tokens in sentences]
+    encoded = [[101] +[tokenizer._convert_token_to_id_with_added_voc(token) for token in tokens] + [102] for tokens in sentences]
     to_pred = torch.tensor(encoded, device=device)
     outputs = model(to_pred)[0]
     print(outputs)
@@ -89,9 +91,21 @@ def load_model(model_name = 'huawei-noah/TinyBERT_General_4L_312D'):
     :param model_name: name for model
     :return: loaded model
     """
+    if 'svm' in model_name:
+        return load_svm(model_name)
+    if 'traced' in model_name:
+         return load_traced(model_name)
     if 'gru' in model_name:
         return load_gru(model_name)
+
     return AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2, torchscript = True)
+
+def load_traced(path):
+    return torch.jit.load(path)
+
+def load_svm(path):
+    from joblib import load
+    return load(path) 
 
 def load_gru(path):
     model_name = 'huawei-noah/TinyBERT_General_4L_312D'

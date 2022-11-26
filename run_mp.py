@@ -60,16 +60,14 @@ def run():
     topk_optimize = args.optimization=='topk'
     desired_optimize = args.optimization=='desired'
     sort_function = sort_functions[args.sorting]
-    delta = args.delta
 
-    # can be sentiment/offensive/corona
     dataset_name = args.dataset_name
     sorting = args.sorting
-    optimization = args.optimization
+    optimization = args.optimization if args.optimization!='' else args.delta
     model_type = 'tinybert'
     model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-    folder_name = f'results/mp/{dataset_name}/{sorting}/{optimization}' if optimization!='' else f'results/mp/{dataset_name}/{sorting}/{delta}'
-
+    folder_name = f'results/mp/{dataset_name}/{sorting}/{optimization}'
+    
     if not os.path.exists(folder_name):
         os.makedirs(folder_name)
 

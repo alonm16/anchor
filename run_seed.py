@@ -38,13 +38,12 @@ sort_function = sort_functions[args.sorting]
 delta = args.delta
 seed = args.seed
 
-# can be sentiment/offensive/corona
 dataset_name = args.dataset_name
 sorting = args.sorting
 optimization = args.optimization
 model_type = 'tinybert'
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-folder_name = f'results/{dataset_name}/{sorting}/seed/{seed}'
+folder_name = f'results/{model_type}/{dataset_name}/{sorting}/seed/{seed}'
 
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)

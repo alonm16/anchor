@@ -13,6 +13,9 @@ import datetime
 import time
 import argparse
 import os
+import sys
+sys.path.append('models')
+
 parser = argparse.ArgumentParser()
 
 SEED = 84
@@ -35,15 +38,13 @@ do_ignore = args.optimization=='lossy'
 topk_optimize = args.optimization=='topk'
 desired_optimize = args.optimization=='desired'
 sort_function = sort_functions[args.sorting]
-delta = args.delta
 
-# can be sentiment/offensive/corona
 dataset_name = args.dataset_name
 sorting = args.sorting
-optimization = args.optimization
-model_type = 'tinybert'
+optimization = args.optimization if args.optimization!='' else args.delta
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-folder_name = f'results/{dataset_name}/{sorting}/{optimization}' if optimization!='' else f'results/{dataset_name}/{sorting}/{delta}'
+model_type = 'tinybert'
+folder_name = f'results/{model_type}{dataset_name}/{sorting}/{optimization}'
 
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
@@ -52,8 +53,7 @@ ds = get_ds(dataset_name)
 # when apply torchscript to models sometimes
 torch._C._jit_set_texpr_fuser_enabled(False)
 
-model = torch.jit.load(f'models/{model_type}/{dataset_name}/traced.pt').to(device)
-model = model.eval()
+model = load_model(f'models/{model_type}/{dataset_name}/traced.pt').to(device).eval()
 tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast = False)
 myUtils.model = model
 myUtils.tokenizer = tokenizer
@@ -98,7 +98,6 @@ explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
 
 pickle.dump(explanations, open( f"{folder_name}/exps_list.pickle", "wb"))
 
-
 print(datetime.datetime.now())
 
 from csv import writer
@@ -106,4 +105,4 @@ with open('times.csv', 'a+', newline='') as write_obj:
         # Create a writer object from csv module
         csv_writer = writer(write_obj)
         # Add contents of list as last row in the csv file
-        csv_writer.writerow([folder_name, (time.time()-st)/60, do_ignore, topk_optimize, desired_optimize ,examples_max_length])
+        csv_writer.writerow([folder_name[len('results/'):], (time.time()-st)/60, do_ignore, topk_optimize, desired_optimize ,examples_max_length])

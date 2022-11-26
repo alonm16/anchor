@@ -116,21 +116,22 @@ class APOC:
         apoc_scores = self._calc_apoc(predictions_arr)
         return apoc_scores
         
-    def _plot_apoc(self, scores_arr, titles, graph_title):
-        plt.xlabel('# of features removed per sentence')
-        plt.ylabel('APOC - global')
-        
+    def _plot_apoc(self, ax, scores_arr, titles, graph_title):
+        ax.set_xlabel('# of features removed')
+        ax.set_ylabel('APOC - global')
+
         for scores, title in zip(scores_arr, titles):
-            plt.plot(range(len(scores)), scores, label = title)
-        
-        plt.legend()
-        plt.title(self.title + graph_title)
-        plt.show()
+            ax.plot(range(len(scores)), scores, label = title)
+
+        ax.legend()
+        ax.set_title(self.title + graph_title)
         
     def apoc_global(self, formula_type = 'v1', tokens_method = 'remove'):
         self.formula_type = formula_type
         self.tokens_method = self._remove_tokens if tokens_method=='remove' else self._replace_tokens
         legends =  ['regular', 'random', 'reverse']
+        fig, axs = plt.subplots(1, 2, figsize=(14, 4))
+        
         
         normal_scores = self._apoc_global(self.pos_tokens, self.pos_sentences, [1]*len(self.pos_sentences))
         random_scores = np.zeros(self.num_removes+1)
@@ -139,7 +140,7 @@ class APOC:
         random_scores/=5
         reverse_scores = self._apoc_global(self.pos_reversed_tokens, self.pos_sentences, [1]*len(self.pos_sentences))
         
-        self._plot_apoc([normal_scores, random_scores, reverse_scores], legends , f' positive - {formula_type}' )
+        self._plot_apoc(axs[0], [normal_scores, random_scores, reverse_scores], legends , f' positive - {formula_type}' )
         
         normal_scores = self._apoc_global(self.neg_tokens, self.neg_sentences, [0]*len(self.neg_sentences))
         random_scores = np.zeros(self.num_removes+1)
@@ -148,11 +149,13 @@ class APOC:
         random_scores/=5
         reverse_scores = self._apoc_global(self.neg_reversed_tokens, self.neg_sentences, [0]*len(self.neg_sentences))
 
-        self._plot_apoc([normal_scores, random_scores, reverse_scores], legends, f' negative - {formula_type}')
+        self._plot_apoc(axs[1], [normal_scores, random_scores, reverse_scores], legends, f' negative - {formula_type}')
         
+        fig.savefig(f'results/graphs/{self.title}')
         
     @staticmethod
-    def compare_apocs(model, tokenizer, compare_list, get_scores_fn, sentences, labels, legends, num_removes = 25, modified = False): 
+    def compare_apocs(model, tokenizer, compare_list, get_scores_fn, sentences, labels, legends, title = "", num_removes = 25, modified = False): 
+        fig, axs = plt.subplots(1, 2, figsize=(14, 4))
         
         pos_tokens_arr = []
         neg_tokens_arr = []
@@ -165,15 +168,42 @@ class APOC:
         pos_scores = []
         neg_scores = []
         for i in range(len(legends)):
-            apoc = APOC(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], "", num_removes = num_removes, modified = modified) 
+            apoc = APOC(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], title, num_removes = num_removes, modified = modified) 
             pos_scores.append(apoc._apoc_global(apoc.pos_tokens, apoc.pos_sentences, [1]*len(apoc.pos_sentences)))
             neg_scores.append(apoc._apoc_global(apoc.neg_tokens, apoc.neg_sentences, [0]*len(apoc.neg_sentences)))
         
         # doesn't matter which apoc plots it
-        apoc._plot_apoc(pos_scores, legends, 'positive')
-        apoc._plot_apoc(neg_scores, legends, 'negative')
+        apoc._plot_apoc(axs[0], pos_scores, legends, ' positive')
+        apoc._plot_apoc(axs[1], neg_scores, legends, ' negative')
         
-
+        fig.show()
+        fig.savefig(f'results/graphs/{title}')
+        
+    @staticmethod
+    def compare_all(folder_name, model, tokenizer, anchor_examples, labels, title, num_removes = 25, modified = True):
+        deltas = [0.1, 0.15, 0.2, 0.35, 0.5]
+        get_scores_fn = lambda delta: ApocUtils.get_scores_dict(folder_name, trail_path = f"../{delta}/scores.xlsx")
+        APOC.compare_apocs(model, tokenizer, deltas, get_scores_fn, anchor_examples, labels, deltas, f'{title} deltas', num_removes, modified)
+        
+        alphas = [0.95, 0.8, 0.65, 0.5]
+        get_scores_fn = lambda alpha: ApocUtils.get_scores_dict(folder_name, trail_path = "../0.1/scores.xlsx", alpha = alpha)
+        APOC.compare_apocs(model, tokenizer, alphas, get_scores_fn, anchor_examples, labels, alphas, f'{title} alphas', num_removes, modified)
+        
+        optimizations = [str(0.1), 'lossy', 'topk', 'desired']
+        get_scores_fn = lambda optimization: ApocUtils.get_scores_dict(folder_name, trail_path = f"../{optimization}/scores.xlsx")
+        APOC.compare_apocs(model, tokenizer, optimizations, get_scores_fn, anchor_examples, labels, optimizations, f'{title} optimizations', num_removes, modified)
+    
+        aggragations = ['', '', 'sum_', 'avg_']
+        alphas = [0.5, 0.95, None, None]
+        legends = [0.5, 0.95, 'sum', 'avg']
+        get_scores_fn = lambda x: ApocUtils.get_scores_dict(folder_name, folder_name, trail_path = f"../0.1/{x[0]}scores.xlsx", alpha = x[1])
+        APOC.compare_apocs(model, tokenizer, zip(aggragations, alphas), get_scores_fn, anchor_examples, labels, legends, f'{title} aggragations', num_removes, modified)
+        
+        percents = [10, 25, 50, 75, 100]
+        get_scores_fn = lambda percent: ApocUtils.get_scores_dict(folder_name, trail_path = f"../0.1/time/scores-{percent}.xlsx", alpha = 0.95)
+        APOC.compare_apocs(model, tokenizer, percents, get_scores_fn, anchor_examples, labels, percents, f'{title} percents', num_removes, modified)
+    
+    
 class ApocUtils:
     @staticmethod
     def get_scores_dict(folder_name, top=25, trail_path = "0.1/scores.xlsx", alpha = 0.95):
@@ -260,7 +290,7 @@ class ApocUtils:
             if type_occurences[word]<=1:
                 del teta1[word]
 
-        min_val = min(teta1.values()) 
+        min_val = min(teta1.values(), default = 0) 
         if min_val<0:
             for w in teta1:
                 teta1[w]-= min_val
