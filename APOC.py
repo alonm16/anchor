@@ -176,32 +176,51 @@ class APOC:
         apoc._plot_apoc(axs[0], pos_scores, legends, ' positive')
         apoc._plot_apoc(axs[1], neg_scores, legends, ' negative')
         
-        fig.show()
-        fig.savefig(f'results/graphs/{title}')
+        plt.show()
+        fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
         
     @staticmethod
-    def compare_all(folder_name, model, tokenizer, anchor_examples, labels, title, num_removes = 25, modified = True):
-        deltas = [0.1, 0.15, 0.2, 0.35, 0.5]
-        get_scores_fn = lambda delta: ApocUtils.get_scores_dict(folder_name, trail_path = f"../{delta}/scores.xlsx")
-        APOC.compare_apocs(model, tokenizer, deltas, get_scores_fn, anchor_examples, labels, deltas, f'{title} deltas', num_removes, modified)
+    def compare_all(folder_name, model, tokenizer, anchor_examples, labels, title, num_removes = 25, modified = True, from_img = []):
         
-        alphas = [0.95, 0.8, 0.65, 0.5]
-        get_scores_fn = lambda alpha: ApocUtils.get_scores_dict(folder_name, trail_path = "../0.1/scores.xlsx", alpha = alpha)
-        APOC.compare_apocs(model, tokenizer, alphas, get_scores_fn, anchor_examples, labels, alphas, f'{title} alphas', num_removes, modified)
+        def compare_deltas():
+            deltas = [0.1, 0.15, 0.2, 0.35, 0.5]
+            get_scores_fn = lambda delta: ApocUtils.get_scores_dict(folder_name, trail_path = f"../{delta}/scores.xlsx")
+            APOC.compare_apocs(model, tokenizer, deltas, get_scores_fn, anchor_examples, labels, deltas, f'{title} deltas', num_removes, modified)
         
-        optimizations = [str(0.1), 'lossy', 'topk', 'desired']
-        get_scores_fn = lambda optimization: ApocUtils.get_scores_dict(folder_name, trail_path = f"../{optimization}/scores.xlsx")
-        APOC.compare_apocs(model, tokenizer, optimizations, get_scores_fn, anchor_examples, labels, optimizations, f'{title} optimizations', num_removes, modified)
+        def compare_alphas():
+            alphas = [0.95, 0.8, 0.65, 0.5]
+            get_scores_fn = lambda alpha: ApocUtils.get_scores_dict(folder_name, trail_path = "../0.1/scores.xlsx", alpha = alpha)
+            APOC.compare_apocs(model, tokenizer, alphas, get_scores_fn, anchor_examples, labels, alphas, f'{title} alphas', num_removes, modified)
+        
+        def compare_optimizations():
+            optimizations = [str(0.1), 'lossy', 'topk', 'desired']
+            get_scores_fn = lambda optimization: ApocUtils.get_scores_dict(folder_name, trail_path = f"../{optimization}/scores.xlsx")
+            APOC.compare_apocs(model, tokenizer, optimizations, get_scores_fn, anchor_examples, labels, optimizations, f'{title} optimizations', num_removes, modified)
     
-        aggragations = ['', '', 'sum_', 'avg_']
-        alphas = [0.5, 0.95, None, None]
-        legends = [0.5, 0.95, 'sum', 'avg']
-        get_scores_fn = lambda x: ApocUtils.get_scores_dict(folder_name, folder_name, trail_path = f"../0.1/{x[0]}scores.xlsx", alpha = x[1])
-        APOC.compare_apocs(model, tokenizer, zip(aggragations, alphas), get_scores_fn, anchor_examples, labels, legends, f'{title} aggragations', num_removes, modified)
+        def compare_aggragations():
+            aggragations = ['', '', 'sum_', 'avg_']
+            alphas = [0.5, 0.95, None, None]
+            legends = [0.5, 0.95, 'sum', 'avg']
+            get_scores_fn = lambda x: ApocUtils.get_scores_dict(folder_name, folder_name, trail_path = f"../0.1/{x[0]}scores.xlsx", alpha = x[1])
+            APOC.compare_apocs(model, tokenizer, zip(aggragations, alphas), get_scores_fn, anchor_examples, labels, legends, f'{title} aggragations', num_removes, modified)
         
-        percents = [10, 25, 50, 75, 100]
-        get_scores_fn = lambda percent: ApocUtils.get_scores_dict(folder_name, trail_path = f"../0.1/time/scores-{percent}.xlsx", alpha = 0.95)
-        APOC.compare_apocs(model, tokenizer, percents, get_scores_fn, anchor_examples, labels, percents, f'{title} percents', num_removes, modified)
+        def compare_percents():
+            percents = [10, 25, 50, 75, 100]
+            get_scores_fn = lambda percent: ApocUtils.get_scores_dict(folder_name, trail_path = f"../0.1/time/scores-{percent}.xlsx", alpha = 0.95)
+            APOC.compare_apocs(model, tokenizer, percents, get_scores_fn, anchor_examples, labels, percents, f'{title} percents', num_removes, modified)
+            
+        compares = {'deltas': compare_deltas, 'alphas': compare_alphas, 'optimizations': compare_optimizations, 'aggragations': compare_aggragations, 'percents': compare_percents} 
+        
+        
+        for c in compares:
+            if c in from_img:
+                plt.figure(figsize = (18,10))
+                img = plt.imread(f'results/graphs/{title} {c}.png')
+                imgplot = plt.imshow(img)
+                plt.axis('off')
+                plt.show()
+            else:
+                compares[c]()
     
     
 class ApocUtils:
