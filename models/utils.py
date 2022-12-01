@@ -8,6 +8,7 @@ from sklearn.metrics import accuracy_score
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
 
 class MyGRU(nn.Module):
     def __init__(self, model_name, hidden_dim, num_layers, output_dim, dropout):
@@ -33,28 +34,28 @@ class MyGRU(nn.Module):
 class MySVM(nn.Module):
     def __init__(self):
         super().__init__()
-        self.svm = None
+        self.model = None
         self.vectorizer = None
         
     def train(self, ds, tokenizer):
         train_labels = np.array(ds['train']['label'])
         train = [' '.join(map(str, tokenizer.encode(x))) for x in ds['train']['text']]
-        test_labels = np.array(ds['test']['label'])
-        test = [' '.join(map(str, tokenizer.encode(x))) for x in ds['test']['text']]
+        val_labels = np.array(ds['val']['label'])
+        val = [' '.join(map(str, tokenizer.encode(x))) for x in ds['val']['text']]
         
         self.vectorizer = CountVectorizer(min_df=1)
         self.vectorizer.fit(train)
         train_vectors = self.vectorizer.transform(train)
-        test_vectors = self.vectorizer.transform(test)
+        val_vectors = self.vectorizer.transform(val)
         
-        svm = SVC(probability = True)
-        svm.fit(train_vectors, train_labels)
-        test_pred = svm.predict(test_vectors)
-        train_pred = svm.predict(train_vectors)
+        model = SVC(probability = True)
+        model.fit(train_vectors, train_labels)
+        val_pred = model.predict(val_vectors)
+        train_pred = model.predict(train_vectors)
         print('Train accuracy', accuracy_score(train_labels, train_pred))
-        print('Validation accuracy', accuracy_score(test_labels, test_pred))
+        print('Validation accuracy', accuracy_score(val_labels, val_pred))
         
-        self.svm = svm
+        self.model = model
         
     def eval(self):
         return self
@@ -62,7 +63,43 @@ class MySVM(nn.Module):
     def forward(self, input_ids):
         str_input = [' '.join(map(str, cur_input_ids)) for cur_input_ids in input_ids]
         str_input = self.vectorizer.transform(str_input)
-        out = self.svm.predict_proba(str_input)
+        out = self.model.predict_proba(str_input)
+        out = torch.from_numpy(out)
+        return (out,)
+    
+class MyLogistic(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.model = None
+        self.vectorizer = None
+        
+    def train(self, ds, tokenizer):
+        train_labels = np.array(ds['train']['label'])
+        train = [' '.join(map(str, tokenizer.encode(x))) for x in ds['train']['text']]
+        val_labels = np.array(ds['val']['label'])
+        val = [' '.join(map(str, tokenizer.encode(x))) for x in ds['val']['text']]
+        
+        self.vectorizer = CountVectorizer(min_df=1)
+        self.vectorizer.fit(train)
+        train_vectors = self.vectorizer.transform(train)
+        val_vectors = self.vectorizer.transform(val)
+        
+        model = LogisticRegression()
+        model.fit(train_vectors, train_labels)
+        val_pred = model.predict(val_vectors)
+        train_pred = model.predict(train_vectors)
+        print('Train accuracy', accuracy_score(train_labels, train_pred))
+        print('Validation accuracy', accuracy_score(val_labels, val_pred))
+        
+        self.model = model
+        
+    def eval(self):
+        return self
+
+    def forward(self, input_ids):
+        str_input = [' '.join(map(str, cur_input_ids)) for cur_input_ids in input_ids]
+        str_input = self.vectorizer.transform(str_input)
+        out = self.model.predict_proba(str_input)
         out = torch.from_numpy(out)
         return (out,)
 
@@ -91,8 +128,8 @@ def load_model(model_name = 'huawei-noah/TinyBERT_General_4L_312D'):
     :param model_name: name for model
     :return: loaded model
     """
-    if 'svm' in model_name:
-        return load_svm(model_name)
+    if 'svm' in model_name or 'logistic' in model_name:
+        return load_sklearn(model_name)
     if 'traced' in model_name:
          return load_traced(model_name)
     if 'gru' in model_name:
@@ -103,7 +140,7 @@ def load_model(model_name = 'huawei-noah/TinyBERT_General_4L_312D'):
 def load_traced(path):
     return torch.jit.load(path)
 
-def load_svm(path):
+def load_sklearn(path):
     from joblib import load
     return load(path) 
 
@@ -116,9 +153,9 @@ def load_gru(path):
 
 def load_data(train_path, dev_path=None):
     """
-    loads train and test set
+    loads train and val set
     :param path: path for data directory
-    :return: train and test set
+    :return: train and val set
     """
     TRAIN_PATH = Path(train_path)
     
@@ -130,7 +167,7 @@ def load_data(train_path, dev_path=None):
     else:
         data_files = {
             'train': str(TRAIN_PATH / 'train.csv'),
-            'test': str(DEV_PATH / 'dev.csv')
+            'val': str(DEV_PATH / 'dev.csv')
         }
     
     raw_datasets = load_dataset("csv", data_files=data_files).remove_columns(['Unnamed: 0'])
@@ -140,7 +177,7 @@ def load_data(train_path, dev_path=None):
 def tokenize_dataset(raw_datasets, add_label = True, tokenizer_name = 'huawei-noah/TinyBERT_General_4L_312D', max_length= 128, truncation= True, padding= "max_length"):
     """
     tokenize dataset according to parameters
-    :param raw_datasets: train and test datasets
+    :param raw_datasets: train and val datasets
     :return: tokenized dataset
     """
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
@@ -176,7 +213,7 @@ def train(model_seq_classification, tokenized_datasets, path, evaluate=False, nu
     model=model_seq_classification,
     args=args,
     train_dataset=tokenized_datasets['train'],
-    eval_dataset=tokenized_datasets['test'],
+    eval_dataset=tokenized_datasets['val'],
     compute_metrics=metric_fn)
     
     if evaluate: 
@@ -186,10 +223,10 @@ def train(model_seq_classification, tokenized_datasets, path, evaluate=False, nu
         
 def per_class_accuracy(folder_name, model_name, dataset_name):
     def eval_filtered(filter_label):
-        filtered = ds['test'].filter(lambda x: x['label'] == filter_label)
+        filtered = ds['val'].filter(lambda x: x['label'] == filter_label)
         filtered_ds = DatasetDict()
         filtered_ds['train'] = filtered
-        filtered_ds['test'] = filtered
+        filtered_ds['val'] = filtered
         filtered_data = tokenize_dataset(filtered_ds, tokenizer_name = model_name, max_length = 64)
         return train(model, filtered_data, path=f'', evaluate = True)['eval_accuracy']
             

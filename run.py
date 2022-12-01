@@ -43,8 +43,8 @@ dataset_name = args.dataset_name
 sorting = args.sorting
 optimization = args.optimization if args.optimization!='' else args.delta
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-model_type = 'tinybert'
-folder_name = f'results/{model_type}{dataset_name}/{sorting}/{optimization}'
+model_type = 'logistic'
+folder_name = f'results/{model_type}/{dataset_name}/{sorting}/{optimization}'
 
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
@@ -91,7 +91,7 @@ pickle.dump( anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb
 
 st = time.time()
     
-my_utils = TextUtils(anchor_examples, anchor_examples, explainer, myUtils.predict_sentences, ignored, f"profile.pickle", optimize = True, delta = delta)
+my_utils = TextUtils(anchor_examples, anchor_examples, explainer, myUtils.predict_sentences, ignored, f"profile.pickle", optimize = True, delta = args.delta)
 set_seed()
 #torch._C._jit_set_texpr_fuser_enabled(False)
 explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))

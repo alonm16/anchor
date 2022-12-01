@@ -115,7 +115,7 @@ def prepare_ds(df, test_size = 0.2):
     train_df, test_df = train_test_split(df, test_size=test_size)
     ds = DatasetDict()
     ds['train'] = Dataset.from_pandas(train_df).remove_columns(['__index_level_0__'])
-    ds['test'] = Dataset.from_pandas(test_df).remove_columns(['__index_level_0__'])
+    ds['val'] = Dataset.from_pandas(test_df).remove_columns(['__index_level_0__'])
     return ds
 
 def get_ds(ds_name):
