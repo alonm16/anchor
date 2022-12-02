@@ -248,8 +248,9 @@ class ApocUtils:
     def get_best(explanations):
         best_exps = dict()
         for exp in explanations:
-            if exp.precision < 0.95:
-                continue
+            # no need because it's done during anchor
+            #if exp.precision < 0.95:
+            #    continue
             if exp.index not in best_exps.keys():
                 best_exps[exp.index]=[exp]
             else:
@@ -337,7 +338,7 @@ class ApocUtils:
         return teta1
     
     @staticmethod
-    def calculate_score(folder_name, tokenizer, anchor_examples, explanations, labels, agg_name):
+    def calculate_agg_score(folder_name, tokenizer, anchor_examples, explanations, labels, agg_name):
         aggs = {'sum': ApocUtils.calculate_sum, 'avg': ApocUtils.calculate_avg}
         columns = ['name', 'anchor score', 'type occurences', 'total occurences','+%', '-%', 'both', 'normal']
 

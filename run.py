@@ -28,7 +28,7 @@ sort_functions = {'polarity': sort_polarity, 'confidence': sort_confidence}
 parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'sentiment_twitter', "dilemma"])
 parser.add_argument("--sorting", default='polarity', choices=['polarity', 'confidence'])
 parser.add_argument("--optimization", default='', choices = ['', 'topk', 'lossy', 'desired'])
-parser.add_argument("--examples_max_length", default=90, type=int)
+parser.add_argument("--examples_max_length", default=150, type=int)
 parser.add_argument("--delta", default=0.1, type=float)
 
 args = parser.parse_args()
@@ -43,8 +43,9 @@ dataset_name = args.dataset_name
 sorting = args.sorting
 optimization = args.optimization if args.optimization!='' else args.delta
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-model_type = 'logistic'
-folder_name = f'results/{model_type}/{dataset_name}/{sorting}/{optimization}'
+model_type = 'tinybert'
+"""notice new!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
+folder_name = f'results/new/{model_type}/{dataset_name}/{sorting}/{optimization}'
 
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
@@ -52,8 +53,8 @@ if not os.path.exists(folder_name):
 ds = get_ds(dataset_name)
 # when apply torchscript to models sometimes
 torch._C._jit_set_texpr_fuser_enabled(False)
-
-model = load_model(f'models/{model_type}/{dataset_name}/traced.pt').to(device).eval()
+""" notice new!!!!!!!!!!"""
+model = load_model(f'models/{model_type}/new/{dataset_name}/traced.pt').to(device).eval()
 tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast = False)
 myUtils.model = model
 myUtils.tokenizer = tokenizer
@@ -87,7 +88,7 @@ anchor_text.AnchorText.set_optimize(optimize)
 explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False)
 
 
-pickle.dump( anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb" ))
+pickle.dump(anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb" ))
 
 st = time.time()
     
