@@ -15,6 +15,8 @@ import argparse
 import os
 import sys
 sys.path.append('models')
+# when apply torchscript to models sometimes
+torch._C._jit_set_texpr_fuser_enabled(False)
 
 parser = argparse.ArgumentParser()
 
@@ -26,7 +28,8 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 sort_functions = {'polarity': sort_polarity, 'confidence': sort_confidence}
 
 parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'sentiment_twitter', "dilemma"])
-parser.add_argument("--sorting", default='polarity', choices=['polarity', 'confidence'])
+parser.add_argument("--model_type", default = 'tinybert', choices = ['tinybert', 'gru', 'svm', 'logistic'])
+parser.add_argument("--sorting", default='confidence', choices=['polarity', 'confidence'])
 parser.add_argument("--optimization", default='', choices = ['', 'topk', 'lossy', 'desired'])
 parser.add_argument("--examples_max_length", default=150, type=int)
 parser.add_argument("--delta", default=0.1, type=float)
@@ -42,17 +45,12 @@ sort_function = sort_functions[args.sorting]
 dataset_name = args.dataset_name
 sorting = args.sorting
 optimization = args.optimization if args.optimization!='' else args.delta
+model_type = args.model_type
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-model_type = 'tinybert'
 """notice new!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
 folder_name = f'results/new/{model_type}/{dataset_name}/{sorting}/{optimization}'
 
-if not os.path.exists(folder_name):
-    os.makedirs(folder_name)
-
 ds = get_ds(dataset_name)
-# when apply torchscript to models sometimes
-torch._C._jit_set_texpr_fuser_enabled(False)
 """ notice new!!!!!!!!!!"""
 model = load_model(f'models/{model_type}/new/{dataset_name}/traced.pt').to(device).eval()
 tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast = False)
@@ -62,9 +60,10 @@ myUtils.tokenizer = tokenizer
 nlp = spacy.load('en_core_web_sm')
 
 anchor_examples = preprocess_examples(ds, examples_max_length)
-
 anchor_examples = sort_function(anchor_examples)
 
+if not os.path.exists(folder_name):
+    os.makedirs(folder_name)
 
 # In[6]:
 
