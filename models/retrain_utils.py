@@ -19,16 +19,16 @@ class RetrainUtils:
         self.tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast = False)
         self.ds_name = ds_name
         self.unmasker = pipeline('fill-mask', model='distilbert-base-uncased')
-        self.anchor_sentences = pickle.load(open(f"../results/{model_type}/{ds_name}/confidence/0.1/anchor_examples.pickle", "rb"))
-        self.labels = pickle.load(open(f"../results/{model_type}/{ds_name}/confidence/0.1/predictions.pickle", "rb" ))
+        self.anchor_sentences = pickle.load(open(f"../results/new/retrain/{model_type}/{ds_name}/confidence/0.1/anchor_examples.pickle", "rb"))
+        self.labels = pickle.load(open(f"../results/new/retrain/{model_type}/{ds_name}/confidence/0.1/predictions.pickle", "rb" ))
         self.model_type = model_type
         
-    def get_scores_dict(self, top=25, trail_path = "scores.xlsx", alpha = 0.95):
+    def get_scores_dict(self, trail_path = "scores.xlsx", alpha = 0.95):
         """
         returns dict of (anchor, score) pairs, and sum of the topk positive/negative
         """
 
-        df = pd.read_excel(f'../results/{self.model_type}/{self.ds_name}/confidence/0.1/{trail_path}').drop(0)
+        df = pd.read_excel(f'../results/new/retrain/{self.model_type}/{self.ds_name}/confidence/0.1/{trail_path}').drop(0)
         neg_keys = df[f'{alpha}-negative'].dropna().tolist()
         neg_values = df.iloc[:, list(df.columns).index(f'{alpha}-negative')+1].tolist()
         neg_scores =dict(zip(neg_keys, neg_values))
@@ -62,9 +62,8 @@ class RetrainUtils:
                 
         return replaced_sentences, replaced_indices
         
-    def replace_sentences(self, train_df, action = RetrainAction.ADD):
-        top = 10
-        pos_scores, neg_scores = self.get_scores_dict(trail_path = "scores.xlsx", top = top)
+    def replace_sentences(self, train_df, action = RetrainAction.ADD, top = 20):
+        pos_scores, neg_scores = self.get_scores_dict(trail_path = "scores.xlsx")
         pos_tokens = [k for k, v in sorted(pos_scores.items(), key=lambda item: -item[1])][:top]
         neg_tokens = [k for k, v in sorted(neg_scores.items(), key=lambda item: -item[1])][:top]
         all_tokens = pos_tokens + neg_tokens

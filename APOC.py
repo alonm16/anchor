@@ -151,7 +151,7 @@ class APOC:
         reverse_scores = self._apoc_global(self.neg_reversed_tokens, self.neg_sentences, [0]*len(self.neg_sentences))
 
         self._plot_apoc(axs[1], [normal_scores, random_scores, reverse_scores], legends, f' negative - {formula_type}')
-        
+        print(self.title)
         fig.savefig(f'results/graphs/{self.title}')
         
     @staticmethod
@@ -219,7 +219,7 @@ class APOC:
             reverse_folder = f'{folder_name}/../../{sorting}-reverse/0.1'
             percents = [10, 25, 50, 75, 100]
             get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(reverse_folder, trail_path = f"../0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
-            APOC.compare_apocs(model, tokenizer, percents, get_scores_fn, anchor_examples, labels, percents, f'{title} percents reverse', num_removes=25, modified=True)
+            APOC.compare_apocs(model, tokenizer, percents, get_scores_fn, anchor_examples, labels, percents, f'{title} percents reverse', num_removes, modified)
         
         compares = {'deltas': compare_deltas, 'alphas': compare_alphas, 'optimizations': compare_optimizations, 'aggragations': compare_aggragations, 'percents': compare_percents, 
                     'percents-reverse': compare_percents_reverse} 

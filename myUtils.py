@@ -116,7 +116,6 @@ def sort_confidence(sentences):
     
     predictions = [predict_sentence_logits(sentence)[0] for sentence in sentences]
     predictions_confidence = [prediction[torch.argmax(prediction, dim=-1).item()] for prediction in predictions]
-    
     scored_sentences = [(sentence, predictions_confidence[i]) for i, sentence in enumerate(sentences)]
     scored_sentences.sort(key=lambda exp: -abs(exp[1]))
     return [exp[0] for exp in scored_sentences]
