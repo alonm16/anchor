@@ -47,12 +47,10 @@ sorting = args.sorting
 optimization = args.optimization if args.optimization!='' else args.delta
 model_type = args.model_type
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-"""notice new!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"""
-folder_name = f'results/new/{model_type}/{dataset_name}/{sorting}/{optimization}'
+folder_name = f'results/{model_type}/{dataset_name}/{sorting}/{optimization}'
 
 ds = get_ds(dataset_name)
-""" notice new!!!!!!!!!!"""
-model = load_model(f'models/{model_type}/new/{dataset_name}/traced.pt').to(device).eval()
+model = load_model(f'models/{model_type}/{dataset_name}/traced.pt').to(device).eval()
 tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast = False)
 myUtils.model = model
 myUtils.tokenizer = tokenizer

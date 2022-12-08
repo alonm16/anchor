@@ -1,4 +1,4 @@
-name: cs236781-hw
+name: anchor
 channels:
   - conda-forge
   - pytorch
