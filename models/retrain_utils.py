@@ -101,7 +101,27 @@ class Ensemble(torch.nn.Module):
             return torch.argmax(outputs, dim=1).cpu().numpy()
         outputs = self.m2(x)[0]
         return torch.argmax(outputs, dim=1).cpu().numpy()
+    
+class Ensemble2(torch.nn.Module):
+    def __init__(self, m1, m2):
+        super().__init__()
+        self.m1 = m1
+        self.m2 = m2
+        self.softmax = torch.nn.Softmax()
         
+    def forward(self, x):
+        outputs = self.m1(x)[0]
+        scores = self.softmax(outputs)[0]
+        pred_index =  torch.argmax(outputs, dim=1).cpu().numpy()[0]
+
+        outputs2 = self.m2(x)[0]
+        scores2 = self.softmax(outputs2)[0]
+        pred_index2 =  torch.argmax(outputs2, dim=1).cpu().numpy()[0]
+        
+        if scores[pred_index]>= scores2[pred_index2]:
+            return pred_index
+        return pred_index2
+    
         
 def calc_accuracy(m, test, tokenizer, pad = False):
     """pad for gru"""

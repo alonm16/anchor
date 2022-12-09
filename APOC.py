@@ -226,10 +226,56 @@ class APOC:
         
         for c in compares:
             if c in from_img:
-                plt.figure(figsize = (18,10))
+                plt.figure(figsize = (15, 5))
                 img = plt.imread(f'results/graphs/{title} {c}.png')
                 imgplot = plt.imshow(img)
                 plt.axis('off')
                 plt.show()
             else:
                 compares[c]()
+                
+    @staticmethod
+    def compare_random_apocs(folder_name, model, tokenizer, seeds, compare_list, sentences, labels, legends, title = "", num_removes = 30, modified = False,): 
+        fig, axs = plt.subplots(1, 2, figsize=(14, 4))
+        
+        def random_helper(get_score_fn):
+            pos_tokens_arr = []
+            neg_tokens_arr = []
+            for item in compare_list:
+                pos_scores, neg_scores = get_scores_fn(item)
+                pos_tokens, neg_tokens = list(pos_scores.keys()), list(neg_scores.keys())
+                pos_tokens_arr.append(pos_tokens)
+                neg_tokens_arr.append(neg_tokens)
+
+            pos_scores = []
+            neg_scores = []
+            for i in range(len(legends)):
+                apoc = APOC(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], title, num_removes = num_removes, modified = modified) 
+                pos_scores.append(apoc._apoc_global(apoc.pos_tokens, apoc.pos_sentences, [1]*len(apoc.pos_sentences)))
+                neg_scores.append(apoc._apoc_global(apoc.neg_tokens, apoc.neg_sentences, [0]*len(apoc.neg_sentences)))
+
+            return np.array(pos_scores), np.array(neg_scores), apoc
+        
+        seeds_pos_scores, seeds_neg_scores, apoc = None, None, None
+        for seed in seeds:
+            seed_folder = f'{folder_name}/../../seed-{seed}/0.1'
+            get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(seed_folder, trail_path = f"../0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
+            if seeds_pos_scores is None:
+                seeds_pos_scores, seeds_neg_scores, apoc = random_helper(get_scores_fn)
+            else:
+                cur_pos_scores, cur_neg_scores, apoc = random_helper(get_scores_fn)
+                seeds_pos_scores += cur_pos_scores
+                seeds_neg_scores += cur_neg_scores
+        seeds_pos_scores, seeds_neg_scores = seeds_pos_scores/len(seeds), seeds_neg_scores/len(seeds)
+        
+        # doesn't matter which apoc plots it
+        apoc._plot_apoc(axs[0], seeds_pos_scores, legends, ' positive')
+        apoc._plot_apoc(axs[1], seeds_neg_scores, legends, ' negative')
+        
+        plt.show()
+        
+        if modified:
+            fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
+        else:
+            fig.savefig(f'results/graphs/original/{title}', bbox_inches='tight')
+        
