@@ -8,6 +8,7 @@ from transformers import pipeline
 import copy
 import pandas as pd
 from myUtils import set_seed
+from score import ScoreUtils
 
 class APOC:
     def __init__(self, model, tokenizer, sentences, labels, pos_tokens, neg_tokens, title, num_removes = 25, modified = False):
@@ -150,11 +151,11 @@ class APOC:
         reverse_scores = self._apoc_global(self.neg_reversed_tokens, self.neg_sentences, [0]*len(self.neg_sentences))
 
         self._plot_apoc(axs[1], [normal_scores, random_scores, reverse_scores], legends, f' negative - {formula_type}')
-        
+        print(self.title)
         fig.savefig(f'results/graphs/{self.title}')
         
     @staticmethod
-    def compare_apocs(model, tokenizer, compare_list, get_scores_fn, sentences, labels, legends, title = "", num_removes = 25, modified = False): 
+    def compare_apocs(model, tokenizer, compare_list, get_scores_fn, sentences, labels, legends, title = "", num_removes = 30, modified = False): 
         fig, axs = plt.subplots(1, 2, figsize=(14, 4))
         
         pos_tokens_arr = []
@@ -177,286 +178,104 @@ class APOC:
         apoc._plot_apoc(axs[1], neg_scores, legends, ' negative')
         
         plt.show()
-        fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
+        
+        if modified:
+            fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
+        else:
+            fig.savefig(f'results/graphs/original/{title}', bbox_inches='tight')
         
     @staticmethod
-    def compare_all(folder_name, model, tokenizer, anchor_examples, labels, title, num_removes = 25, modified = True, from_img = []):
+    def compare_all(folder_name, model, tokenizer, anchor_examples, labels, title, num_removes = 30, modified = True, from_img = []):
         
         def compare_deltas():
             deltas = [0.1, 0.15, 0.2, 0.35, 0.5]
-            get_scores_fn = lambda delta: ApocUtils.get_scores_dict(folder_name, trail_path = f"../{delta}/scores.xlsx")
+            get_scores_fn = lambda delta: ScoreUtils.get_scores_dict(folder_name, trail_path = f"../{delta}/scores.xlsx")
             APOC.compare_apocs(model, tokenizer, deltas, get_scores_fn, anchor_examples, labels, deltas, f'{title} deltas', num_removes, modified)
         
         def compare_alphas():
             alphas = [0.95, 0.8, 0.65, 0.5]
-            get_scores_fn = lambda alpha: ApocUtils.get_scores_dict(folder_name, trail_path = "../0.1/scores.xlsx", alpha = alpha)
+            get_scores_fn = lambda alpha: ScoreUtils.get_scores_dict(folder_name, trail_path = "../0.1/scores.xlsx", alpha = alpha)
             APOC.compare_apocs(model, tokenizer, alphas, get_scores_fn, anchor_examples, labels, alphas, f'{title} alphas', num_removes, modified)
         
         def compare_optimizations():
             optimizations = [str(0.1), 'lossy', 'topk', 'desired']
-            get_scores_fn = lambda optimization: ApocUtils.get_scores_dict(folder_name, trail_path = f"../{optimization}/scores.xlsx")
+            get_scores_fn = lambda optimization: ScoreUtils.get_scores_dict(folder_name, trail_path = f"../{optimization}/scores.xlsx")
             APOC.compare_apocs(model, tokenizer, optimizations, get_scores_fn, anchor_examples, labels, optimizations, f'{title} optimizations', num_removes, modified)
     
         def compare_aggragations():
             aggragations = ['', '', 'sum_', 'avg_']
             alphas = [0.5, 0.95, None, None]
             legends = [0.5, 0.95, 'sum', 'avg']
-            get_scores_fn = lambda x: ApocUtils.get_scores_dict(folder_name, folder_name, trail_path = f"../0.1/{x[0]}scores.xlsx", alpha = x[1])
+            get_scores_fn = lambda x: ScoreUtils.get_scores_dict(folder_name, folder_name, trail_path = f"../0.1/{x[0]}scores.xlsx", alpha = x[1])
             APOC.compare_apocs(model, tokenizer, zip(aggragations, alphas), get_scores_fn, anchor_examples, labels, legends, f'{title} aggragations', num_removes, modified)
         
         def compare_percents():
             percents = [10, 25, 50, 75, 100]
-            get_scores_fn = lambda percent: ApocUtils.get_scores_dict(folder_name, trail_path = f"../0.1/time/scores-{percent}.xlsx", alpha = 0.95)
+            get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(folder_name, trail_path = f"../0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
             APOC.compare_apocs(model, tokenizer, percents, get_scores_fn, anchor_examples, labels, percents, f'{title} percents', num_removes, modified)
-            
-        compares = {'deltas': compare_deltas, 'alphas': compare_alphas, 'optimizations': compare_optimizations, 'aggragations': compare_aggragations, 'percents': compare_percents} 
+                    
+        def compare_percents_reverse():
+            sorting = folder_name.split('/')[-2]
+            reverse_folder = f'{folder_name}/../../{sorting}-reverse/0.1'
+            percents = [10, 25, 50, 75, 100]
+            get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(reverse_folder, trail_path = f"../0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
+            APOC.compare_apocs(model, tokenizer, percents, get_scores_fn, anchor_examples, labels, percents, f'{title} percents reverse', num_removes, modified)
         
+        compares = {'deltas': compare_deltas, 'alphas': compare_alphas, 'optimizations': compare_optimizations, 'aggragations': compare_aggragations, 'percents': compare_percents, 
+                    'percents-reverse': compare_percents_reverse} 
         
         for c in compares:
             if c in from_img:
-                plt.figure(figsize = (18,10))
+                plt.figure(figsize = (15, 5))
                 img = plt.imread(f'results/graphs/{title} {c}.png')
                 imgplot = plt.imshow(img)
                 plt.axis('off')
                 plt.show()
             else:
                 compares[c]()
-    
-    
-class ApocUtils:
+                
     @staticmethod
-    def get_scores_dict(folder_name, top=25, trail_path = "0.1/scores.xlsx", alpha = 0.95):
-        """
-        returns dict of (anchor, score) pairs, and sum of the topk positive/negative
-        """
-        df = pd.read_excel(f'{folder_name}/{trail_path}').drop(0)
-
-        index_prefix = f"{alpha}-" if alpha is not None else ""
-
-        neg_keys = df[f'{index_prefix}negative'].dropna().tolist()
-        neg_values = df.iloc[:, list(df.columns).index(f'{index_prefix}negative')+1].tolist()
-        neg_scores =dict(zip(neg_keys, neg_values))    
-
-        pos_keys = df[f'{index_prefix}positive'].dropna().tolist()
-        pos_values = df.iloc[:, list(df.columns).index(f'{index_prefix}positive')+1].tolist()
-        pos_scores = dict(zip(pos_keys, pos_values))
-
-        return pos_scores, neg_scores
-
-    # get all anchor above 0.95, multiple in a sentence
-    @staticmethod
-    def get_best(explanations):
-        best_exps = dict()
-        for exp in explanations:
-            if exp.precision < 0.95:
-                continue
-            if exp.index not in best_exps.keys():
-                best_exps[exp.index]=[exp]
-            else:
-                best_exps[exp.index].append(exp)
-        print(len(best_exps))
-        return reduce(lambda x,y: x+y, best_exps.values())
-    
-    @staticmethod
-    def get_anchor_occurences(explanations):
-        c = Counter()
-        for exp in explanations:
-            c.update([exp.names[0]])
-
-        return c
-    
-    @staticmethod
-    def get_normal_occurences(sentences, anchor_occurences, tokenizer):
-        c = Counter()
-        for sentence in sentences:
-            c.update(tokenizer.tokenize(sentence))
-
-        #removing occurences of the words as anchor
-        for word in anchor_occurences.keys():
-            c[word]-=anchor_occurences[word]
-
-        return c
-
-    @staticmethod
-    def calculate_sum(anchor_occurences, normal_occurences):
-        sums = dict()
-        sum_occurences = sum(anchor_occurences.values())
-        for word, count in anchor_occurences.items():
-            sums[word] = count/sum_occurences
-
-        return sums
-
-    @staticmethod
-    def calculate_avg(anchor_occurences, normal_occurences):
-        avgs = dict()
-        for word, count in anchor_occurences.items():
-            avgs[word] = count/(anchor_occurences[word]+normal_occurences[word])
-
-        return avgs
-    
-    @staticmethod
-    def smooth_before(normal_occurences, anchor_occurences_list):
-        for w in normal_occurences:
-            normal_occurences[w]+=1
-            for anchor_occurences in anchor_occurences_list:
-                anchor_occurences[w]+=1
-
-    @staticmethod
-    def smooth_after(teta1, type_occurences):
-        # removing words we added 1 at the start smooth
-        words = list(teta1.keys())
-        for word in words:
-            if type_occurences[word]<=1:
-                del teta1[word]
-
-        min_val = min(teta1.values(), default = 0) 
-        if min_val<0:
-            for w in teta1:
-                teta1[w]-= min_val
-            sum_val = sum(teta1.values())
-            for w in teta1:
-                teta1[w]= teta1[w]/sum_val
-    
-    @staticmethod
-    def calculate_teta0(normal_occurences):
-        teta0 = dict()
-        sum_occurences = sum(normal_occurences.values())
-        for word, count in normal_occurences.items():
-            teta0[word] = count/sum_occurences
-
-        return teta0
-
-    @staticmethod
-    def calculate_teta1(anchor_occurences, teta0, alpha):
-        teta1 = dict()
-        sum_occurences = sum(anchor_occurences.values())
-        for word, count in anchor_occurences.items():
-            teta1[word] = count/sum_occurences -(1-alpha)*teta0[word]
-            teta1[word] = teta1[word]/alpha
-
-        return teta1
-    
-    @staticmethod
-    def calculate_score(folder_name, tokenizer, anchor_examples, explanations, labels, agg_name):
-        aggs = {'sum': ApocUtils.calculate_sum, 'avg': ApocUtils.calculate_avg}
-        columns = ['name', 'anchor score', 'type occurences', 'total occurences','+%', '-%', 'both', 'normal']
-
-        exps = ApocUtils.get_best(explanations)
-        pos_exps = [exp for exp in exps if labels[exp.index]==0]
-        neg_exps = [exp for exp in exps if labels[exp.index]==1]
-
-        anchor_occurences = ApocUtils.get_anchor_occurences(exps)
-        pos_occurences = ApocUtils.get_anchor_occurences(pos_exps)
-        neg_occurences = ApocUtils.get_anchor_occurences(neg_exps)
-
-        normal_occurences = ApocUtils.get_normal_occurences(anchor_examples, anchor_occurences, tokenizer)
-        df_pos, df_neg = [], []
-
-        teta_pos = aggs[agg_name](pos_occurences, normal_occurences)
-        teta_neg = aggs[agg_name](neg_occurences, normal_occurences)
-
-        for anchor, score in teta_pos.items():
-            pos_percent = round((pos_occurences[anchor])/anchor_occurences[anchor], 2)
-            neg_percent = 1-pos_percent
-            both = pos_occurences[anchor]>0 and neg_occurences[anchor]>0
-            df_pos.append([anchor, score , pos_occurences[anchor], anchor_occurences[anchor], pos_percent, neg_percent, both,  normal_occurences[anchor]]) 
-
-
-        for anchor, score in teta_neg.items():
-            pos_percent = round((pos_occurences[anchor])/anchor_occurences[anchor], 2)
-            neg_percent = 1-pos_percent
-            both = pos_occurences[anchor]>0 and neg_occurences[anchor]>0
-            df_neg.append([anchor, score, neg_occurences[anchor], anchor_occurences[anchor], pos_percent, neg_percent, both,  normal_occurences[anchor]])
-
-        df_pos.sort(key=lambda exp: -exp[1])
-        df_neg.sort(key=lambda exp: -exp[1])
-        df_pos = pd.DataFrame(data = df_pos, columns = columns ).set_index('name')
-        df_neg = pd.DataFrame(data = df_neg, columns = columns ).set_index('name')
-
-        writer = pd.ExcelWriter(f'{folder_name}/{agg_name}_scores.xlsx',engine='xlsxwriter') 
-
-        workbook=writer.book
-        worksheet=workbook.add_worksheet('Sheet1')
-        writer.sheets['Sheet1'] = worksheet
-
-        cur_col = 0
-        is_positive = False
-
-        for df in [df_pos, df_neg]:
-            cur_type = 'positive' if is_positive else 'negative'
-            is_positive = not is_positive
-            worksheet.write(0, cur_col, f'{cur_type}')
-            df.to_excel(writer, sheet_name=f'Sheet1', startrow=1, startcol=cur_col)
-            cur_col+= len(columns) + 1
-
-        writer.save()
+    def compare_random_apocs(folder_name, model, tokenizer, seeds, compare_list, sentences, labels, legends, title = "", num_removes = 30, modified = False,): 
+        fig, axs = plt.subplots(1, 2, figsize=(14, 4))
         
-    @staticmethod
-    def calculate_percent_scores(folder_name, tokenizer, anchor_examples, explanations, labels, percent):
-        """ calculates the scores for specific time during the running of anchor """
-        alphas = [0.95, 0.8, 0.65, 0.5]
-        dfs = []
-        columns = ['name', 'anchor score', 'type occurences', 'total occurences','+%', '-%', 'both', 'normal']
+        def random_helper(get_score_fn):
+            pos_tokens_arr = []
+            neg_tokens_arr = []
+            for item in compare_list:
+                pos_scores, neg_scores = get_scores_fn(item)
+                pos_tokens, neg_tokens = list(pos_scores.keys()), list(neg_scores.keys())
+                pos_tokens_arr.append(pos_tokens)
+                neg_tokens_arr.append(neg_tokens)
 
-        exps = ApocUtils.get_best(explanations)
-        pos_exps = [exp for exp in exps if labels[exp.index]==0]
-        neg_exps = [exp for exp in exps if labels[exp.index]==1]
+            pos_scores = []
+            neg_scores = []
+            for i in range(len(legends)):
+                apoc = APOC(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], title, num_removes = num_removes, modified = modified) 
+                pos_scores.append(apoc._apoc_global(apoc.pos_tokens, apoc.pos_sentences, [1]*len(apoc.pos_sentences)))
+                neg_scores.append(apoc._apoc_global(apoc.neg_tokens, apoc.neg_sentences, [0]*len(apoc.neg_sentences)))
 
-        anchor_occurences = ApocUtils.get_anchor_occurences(exps)
-        pos_occurences = ApocUtils.get_anchor_occurences(pos_exps)
-        neg_occurences = ApocUtils.get_anchor_occurences(neg_exps)
-
-        normal_occurences = ApocUtils.get_normal_occurences(anchor_examples, anchor_occurences, tokenizer)
-        ApocUtils.smooth_before(normal_occurences, [pos_occurences, neg_occurences])
-
-        teta0 = ApocUtils.calculate_teta0(normal_occurences)
-
-
-        for alpha in alphas:
-            df_pos, df_neg = [], []
-
-            teta_pos = ApocUtils.calculate_teta1(pos_occurences, teta0, alpha)
-            ApocUtils.smooth_after(teta_pos, pos_occurences)
-
-            teta_neg = ApocUtils.calculate_teta1(neg_occurences, teta0, alpha)
-            ApocUtils.smooth_after(teta_neg, neg_occurences)
-
-            # substracting 1 because of the smoothing
-            for anchor, score in teta_pos.items():
-                pos_percent = round((pos_occurences[anchor]-1)/anchor_occurences[anchor], 2)
-                neg_percent = 1-pos_percent
-                both = (pos_occurences[anchor]-1)>0 and (neg_occurences[anchor]-1)>0
-                df_pos.append([anchor, score , pos_occurences[anchor]-1, anchor_occurences[anchor], pos_percent, neg_percent, both,  normal_occurences[anchor]-1]) 
-
-
-            for anchor, score in teta_neg.items():
-                pos_percent = round((pos_occurences[anchor]-1)/anchor_occurences[anchor], 2)
-                neg_percent = 1-pos_percent
-                both = (pos_occurences[anchor]-1)>0 and (neg_occurences[anchor]-1)>0
-                df_neg.append([anchor, score , neg_occurences[anchor]-1, anchor_occurences[anchor], pos_percent, neg_percent, both,  normal_occurences[anchor]-1]) 
-
-            df_pos.sort(key=lambda exp: -exp[1])
-            df_neg.sort(key=lambda exp: -exp[1])
-            df_pos = pd.DataFrame(data = df_pos, columns = columns ).set_index('name')
-            df_neg = pd.DataFrame(data = df_neg, columns = columns ).set_index('name')
-
-            dfs.extend([df_pos, df_neg])
-
-        writer = pd.ExcelWriter(f'{folder_name}/time/scores-{percent}.xlsx', engine='xlsxwriter') 
-
-        workbook=writer.book
-        worksheet=workbook.add_worksheet('Sheet1')
-        writer.sheets['Sheet1'] = worksheet
-
-        cur_col = 0
-        is_positive = False
-        alphas = np.repeat(alphas, 2)
-
-        for df, alpha in zip(dfs, alphas):
-            cur_type = 'positive' if is_positive else 'negative'
-            is_positive = not is_positive
-            worksheet.write(0, cur_col, f'{alpha}-{cur_type}')
-            df.to_excel(writer, sheet_name=f'Sheet1', startrow=1, startcol=cur_col)
-            cur_col+= len(columns) + 1
-
-        writer.save() 
+            return np.array(pos_scores), np.array(neg_scores), apoc
+        
+        seeds_pos_scores, seeds_neg_scores, apoc = None, None, None
+        for seed in seeds:
+            seed_folder = f'{folder_name}/../../seed-{seed}/0.1'
+            get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(seed_folder, trail_path = f"../0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
+            if seeds_pos_scores is None:
+                seeds_pos_scores, seeds_neg_scores, apoc = random_helper(get_scores_fn)
+            else:
+                cur_pos_scores, cur_neg_scores, apoc = random_helper(get_scores_fn)
+                seeds_pos_scores += cur_pos_scores
+                seeds_neg_scores += cur_neg_scores
+        seeds_pos_scores, seeds_neg_scores = seeds_pos_scores/len(seeds), seeds_neg_scores/len(seeds)
+        
+        # doesn't matter which apoc plots it
+        apoc._plot_apoc(axs[0], seeds_pos_scores, legends, ' positive')
+        apoc._plot_apoc(axs[1], seeds_neg_scores, legends, ' negative')
+        
+        plt.show()
+        
+        if modified:
+            fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
+        else:
+            fig.savefig(f'results/graphs/original/{title}', bbox_inches='tight')
+        

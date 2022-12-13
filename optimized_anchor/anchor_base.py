@@ -383,11 +383,11 @@ class AnchorBaseBeam(object):
                 #     ub = AnchorBaseBeam.dup_bernoulli(
                 #         mean, beta / state['t_nsamples'][t])
 
-                #Todo
-                final_tuples.append(t)
                 
                 #TODO for topk optimization
-                if mean >= desired_confidence:
+                if mean >= anchor_desired_confidence:
+                    # TODO add as anchor
+                    final_tuples.append(t)
                     AnchorBaseBeam.best_group.update_anchor(AnchorBaseBeam.words[t[0]])
                 else: 
                     AnchorBaseBeam.best_group.update_normal(AnchorBaseBeam.words[t[0]])
