@@ -127,6 +127,23 @@ class APOC:
         ax.legend()
         ax.set_title(self.title + graph_title)
         
+    def _plot_time_apoc(self, ax, scores_arr, titles, graph_title):
+        ax.set_xlabel('percents of dataset')
+        ax.set_ylabel('APOC - global')
+        
+        scores_arr = np.array(scores_arr)
+        time_scores_arr = np.transpose(scores_arr)
+        apoc_removes = [1, 5, 10, 20, 30]
+        percents = [10, 25, 50, 75, 100]
+        time_scores_arr = time_scores_arr[apoc_removes, :]
+        
+        for scores, title in zip(time_scores_arr, apoc_removes):
+            ax.plot(percents, scores, label = title)
+
+        ax.legend()
+        ax.set_title(self.title + graph_title)
+        
+        
     def apoc_global(self, formula_type = 'v1', tokens_method = 'remove'):
         self.formula_type = formula_type
         self.tokens_method = self._remove_tokens if tokens_method=='remove' else self._replace_tokens
@@ -151,11 +168,11 @@ class APOC:
         reverse_scores = self._apoc_global(self.neg_reversed_tokens, self.neg_sentences, [0]*len(self.neg_sentences))
 
         self._plot_apoc(axs[1], [normal_scores, random_scores, reverse_scores], legends, f' negative - {formula_type}')
-        print(self.title)
         fig.savefig(f'results/graphs/{self.title}')
         
+
     @staticmethod
-    def compare_apocs(model, tokenizer, compare_list, get_scores_fn, sentences, labels, legends, title = "", num_removes = 30, modified = False): 
+    def compare_apocs(model, tokenizer, compare_list, get_scores_fn, sentences, labels, legends, title = "", num_removes = 30, modified = False, time_graph = False): 
         fig, axs = plt.subplots(1, 2, figsize=(14, 4))
         
         pos_tokens_arr = []
@@ -174,8 +191,12 @@ class APOC:
             neg_scores.append(apoc._apoc_global(apoc.neg_tokens, apoc.neg_sentences, [0]*len(apoc.neg_sentences)))
         
         # doesn't matter which apoc plots it
-        apoc._plot_apoc(axs[0], pos_scores, legends, ' positive')
-        apoc._plot_apoc(axs[1], neg_scores, legends, ' negative')
+        if not time_graph:
+            apoc._plot_apoc(axs[0], pos_scores, legends, ' positive')
+            apoc._plot_apoc(axs[1], neg_scores, legends, ' negative')
+        else:
+            apoc._plot_time_apoc(axs[0], pos_scores, legends, ' positive')
+            apoc._plot_time_apoc(axs[1], neg_scores, legends, ' negative')
         
         plt.show()
         
@@ -221,8 +242,12 @@ class APOC:
             get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(reverse_folder, trail_path = f"../0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
             APOC.compare_apocs(model, tokenizer, percents, get_scores_fn, anchor_examples, labels, percents, f'{title} percents reverse', num_removes, modified)
         
-        compares = {'deltas': compare_deltas, 'alphas': compare_alphas, 'optimizations': compare_optimizations, 'aggragations': compare_aggragations, 'percents': compare_percents, 
-                    'percents-reverse': compare_percents_reverse} 
+        def compare_time_percents():
+            percents = [10, 25, 50, 75, 100]
+            get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(folder_name, trail_path = f"../0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
+            APOC.compare_apocs(model, tokenizer, percents, get_scores_fn, anchor_examples, labels, percents, f'{title} percents', num_removes, modified, time_graph = True)
+            
+            compares = {'deltas': compare_deltas, 'alphas': compare_alphas, 'optimizations': compare_optimizations, 'aggragations': compare_aggragations, 'percents': compare_percents, 'percents-reverse': compare_percents_reverse, 'time-percents': compare_time_percents} 
         
         for c in compares:
             if c in from_img:

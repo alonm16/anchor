@@ -1,7 +1,7 @@
 checkpoints/
 .vector_cache/
 .ipynb_checkpoints/
-nohup.out
+slrum.out
 profile.txt
 profile.pickle
 check/*

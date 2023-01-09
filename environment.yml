@@ -1,7 +1,7 @@
 name: anchor
 channels:
-  - conda-forge
   - pytorch
+  - conda-forge
   - defaults
 dependencies:
   - _libgcc_mutex=0.1=main
@@ -126,7 +126,6 @@ dependencies:
   - libxcb=1.14=h7b6447c_0
   - libxkbcommon=1.0.3=he3ba5ed_0
   - libxml2=2.9.12=h72842e0_0
-  - llvmlite=0.37.0=py38h295c915_1
   - lz4-c=1.9.3=h295c915_1
   - markupsafe=2.0.1=py38h27cfd23_0
   - matplotlib=3.5.0=py38h06a4308_0
@@ -155,17 +154,13 @@ dependencies:
   - notebook=6.4.6=py38h06a4308_0
   - nspr=4.30=h9c3ff4c_0
   - nss=3.67=hb5efdd6_0
-  - numba=0.54.1=py38h51133e4_0
   - numexpr=2.7.3=py38h22e1b3c_1
-  - numpy=1.20.3=py38hf144106_0
-  - numpy-base=1.20.3=py38h74d4b33_0
   - olefile=0.46=pyhd3eb1b0_0
   - opencv=4.2.0=py38_6
   - openh264=2.1.0=hd408876_0
   - openjpeg=2.4.0=h3ad879b_0
   - openssl=1.1.1l=h7f8727e_0
   - packaging=21.3=pyhd3eb1b0_0
-  - pandas=1.3.4=py38h8c16a72_0
   - pandocfilters=1.4.3=py38h06a4308_1
   - pango=1.42.4=h69149e4_5
   - parso=0.8.2=pyhd3eb1b0_0
@@ -213,7 +208,6 @@ dependencies:
   - rhash=1.4.1=h3c74f83_1
   - rise=5.7.1=py38h06a4308_0
   - scikit-learn=1.0.1=py38h51133e4_0
-  - scipy=1.7.1=py38h292c36d_2
   - send2trash=1.8.0=pyhd3eb1b0_1
   - setuptools=58.0.4=py38h06a4308_0
   - six=1.16.0=pyhd3eb1b0_0
@@ -266,33 +260,45 @@ dependencies:
     - box2d-py==2.3.8
     - cloudpickle==2.0.0
     - datasets==1.18.0
-    #- de-core-news-sm==2.3.0
     - dill==0.3.4
+    - et-xmlfile==1.1.0
     - filelock==3.4.2
     - frozenlist==1.2.0
     - fsspec==2021.11.1
     - future==0.18.2
     - gym==0.21.0
-    - huggingface-hub==0.2.1
+    - huggingface-hub==0.11.1
     - imageio==2.13.3
     - lime==0.2.0.1
+    - line-profiler==3.5.1
+    - llvmlite==0.39.1
     - multidict==5.2.0
     - multiprocess==0.70.12.2
     - nbmerge==0.0.4
+    - numba==0.56.4
+    - numpy==1.23.5
+    - nvidia-cublas-cu11==11.10.3.66
+    - nvidia-cuda-nvrtc-cu11==11.7.99
+    - nvidia-cuda-runtime-cu11==11.7.99
+    - nvidia-cudnn-cu11==8.5.0.96
+    - openpyxl==3.0.10
+    - pandas==1.5.2
     - pillow==8.4.0
     - pyarrow==6.0.1
     - pywavelets==1.2.0
     - pyyaml==6.0
     - sacremoses==0.0.46
     - scikit-image==0.19.0
+    - scipy==1.9.3
     - sentencepiece==0.1.96
     - tifffile==2021.11.2
-    - tokenizers==0.10.3
-    - torch==1.10.0
+    - tokenizers==0.13.2
+    - torch==1.13.0
     - torchtext==0.11.0
     - torchviz==0.0.2
-    - transformers==4.15.0
+    - transformers==4.25.1
     - typing-extensions==4.0.1
+    - xlsxwriter==3.0.3
     - xxhash==2.0.2
     - yarl==1.7.2
-prefix: /home/almr16/miniconda3/envs/cs236781-hw
+prefix: /home/almr16/miniconda3/envs/anchor

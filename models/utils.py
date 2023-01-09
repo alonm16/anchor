@@ -174,7 +174,7 @@ def load_data(train_path, dev_path=None):
     return raw_datasets
 
 
-def tokenize_dataset(raw_datasets, add_label = True, tokenizer_name = 'huawei-noah/TinyBERT_General_4L_312D', max_length= 128, truncation= True, padding= "max_length"):
+def tokenize_dataset(raw_datasets, tokenizer_name = 'huawei-noah/TinyBERT_General_4L_312D', max_length= 128, truncation= True, padding= "max_length"):
     """
     tokenize dataset according to parameters
     :param raw_datasets: train and val datasets
@@ -184,10 +184,6 @@ def tokenize_dataset(raw_datasets, add_label = True, tokenizer_name = 'huawei-no
     tokenized_datasets = raw_datasets.map(tokenizer, input_columns='text', remove_columns=["text"],fn_kwargs={"max_length": max_length, "truncation": truncation, "padding": padding})
     tokenized_datasets.set_format('torch')
     
-    if add_label:
-        for split in tokenized_datasets:
-            tokenized_datasets[split] = tokenized_datasets[split].add_column('label', raw_datasets[split]['label'])
-
     return tokenized_datasets
     
 def metric_fn(predictions):

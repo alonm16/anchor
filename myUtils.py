@@ -180,8 +180,8 @@ class BestGroup:
         self.pos_BG = BestGroupInner(occurences, self.normal_counts, group_size//2)
         self.neg_BG = BestGroupInner(occurences, self.normal_counts, group_size//2)
         self.cur_type = None
-        self.pos_monitor_writer = writer(open(f'{folder_name}/pos_monitor.csv', 'a+', newline=''))
-        self.neg_monitor_writer = writer(open(f'{folder_name}/neg_monitor.csv', 'a+', newline=''))
+        self.pos_monitor_writer = writer(open(f'{folder_name}/pos_monitor.csv', 'a+', newline='', encoding='utf8'))
+        self.neg_monitor_writer = writer(open(f'{folder_name}/neg_monitor.csv', 'a+', newline='', encoding='utf8'))
         self.time_monitor_writer = writer(open(f'{folder_name}/time_monitor.csv', 'a+', newline=''))
         self.filter_anchors = filter_anchors
         self.desired_optimize = desired_optimize
