@@ -226,7 +226,7 @@ class APOC:
         def compare_aggragations():
             aggragations = ['', '', 'sum_', 'avg_']
             alphas = [0.5, 0.95, None, None]
-            legends = [0.5, 0.95, 'sum', 'avg']
+            legends = ['probabilistic α=0.5', 'probabilistic α=0.95', 'sum', 'avg']
             get_scores_fn = lambda x: ScoreUtils.get_scores_dict(folder_name, folder_name, trail_path = f"../0.1/{x[0]}scores.xlsx", alpha = x[1])
             APOC.compare_apocs(model, tokenizer, zip(aggragations, alphas), get_scores_fn, anchor_examples, labels, legends, f'{title} aggragations', num_removes, modified)
         
@@ -247,7 +247,7 @@ class APOC:
             get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(folder_name, trail_path = f"../0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
             APOC.compare_apocs(model, tokenizer, percents, get_scores_fn, anchor_examples, labels, percents, f'{title} percents', num_removes, modified, time_graph = True)
             
-            compares = {'deltas': compare_deltas, 'alphas': compare_alphas, 'optimizations': compare_optimizations, 'aggragations': compare_aggragations, 'percents': compare_percents, 'percents-reverse': compare_percents_reverse, 'time-percents': compare_time_percents} 
+        compares = {'deltas': compare_deltas, 'alphas': compare_alphas, 'optimizations': compare_optimizations, 'aggragations': compare_aggragations, 'percents': compare_percents, 'percents-reverse': compare_percents_reverse, 'time-percents': compare_time_percents} 
         
         for c in compares:
             if c in from_img:
