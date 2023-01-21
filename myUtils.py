@@ -106,7 +106,7 @@ def sort_polarity(sentences):
     scored_sentences.sort(key=lambda exp: -abs(exp[1]))
     return [exp[0] for exp in scored_sentences]
 
-def sort_confidence(sentences):
+def sort_confidence(sentences, labels):
     """sorts them according to the prediction confidence"""
     softmax = torch.nn.Softmax()
     
@@ -116,9 +116,9 @@ def sort_confidence(sentences):
     
     predictions = [predict_sentence_logits(sentence)[0] for sentence in sentences]
     predictions_confidence = [prediction[torch.argmax(prediction, dim=-1).item()] for prediction in predictions]
-    scored_sentences = [(sentence, predictions_confidence[i]) for i, sentence in enumerate(sentences)]
-    scored_sentences.sort(key=lambda exp: -abs(exp[1]))
-    return [exp[0] for exp in scored_sentences]
+    scored_sentences = [(sentence, labels[i], predictions_confidence[i]) for i, sentence in enumerate(sentences)]
+    scored_sentences.sort(key=lambda exp: -abs(exp[2]))
+    return [exp[0] for exp in scored_sentences], [exp[1] for exp in scored_sentences]
     
 
 class BestGroupInner:

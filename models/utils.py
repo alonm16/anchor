@@ -196,6 +196,21 @@ def metric_fn(predictions):
     labels = predictions.label_ids
     return {'accuracy': accuracy_score(preds, labels)}
 
+class MyTrainer(Trainer):
+    weights = torch.ones(100)
+    
+    def compute_loss(self, model, inputs, return_outputs = False):
+        labels = inputs.get("labels")
+        # forward pass
+        outputs = model(**inputs)
+        logits = outputs[1]
+        # compute custom loss (suppose one has 3 labels with different weights)
+        loss_fn = nn.CrossEntropyLoss(reduction='none')
+        sample_weight = torch.ones(labels.shape[0], device = labels.device)
+        loss = loss_fn(logits, labels)
+        loss =(loss * sample_weight).mean()
+        return (loss, outputs) if return_outputs else loss
+
 def train(model_seq_classification, tokenized_datasets, path, evaluate=False, num_train_epochs=2):
     """
     fine tune huggingface model
