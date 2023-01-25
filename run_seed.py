@@ -8,12 +8,16 @@ import pickle
 import myUtils
 from myUtils import *
 from models.utils import *
-from dataset.dataset_loader import *
+from models.dataset_loader import *
 import datetime
 import time
 import argparse
 import os
-from models.utils import *
+import sys
+sys.path.append('models')
+# when apply torchscript to models sometimes
+torch._C._jit_set_texpr_fuser_enabled(False)
+
 parser = argparse.ArgumentParser()
 
 warnings.simplefilter("ignore")
@@ -21,46 +25,44 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 sort_functions = {'polarity': sort_polarity, 'confidence': sort_confidence}
 
-parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'sentiment_twitter'])
-parser.add_argument("--sorting", default='polarity', choices=['polarity', 'confidence'])
-parser.add_argument("--optimization", default='', choices = ['', 'topk', 'lossy', 'desired'])
-parser.add_argument("--examples_max_length", default=90, type=int)
+parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'sentiment_twitter', "dilemma"])
+parser.add_argument("--model_type", default = 'tinybert', choices = ['tinybert', 'gru', 'svm', 'logistic'])
+parser.add_argument("--sorting", default='confidence', choices=['polarity', 'confidence'])
+parser.add_argument("--optimization", default='', choices = ['', 'topk', 'lossy', 'desired'], nargs = '+')
+parser.add_argument("--examples_max_length", default=150, type=int)
 parser.add_argument("--delta", default=0.1, type=float)
 parser.add_argument("--seed", default=42, type=int)
 
 args = parser.parse_args()
 
 examples_max_length = args.examples_max_length
-do_ignore = args.optimization=='lossy'
-topk_optimize = args.optimization=='topk'
-desired_optimize = args.optimization=='desired'
+do_ignore = 'lossy' in args.optimization
+topk_optimize = 'topk' in args.optimization
+desired_optimize = 'desired' in args.optimization
 sort_function = sort_functions[args.sorting]
-delta = args.delta
-seed = args.seed
 
 dataset_name = args.dataset_name
 sorting = args.sorting
-optimization = args.optimization
-model_type = 'tinybert'
+seed = args.seed
+optimization = '-'.join(args.optimization)
+optimization = '-'.join([optimization, str(args.delta)]) if args.optimization!='' else args.delta
+model_type = args.model_type
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-folder_name = f'results/{model_type}/{dataset_name}/{sorting}/seed/{seed}'
+folder_name = f'results/{model_type}/{dataset_name}/{sorting}/seed/{seed}/{optimization}'
 
-if not os.path.exists(folder_name):
-    os.makedirs(folder_name)
-
-tokenizer, label_parser, ds_train, ds_val = get_dataset(dataset_name)
-
-model = torch.jit.load(f'models/{model_type}/{dataset_name}/traced.pt').to(device)
-model = model.eval()
+ds = get_ds(dataset_name)
+model = load_model(f'models/{model_type}/{dataset_name}/traced.pt').to(device).eval()
 tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast = False)
 myUtils.model = model
 myUtils.tokenizer = tokenizer
 
 nlp = spacy.load('en_core_web_sm')
 
-train, train_labels, test, test_labels, anchor_examples = preprocess_examples(ds_train, examples_max_length)
+anchor_examples, true_labels = preprocess_examples(ds, examples_max_length)
+anchor_examples, _ = sort_function(anchor_examples, true_labels)
 
-anchor_examples = sort_function(anchor_examples)
+if not os.path.exists(folder_name):
+    os.makedirs(folder_name)
 
 # In[6]:
 
@@ -84,17 +86,16 @@ anchor_text.AnchorText.set_optimize(optimize)
 explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False)
 
 
-pickle.dump( anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb" ))
+pickle.dump(anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb" ))
 
 st = time.time()
-    
-my_utils = TextUtils(anchor_examples, test, explainer, predict_sentences, ignored, f"profile.pickle", optimize = True, delta = delta)
+
+my_utils = TextUtils(anchor_examples, anchor_examples, explainer, myUtils.predict_sentences, ignored, f"profile.pickle", optimize = True, delta = args.delta)
 set_seed(seed)
 #torch._C._jit_set_texpr_fuser_enabled(False)
 explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
 
 pickle.dump(explanations, open( f"{folder_name}/exps_list.pickle", "wb"))
-
 
 print(datetime.datetime.now())
 
@@ -103,4 +104,4 @@ with open('times.csv', 'a+', newline='') as write_obj:
         # Create a writer object from csv module
         csv_writer = writer(write_obj)
         # Add contents of list as last row in the csv file
-        csv_writer.writerow([folder_name, (time.time()-st)/60, do_ignore, topk_optimize, desired_optimize ,examples_max_length])
+        csv_writer.writerow([folder_name[len('results/'):], (time.time()-st)/60, do_ignore, topk_optimize, desired_optimize ,examples_max_length])

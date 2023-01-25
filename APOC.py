@@ -64,6 +64,34 @@ class APOC:
         to_pred = torch.tensor(encoded, device=self.device)
         outputs = self.softmax(self.model(to_pred)[0])
         return outputs.detach().cpu().numpy()
+    
+    @staticmethod
+    def words_distributions(sentences, labels, tokenizer, num_removes = 30):
+        c_pos = Counter()
+        c_neg = Counter()
+
+        for sentence, label in zip(sentences, labels):
+            if label == 1:
+                c_pos.update(set(tokenizer.tokenize(sentence)))
+            else:
+                c_neg.update(set(tokenizer.tokenize(sentence)))
+
+        all_words = list(c_pos.keys())
+        all_words.extend(c_neg.keys())
+        all_words = set(all_words)
+
+        for word in all_words:
+            if word.startswith("##") or c_pos[word]+c_neg[word] < 10:
+                del c_pos[word]
+                del c_neg[word]
+                continue
+            c_pos[word] = c_pos[word]/(c_pos[word]+c_neg[word])
+            c_neg[word] = c_neg[word]/(c_pos[word]+c_neg[word])
+
+        pos_tokens = list(map(lambda x: x[0], sorted(c_pos.items(), key=lambda item: -item[1])))
+        neg_tokens = list(map(lambda x: x[0], sorted(c_neg.items(), key=lambda item: -item[1])))
+
+        return pos_tokens[:num_removes], neg_tokens[:num_removes]
 
     def _remove_tokens(self, idx, tokens_arr, sentences):
         return [['[PAD]' if token in tokens[:idx] else token for token in sentence] for tokens, sentence in zip(tokens_arr, sentences)]
@@ -245,10 +273,13 @@ class APOC:
         def compare_time_percents():
             percents = [10, 25, 50, 75, 100]
             get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(folder_name, trail_path = f"../0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
-            APOC.compare_apocs(model, tokenizer, percents, get_scores_fn, anchor_examples, labels, percents, f'{title} percents', num_removes, modified, time_graph = True)
+            APOC.compare_apocs(model, tokenizer, percents, get_scores_fn, anchor_examples, labels, percents, f'{title} time-percents', num_removes, modified, time_graph = True)
             
-        compares = {'deltas': compare_deltas, 'alphas': compare_alphas, 'optimizations': compare_optimizations, 'aggragations': compare_aggragations, 'percents': compare_percents, 'percents-reverse': compare_percents_reverse, 'time-percents': compare_time_percents} 
         
+        compares = {'deltas': compare_deltas, 'alphas': compare_alphas, 'optimizations': compare_optimizations, 'aggragations': compare_aggragations, 'percents': compare_percents, 'percents reverse': compare_percents_reverse, 'time-percents': compare_time_percents} 
+
+        #notic!!!!!!!!!!!!
+        #from_img = compares.keys()
         for c in compares:
             if c in from_img:
                 plt.figure(figsize = (15, 5))
@@ -281,22 +312,38 @@ class APOC:
 
             return np.array(pos_scores), np.array(neg_scores), apoc
         
-        seeds_pos_scores, seeds_neg_scores, apoc = None, None, None
-        for seed in seeds:
-            seed_folder = f'{folder_name}/../../seed-{seed}/0.1'
-            get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(seed_folder, trail_path = f"../0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
-            if seeds_pos_scores is None:
-                seeds_pos_scores, seeds_neg_scores, apoc = random_helper(get_scores_fn)
-            else:
-                cur_pos_scores, cur_neg_scores, apoc = random_helper(get_scores_fn)
-                seeds_pos_scores += cur_pos_scores
-                seeds_neg_scores += cur_neg_scores
-        seeds_pos_scores, seeds_neg_scores = seeds_pos_scores/len(seeds), seeds_neg_scores/len(seeds)
+        def random_helper2(get_score_fn):
+            pos_tokens_arr = []
+            neg_tokens_arr = []
+            for item in compare_list:
+                pos_scores, neg_scores = get_scores_fn(item)
+                pos_tokens, neg_tokens = list(pos_scores.keys()), list(neg_scores.keys())
+                pos_tokens_arr.append(pos_tokens)
+                neg_tokens_arr.append(neg_tokens)
+
+            pos_scores = []
+            neg_scores = []
+            for i in range(len(legends)):
+                apoc = APOC(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], title, num_removes = num_removes, modified = modified) 
+                pos_scores.append(np.array([j+i*5 for j in range(30)]))
+                neg_scores.append(np.array([j+i*5 for j in range(30)]))
+
+            return np.array(pos_scores), np.array(neg_scores), apoc
+        
+        seeds_pos_scores, seeds_neg_scores, apoc = [], [], None
+        for i, seed in enumerate(seeds):
+            seed_folder = f'{folder_name}/../seed/{seed}/0.1'
+            get_scores_fn = lambda delta: ScoreUtils.get_scores_dict(seed_folder, trail_path = f"../{delta}/scores.xlsx")
+            cur_pos_scores, cur_neg_scores, apoc = random_helper(get_scores_fn)
+            seeds_pos_scores.append(cur_pos_scores)
+            seeds_neg_scores.append(cur_neg_scores)
         
         # doesn't matter which apoc plots it
-        apoc._plot_apoc(axs[0], seeds_pos_scores, legends, ' positive')
-        apoc._plot_apoc(axs[1], seeds_neg_scores, legends, ' negative')
-        
+        apoc._plot_apoc(axs[0], np.array(seeds_pos_scores).mean(axis = 0), legends, ' positive')
+        apoc._plot_apoc(axs[1], np.array(seeds_neg_scores).mean(axis = 0), legends, ' negative')
+        for i in range(len(legends)):
+            axs[0].boxplot(np.array(seeds_pos_scores).transpose((1,0,2))[i])
+            axs[1].boxplot(np.array(seeds_neg_scores).transpose((1,0,2))[i])
         plt.show()
         
         if modified:

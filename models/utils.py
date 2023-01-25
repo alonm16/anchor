@@ -197,7 +197,12 @@ def metric_fn(predictions):
     return {'accuracy': accuracy_score(preds, labels)}
 
 class MyTrainer(Trainer):
-    weights = torch.ones(100)
+    
+    def contains_tokens(self, i, inputs):
+        for t in self.tokens:
+            if t in inputs[i]:
+                return True
+        return False
     
     def compute_loss(self, model, inputs, return_outputs = False):
         labels = inputs.get("labels")
@@ -206,12 +211,15 @@ class MyTrainer(Trainer):
         logits = outputs[1]
         # compute custom loss (suppose one has 3 labels with different weights)
         loss_fn = nn.CrossEntropyLoss(reduction='none')
+        input_ids = inputs.get("input_ids")
+        token_idx = [i for i in range(input_ids.shape[0]) if self.contains_tokens(i, input_ids)]
         sample_weight = torch.ones(labels.shape[0], device = labels.device)
+        sample_weight[token_idx]/=4
         loss = loss_fn(logits, labels)
         loss =(loss * sample_weight).mean()
         return (loss, outputs) if return_outputs else loss
 
-def train(model_seq_classification, tokenized_datasets, path, evaluate=False, num_train_epochs=2):
+def train(model, tokenized_datasets, path, evaluate=False, num_train_epochs=2, tokens=[]):
     """
     fine tune huggingface model
     :param model_seq_classification: pre trained model
@@ -220,12 +228,14 @@ def train(model_seq_classification, tokenized_datasets, path, evaluate=False, nu
     OUT_PATH = Path(path)
     args = TrainingArguments(output_dir=OUT_PATH, overwrite_output_dir=True, per_device_train_batch_size=32, per_device_eval_batch_size=32, save_strategy='epoch', metric_for_best_model='accuracy', load_best_model_at_end=True, greater_is_better=True, evaluation_strategy='epoch', do_train=True, num_train_epochs=num_train_epochs, report_to='none')
     
-    trainer = Trainer(
-    model=model_seq_classification,
+    trainer = MyTrainer(
+    model=model,
     args=args,
     train_dataset=tokenized_datasets['train'],
     eval_dataset=tokenized_datasets['val'],
     compute_metrics=metric_fn)
+    
+    trainer.tokens = tokens
     
     if evaluate: 
         return trainer.evaluate()

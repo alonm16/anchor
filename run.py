@@ -27,24 +27,25 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 sort_functions = {'polarity': sort_polarity, 'confidence': sort_confidence}
 
-parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'sentiment_twitter', "dilemma"])
+parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'spam', "dilemma"])
 parser.add_argument("--model_type", default = 'tinybert', choices = ['tinybert', 'gru', 'svm', 'logistic'])
 parser.add_argument("--sorting", default='confidence', choices=['polarity', 'confidence'])
-parser.add_argument("--optimization", default='', choices = ['', 'topk', 'lossy', 'desired'])
+parser.add_argument("--optimization", default='', choices = ['', 'topk', 'lossy', 'desired'], nargs = '+')
 parser.add_argument("--examples_max_length", default=150, type=int)
 parser.add_argument("--delta", default=0.1, type=float)
 
 args = parser.parse_args()
 
 examples_max_length = args.examples_max_length
-do_ignore = args.optimization=='lossy'
-topk_optimize = args.optimization=='topk'
-desired_optimize = args.optimization=='desired'
+do_ignore = 'lossy' in args.optimization
+topk_optimize = 'topk' in args.optimization
+desired_optimize = 'desired' in args.optimization
 sort_function = sort_functions[args.sorting]
 
 dataset_name = args.dataset_name
 sorting = args.sorting
-optimization = args.optimization if args.optimization!='' else args.delta
+optimization = '-'.join(args.optimization)
+optimization = '-'.join([optimization, str(args.delta)]) if args.optimization!='' else args.delta
 model_type = args.model_type
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
 folder_name = f'results/{model_type}/{dataset_name}/{sorting}/{optimization}'
@@ -57,8 +58,8 @@ myUtils.tokenizer = tokenizer
 
 nlp = spacy.load('en_core_web_sm')
 
-anchor_examples = preprocess_examples(ds, examples_max_length)
-anchor_examples = sort_function(anchor_examples)
+anchor_examples, true_labels = preprocess_examples(ds, examples_max_length)
+anchor_examples, _ = sort_function(anchor_examples, true_labels)
 
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
@@ -88,7 +89,7 @@ explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distri
 pickle.dump(anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb" ))
 
 st = time.time()
-    
+
 my_utils = TextUtils(anchor_examples, anchor_examples, explainer, myUtils.predict_sentences, ignored, f"profile.pickle", optimize = True, delta = args.delta)
 set_seed()
 #torch._C._jit_set_texpr_fuser_enabled(False)

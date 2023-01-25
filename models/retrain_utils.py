@@ -85,7 +85,14 @@ class RetrainUtils:
             new_train = train_df.drop(replaced_indices)      
         
         return Dataset.from_pandas(new_train)
-        
+    
+    def get_tokens(self, top = 20):
+        pos_scores, neg_scores = self.get_scores_dict(trail_path = "scores.xlsx")
+        pos_tokens = [k for k, v in sorted(pos_scores.items(), key=lambda item: -item[1])][:top]
+        neg_tokens = [k for k, v in sorted(neg_scores.items(), key=lambda item: -item[1])][:top]
+        all_tokens = pos_tokens + neg_tokens
+        return [self.tokenizer([t])['input_ids'][0][1] for t in all_tokens]
+                
 class Ensemble(torch.nn.Module):
     def __init__(self, m1, m2, threshold):
         super().__init__()
