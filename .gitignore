@@ -18,6 +18,7 @@ models/gru/
 profile-*
 jupyter-lab.sh
 py-sbatch.sh
+nohup.out
 
 # Created by https://www.gitignore.io/api/python,pycharm,windows,osx,linux
 

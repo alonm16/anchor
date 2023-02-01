@@ -7,6 +7,7 @@ from functools import reduce
 from transformers import pipeline
 import copy
 import pandas as pd
+import seaborn as sns
 from myUtils import set_seed
 from score import ScoreUtils
 
@@ -294,7 +295,7 @@ class APOC:
     def compare_random_apocs(folder_name, model, tokenizer, seeds, compare_list, sentences, labels, legends, title = "", num_removes = 30, modified = False,): 
         fig, axs = plt.subplots(1, 2, figsize=(14, 4))
         
-        def random_helper(get_score_fn):
+        def random_helper(get_score_fn, pos_df, neg_df):
             pos_tokens_arr = []
             neg_tokens_arr = []
             for item in compare_list:
@@ -303,47 +304,31 @@ class APOC:
                 pos_tokens_arr.append(pos_tokens)
                 neg_tokens_arr.append(neg_tokens)
 
-            pos_scores = []
-            neg_scores = []
             for i in range(len(legends)):
                 apoc = APOC(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], title, num_removes = num_removes, modified = modified) 
-                pos_scores.append(apoc._apoc_global(apoc.pos_tokens, apoc.pos_sentences, [1]*len(apoc.pos_sentences)))
-                neg_scores.append(apoc._apoc_global(apoc.neg_tokens, apoc.neg_sentences, [0]*len(apoc.neg_sentences)))
+                pos_result = apoc._apoc_global(apoc.pos_tokens, apoc.pos_sentences, [1]*len(apoc.pos_sentences))
 
-            return np.array(pos_scores), np.array(neg_scores), apoc
+                neg_result = apoc._apoc_global(apoc.neg_tokens, apoc.neg_sentences, [0]*len(apoc.neg_sentences))
+            
+                pos_df = pos_df.append(pd.DataFrame({"# of removed features": np.arange(num_removes+1), "AOPC global": pos_result, "delta": np.repeat(legends[i], num_removes+1)}))
+                neg_df = neg_df.append(pd.DataFrame({"# of removed features": np.arange(num_removes+1), "AOPC global": neg_result, "delta": np.repeat(legends[i], num_removes+1)}))
+            
+            return pos_df, neg_df
         
-        def random_helper2(get_score_fn):
-            pos_tokens_arr = []
-            neg_tokens_arr = []
-            for item in compare_list:
-                pos_scores, neg_scores = get_scores_fn(item)
-                pos_tokens, neg_tokens = list(pos_scores.keys()), list(neg_scores.keys())
-                pos_tokens_arr.append(pos_tokens)
-                neg_tokens_arr.append(neg_tokens)
-
-            pos_scores = []
-            neg_scores = []
-            for i in range(len(legends)):
-                apoc = APOC(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], title, num_removes = num_removes, modified = modified) 
-                pos_scores.append(np.array([j+i*5 for j in range(30)]))
-                neg_scores.append(np.array([j+i*5 for j in range(30)]))
-
-            return np.array(pos_scores), np.array(neg_scores), apoc
-        
-        seeds_pos_scores, seeds_neg_scores, apoc = [], [], None
+        pos_df = pd.DataFrame(columns = ["# of removed features", "AOPC global", "delta"])
+        neg_df = pd.DataFrame(columns = ["# of removed features", "AOPC global", "delta"])
         for i, seed in enumerate(seeds):
             seed_folder = f'{folder_name}/../seed/{seed}/0.1'
             get_scores_fn = lambda delta: ScoreUtils.get_scores_dict(seed_folder, trail_path = f"../{delta}/scores.xlsx")
-            cur_pos_scores, cur_neg_scores, apoc = random_helper(get_scores_fn)
-            seeds_pos_scores.append(cur_pos_scores)
-            seeds_neg_scores.append(cur_neg_scores)
-        
-        # doesn't matter which apoc plots it
-        apoc._plot_apoc(axs[0], np.array(seeds_pos_scores).mean(axis = 0), legends, ' positive')
-        apoc._plot_apoc(axs[1], np.array(seeds_neg_scores).mean(axis = 0), legends, ' negative')
-        for i in range(len(legends)):
-            axs[0].boxplot(np.array(seeds_pos_scores).transpose((1,0,2))[i])
-            axs[1].boxplot(np.array(seeds_neg_scores).transpose((1,0,2))[i])
+            pos_df, neg_df = random_helper(get_scores_fn, pos_df, neg_df)
+
+        sns.lineplot(data=pos_df, x="# of removed features", y="AOPC global", hue = "delta", legend = False, ax = axs[0], palette=sns.color_palette())
+        #sns.boxplot(data=pos_df, x="# of removed features", y="AOPC global", hue = "delta", ax = axs[0]).set(title = title+' positive')
+        sns.lineplot(data=neg_df, x="# of removed features", y="AOPC global", hue = "delta", legend = False, ax = axs[1], palette=sns.color_palette())
+        #sns.boxplot(data=neg_df, x="# of removed features", y="AOPC global", hue = "delta", ax = axs[1]).set(title = title + ' negative')
+                                                                                        
+        axs[0].set_xticks(np.arange(0, num_removes, 5)) 
+        axs[1].set_xticks(np.arange(0, num_removes, 5)) 
         plt.show()
         
         if modified:

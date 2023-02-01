@@ -105,7 +105,17 @@ def dilemma_dataset(path = f'{ds_dir}/TheSocialDilemma.csv'):
     df = pd.concat([pos_df, neg_df])
     return prepare_ds(df, val_size = 0.55)
 
-def spam_dataset(path = f'{ds_dir}/toys_and_games.csv'):  
+def toy_spam_dataset(path = f'{ds_dir}/toys_and_games.csv'):  
+    df = pd.read_csv(path)
+    df['text'] = df['text'].apply(preprocess)
+    df = df[['text', 'label']]
+    # too many sentences
+    neg_df = df[df['label']==False][:15000]
+    pos_df = df[df['label']==True][:len(neg_df)]
+    df = pd.concat([pos_df, neg_df])
+    return prepare_ds(df)
+
+def sports_spam_dataset(path = f'{ds_dir}/sports_and_outdoors.csv'):  
     df = pd.read_csv(path)
     df['text'] = df['text'].apply(preprocess)
     df = df[['text', 'label']]
@@ -134,7 +144,8 @@ def get_ds(ds_name):
                 "sentiment_twitter": sentiment_twitt_dataset,
                 "counter": counter_dataset,
                 "dilemma": dilemma_dataset,
-                "spam": spam_dataset
+                "toy-spam": toy_spam_dataset,
+                "sport-spam": sports_spam_dataset
               }
     return ds_dict[ds_name]()
 

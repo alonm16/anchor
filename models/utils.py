@@ -197,7 +197,10 @@ def metric_fn(predictions):
     return {'accuracy': accuracy_score(preds, labels)}
 
 class MyTrainer(Trainer):
-    
+    """
+    computes weighted loss - less weight for examples with high anchors
+    can get them using retrain_utils.get_tokens method
+    """
     def contains_tokens(self, i, inputs):
         for t in self.tokens:
             if t in inputs[i]:
@@ -228,7 +231,7 @@ def train(model, tokenized_datasets, path, evaluate=False, num_train_epochs=2, t
     OUT_PATH = Path(path)
     args = TrainingArguments(output_dir=OUT_PATH, overwrite_output_dir=True, per_device_train_batch_size=32, per_device_eval_batch_size=32, save_strategy='epoch', metric_for_best_model='accuracy', load_best_model_at_end=True, greater_is_better=True, evaluation_strategy='epoch', do_train=True, num_train_epochs=num_train_epochs, report_to='none')
     
-    trainer = MyTrainer(
+    trainer = Trainer(
     model=model,
     args=args,
     train_dataset=tokenized_datasets['train'],

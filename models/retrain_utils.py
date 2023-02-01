@@ -20,7 +20,7 @@ class RetrainUtils:
         self.ds_name = ds_name
         self.unmasker = pipeline('fill-mask', model='distilbert-base-uncased')
         self.anchor_sentences = pickle.load(open(f"../results/retrain/{model_type}/{ds_name}/confidence/0.1/anchor_examples.pickle", "rb"))
-        self.labels = pickle.load(open(f"../results/retrain/{model_type}/{ds_name}/confidence/0.1/predictions.pickle", "rb" ))
+        self.labels = pickle.load(open(f"../results/retrain/{model_type}/{ds_name}/confidence/0.1/labels.pickle", "rb" ))
         self.model_type = model_type
         
     def get_scores_dict(self, trail_path = "scores.xlsx", alpha = 0.95):
