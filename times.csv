@@ -230,3 +230,11 @@ tinybert/sport-spam/confidence/0.5,63.44206139,FALSE,FALSE,FALSE,120
 tinybert/sport-spam/confidence/topk-0.1,152.2274218,FALSE,TRUE,FALSE,120
 tinybert/sport-spam/confidence/lossy-0.1,87.33742657,TRUE,FALSE,FALSE,120
 tinybert/sport-spam/confidence/desired-0.1,95.02041869,FALSE,FALSE,TRUE,120
+tinybert/home-spam/confidence/0.1,135.47072419722875,False,False,False,120
+tinybert/home-spam/confidence/0.15,102.05012251536051,False,False,False,120
+tinybert/home-spam/confidence/0.2,83.94050842523575,False,False,False,120
+tinybert/home-spam/confidence/0.35,69.31667999823888,False,False,False,120
+tinybert/home-spam/confidence/0.5,48.0629275004069,False,False,False,120
+tinybert/home-spam/confidence/topk-0.1,108.94677999416987,False,True,False,120
+tinybert/home-spam/confidence/lossy-0.1,69.86084074179331,True,False,False,120
+tinybert/home-spam/confidence/desired-0.1,58.347497113545735,False,False,True,120

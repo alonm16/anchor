@@ -122,18 +122,16 @@ class AOPC:
         return replaced_sentences      
 
     def _predict_scores(self, sentences):
-        encoded = [[101] +[self.tokenizer.vocab[token] for token in tokens] + [102]         
-                   for tokens in sentences]
-        to_pred = torch.tensor(encoded, device=self.device)
-        outputs = self.softmax(self.model(to_pred)[0])
+        pad = max(len(s) for s in sentences)
+        input_ids = [[101] +[self.tokenizer.vocab[token] for token in tokens] + [102] + [0]*(pad-len(tokens)) for tokens in sentences]
+        input_ids = torch.tensor(input_ids, device=self.device)
+        attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
+        attention_mask = torch.tensor(attention_mask, device=self.device)
+        outputs = self.softmax(self.model(input_ids = input_ids, attention_mask = attention_mask)[0])
         return outputs.detach().cpu().numpy()
     
-    def _aopc_predictions(self, sentences_arr, labels):
-        predictions_arr = []
-        for sentences in sentences_arr:
-            predictions = [self._predict_scores([sentence])[0][label] for sentence, label in zip(sentences, labels)]
-            predictions_arr.append(predictions)
-        return predictions_arr
+    def _aopc_predictions(self, sentences_arr, label):
+        return [self._predict_scores(sentences)[:, label] for sentences in sentences_arr]
     
     def _aopc_formula(self, orig_predictions, predictions_arr, k):
         N = len(orig_predictions)    
@@ -144,13 +142,13 @@ class AOPC:
         orig_predictions = predictions_arr[0]
         return [self._aopc_formula(orig_predictions, predictions_arr, k) for k in range(len(predictions_arr))]
 
-    def _aopc_global(self, tokens, sentences, labels):
+    def _aopc_global(self, tokens, sentences, label):
         removed_sentences_arr = []
         removed_sentences = sentences
         for i in range(self.num_removes+1):
             removed_sentences = self.tokens_method(i, tokens, removed_sentences)
             removed_sentences_arr.append(removed_sentences) 
-        predictions_arr = self._aopc_predictions(removed_sentences_arr, labels)
+        predictions_arr = self._aopc_predictions(removed_sentences_arr, label)
         aopc_scores = self._calc_aopc(predictions_arr)
         return aopc_scores  
         
@@ -158,31 +156,31 @@ class AOPC:
         self.tokens_method = self._remove_tokens if tokens_method=='remove' else self._replace_tokens
         pos_scores = []
         if 'normal' in legends:
-            pos_scores.append(self._aopc_global(self.pos_tokens, self.pos_sentences, [1]*len(self.pos_sentences)))
+            pos_scores.append(self._aopc_global(self.pos_tokens, self.pos_sentences, 1))
         
         if 'random' in legends:
             random_scores = np.zeros(self.num_removes+1)
             for i in range(5):
-                random_scores += np.array(self._aopc_global(self.pos_shuffled_tokens[i], self.pos_sentences, [1]*len(self.pos_sentences)))
+                random_scores += np.array(self._aopc_global(self.pos_shuffled_tokens[i], self.pos_sentences, 1))
             random_scores/=5
             pos_scores.append(random_scores)
         
         if 'reverse' in legends:
-            pos_scores.append(self._aopc_global(self.pos_reversed_tokens, self.pos_sentences, [1]*len(self.pos_sentences)))
+            pos_scores.append(self._aopc_global(self.pos_reversed_tokens, self.pos_sentences, 1))
                 
         neg_scores = []
         if 'normal' in legends:
-            neg_scores.append(self._aopc_global(self.neg_tokens, self.neg_sentences, [0]*len(self.neg_sentences)))
+            neg_scores.append(self._aopc_global(self.neg_tokens, self.neg_sentences, 0))
         
         if 'random' in legends:
             random_scores = np.zeros(self.num_removes+1)
             for i in range(5):
-                random_scores += np.array(self._aopc_global(self.neg_shuffled_tokens[i], self.neg_sentences, [0]*len(self.neg_sentences)))
+                random_scores += np.array(self._aopc_global(self.neg_shuffled_tokens[i], self.neg_sentences, 0))
             random_scores/=5
             neg_scores.append(random_scores)
             
         if 'reverse' in legends:
-            neg_scores.append(self._aopc_global(self.neg_reversed_tokens, self.neg_sentences, [0]*len(self.neg_sentences)))
+            neg_scores.append(self._aopc_global(self.neg_reversed_tokens, self.neg_sentences, 0))
 
         plotter(pos_scores, neg_scores, legends, self.title)
         
@@ -200,8 +198,8 @@ class AOPC:
         neg_scores = []
         for i in range(len(legends)):
             aopc = AOPC(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], title, num_removes = num_removes, modified = modified) 
-            pos_scores.append(aopc._aopc_global(aopc.pos_tokens, aopc.pos_sentences, [1]*len(aopc.pos_sentences)))
-            neg_scores.append(aopc._aopc_global(aopc.neg_tokens, aopc.neg_sentences, [0]*len(aopc.neg_sentences)))
+            pos_scores.append(aopc._aopc_global(aopc.pos_tokens, aopc.pos_sentences, 1))
+            neg_scores.append(aopc._aopc_global(aopc.neg_tokens, aopc.neg_sentences, 0))
         
         plotter(pos_scores, neg_scores, legends, title)
         
@@ -267,9 +265,9 @@ class AOPC:
 
             for i in range(len(legends)):
                 aopc = AOPC(model, tokenizer, sentences, labels, pos_tokens_arr[i], neg_tokens_arr[i], title, num_removes = num_removes, modified = modified) 
-                pos_result = aopc._aopc_global(aopc.pos_tokens, aopc.pos_sentences, [1]*len(aopc.pos_sentences))
+                pos_result = aopc._aopc_global(aopc.pos_tokens, aopc.pos_sentences, 1)
 
-                neg_result = aopc._aopc_global(aopc.neg_tokens, aopc.neg_sentences, [0]*len(aopc.neg_sentences))
+                neg_result = aopc._aopc_global(aopc.neg_tokens, aopc.neg_sentences, 0)
             
                 pos_df = pos_df.append(pd.DataFrame({"# of removed features": np.arange(num_removes+1), "AOPC global": pos_result, "delta": np.repeat(legends[i], num_removes+1)}))
                 neg_df = neg_df.append(pd.DataFrame({"# of removed features": np.arange(num_removes+1), "AOPC global": neg_result, "delta": np.repeat(legends[i], num_removes+1)}))
