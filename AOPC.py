@@ -43,7 +43,7 @@ class AOPC_Plotter:
         percents = [10, 25, 50, 75, 100]
         
         for i in range(len(axs)):
-            time_scores_arr = np.transpose(arr[i])
+            time_scores_arr = np.transpose(arrs[i])
             time_scores_arr = time_scores_arr[aopc_removes, :]
 
             for scores, legend in zip(time_scores_arr, aopc_removes):

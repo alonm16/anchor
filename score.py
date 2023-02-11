@@ -3,44 +3,39 @@ import pandas as pd
 import numpy as np
 
 class ScoreUtils:
+    columns=['name','anchor score','type occurences','total occurences','+%','-%','both', 'normal']
+        
     @staticmethod
     def get_scores_dict(folder_name, top=25, trail_path = "0.1/scores.xlsx", alpha = 0.95):
         """
         returns dict of (anchor, score) pairs, and sum of the topk positive/negative
         """
         df = pd.read_excel(f'{folder_name}/{trail_path}').drop(0)
-
         index_prefix = f"{alpha}-" if alpha is not None else ""
-
-        neg_keys = df[f'{index_prefix}negative'].dropna().tolist()
-        neg_values = df.iloc[:, list(df.columns).index(f'{index_prefix}negative')+1].tolist()
-        neg_scores =dict(zip(neg_keys, neg_values))    
-
-        pos_keys = df[f'{index_prefix}positive'].dropna().tolist()
-        pos_values = df.iloc[:, list(df.columns).index(f'{index_prefix}positive')+1].tolist()
-        pos_scores = dict(zip(pos_keys, pos_values))
-
-        return pos_scores, neg_scores
-    
-    @staticmethod
-    def get_anchor_occurences(explanations):
-        c = Counter()
-        for exp in explanations:
-            c.update([exp.names[0]])
-
-        return c
+        
+        def get_scores(column):
+            keys = df[column].dropna().tolist()
+            values = df.iloc[:, list(df.columns).index(column)+1].tolist()
+            return dict(zip(keys, values))  
+        
+        return get_scores(f'{index_prefix}positive'), get_scores(f'{index_prefix}negative')
     
     @staticmethod
     def get_normal_occurences(sentences, anchor_occurences, tokenizer):
         c = Counter()
         for sentence in sentences:
             c.update(tokenizer.tokenize(sentence))
-
-        #removing occurences of the words as anchor
-        for word in anchor_occurences.keys():
-            c[word]-=anchor_occurences[word]
-
+            
+        c.subtract(anchor_occurences)
         return c
+    
+    @staticmethod
+    def get_occurences(sentences, exps, labels, tokenizer):
+        anchor_occurences = Counter(map(lambda e: e.names[0], exps))
+        pos_occurences = Counter([e.names[0] for e in exps if labels[e.index]==0])
+        neg_occurences = Counter([e.names[0] for e in exps if labels[e.index]==1])
+        normal_occurences=ScoreUtils.get_normal_occurences(sentences, anchor_occurences, tokenizer)
+        return anchor_occurences, pos_occurences, neg_occurences, normal_occurences
 
     @staticmethod
     def calculate_sum(anchor_occurences, normal_occurences):
@@ -102,18 +97,27 @@ class ScoreUtils:
         return teta1
     
     @staticmethod
-    def calculate_agg_score(folder_name, tokenizer, anchor_examples, exps, labels, agg_name):
+    def score_df(type_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta0, alpha):
+        df = []
+        teta = ScoreUtils.calculate_teta1(type_occurences, teta0, alpha)
+        ScoreUtils.smooth_after(teta, type_occurences)
+        
+        for anchor, score in teta.items():
+            # substracting 1 because of the smoothing
+            pos_percent = round((pos_occurences[anchor]-1)/anchor_occurences[anchor], 2)
+            neg_percent = 1-pos_percent
+            both = (pos_occurences[anchor]-1)>0 and (neg_occurences[anchor]-1)>0
+            df.append([anchor, score , type_occurences[anchor]-1, anchor_occurences[anchor], pos_percent, neg_percent, both, normal_occurences[anchor]-1]) 
+
+        df.sort(key=lambda exp: -exp[1])
+        return pd.DataFrame(data = df, columns = ScoreUtils.columns).set_index('name')
+    
+    @staticmethod
+    def calculate_agg_score(folder_name, tokenizer, sentences, exps, labels, agg_name):
         aggs = {'sum': ScoreUtils.calculate_sum, 'avg': ScoreUtils.calculate_avg}
-        columns = ['name', 'anchor score', 'type occurences', 'total occurences','+%', '-%', 'both', 'normal']
-
-        pos_exps = [exp for exp in exps if labels[exp.index]==0]
-        neg_exps = [exp for exp in exps if labels[exp.index]==1]
-
-        anchor_occurences = ScoreUtils.get_anchor_occurences(exps)
-        pos_occurences = ScoreUtils.get_anchor_occurences(pos_exps)
-        neg_occurences = ScoreUtils.get_anchor_occurences(neg_exps)
-
-        normal_occurences = ScoreUtils.get_normal_occurences(anchor_examples, anchor_occurences, tokenizer)
+        alphas = [0.95, 0.8, 0.65, 0.5]
+        anchor_occurences, pos_occurences, neg_occurences, normal_occurences = ScoreUtils.get_occurences(sentences, exps, labels, tokenizer)
+        
         df_pos, df_neg = [], []
 
         teta_pos = aggs[agg_name](pos_occurences, normal_occurences)
@@ -125,7 +129,6 @@ class ScoreUtils:
             both = pos_occurences[anchor]>0 and neg_occurences[anchor]>0
             df_pos.append([anchor, score , pos_occurences[anchor], anchor_occurences[anchor], pos_percent, neg_percent, both,  normal_occurences[anchor]]) 
 
-
         for anchor, score in teta_neg.items():
             pos_percent = round((pos_occurences[anchor])/anchor_occurences[anchor], 2)
             neg_percent = 1-pos_percent
@@ -134,161 +137,55 @@ class ScoreUtils:
 
         df_pos.sort(key=lambda exp: -exp[1])
         df_neg.sort(key=lambda exp: -exp[1])
-        df_pos = pd.DataFrame(data = df_pos, columns = columns ).set_index('name')
-        df_neg = pd.DataFrame(data = df_neg, columns = columns ).set_index('name')
+        df_pos = pd.DataFrame(data = df_pos, columns = ScoreUtils.columns).set_index('name')
+        df_neg = pd.DataFrame(data = df_neg, columns = ScoreUtils.columns).set_index('name')
 
-        writer = pd.ExcelWriter(f'{folder_name}/{agg_name}_scores.xlsx',engine='xlsxwriter') 
+        with pd.ExcelWriter(f'{folder_name}/{agg_name}_scores.xlsx',engine='xlsxwriter') as writer:
+            cur_type = 'positive'
+            cur_col = 0
 
-        workbook=writer.book
-        worksheet=workbook.add_worksheet('Sheet1')
-        writer.sheets['Sheet1'] = worksheet
-
-        cur_col = 0
-        is_positive = False
-
-        for df in [df_pos, df_neg]:
-            cur_type = 'positive' if is_positive else 'negative'
-            is_positive = not is_positive
-            worksheet.write(0, cur_col, f'{cur_type}')
-            df.to_excel(writer, sheet_name=f'Sheet1', startrow=1, startcol=cur_col)
-            cur_col+= len(columns) + 1
-
-        writer.save()
+            for df in [df_pos, df_neg]:
+                cur_type = 'positive' if cur_type=='negative' else 'negative'
+                df.to_excel(writer, sheet_name=f'Sheet1', startrow=1, startcol=cur_col)
+                writer.book.worksheets()[0].write(0, cur_col, f'{cur_type}')
+                cur_col+= len(ScoreUtils.columns) + 1
         
     @staticmethod
     def calculate_percent_scores(folder_name, tokenizer, anchor_examples, exps, labels, percent):
-        """fix so not all sentences included!!!!!!!!!!!!!!"""
         """ calculates the scores for specific time during the running of anchor """
-        alphas = [0.95, 0.8, 0.65, 0.5]
-        dfs = []
-        columns = ['name', 'anchor score', 'type occurences', 'total occurences','+%', '-%', 'both', 'normal']
-
-        pos_exps = [exp for exp in exps if labels[exp.index]==0]
-        neg_exps = [exp for exp in exps if labels[exp.index]==1]
-
-        anchor_occurences = ScoreUtils.get_anchor_occurences(exps)
-        pos_occurences = ScoreUtils.get_anchor_occurences(pos_exps)
-        neg_occurences = ScoreUtils.get_anchor_occurences(neg_exps)
-
-        normal_occurences = ScoreUtils.get_normal_occurences(anchor_examples, anchor_occurences, tokenizer)
-        ScoreUtils.smooth_before(normal_occurences, [pos_occurences, neg_occurences])
-
-        teta0 = ScoreUtils.calculate_teta0(normal_occurences)
-
-
-        for alpha in alphas:
-            df_pos, df_neg = [], []
-
-            teta_pos = ScoreUtils.calculate_teta1(pos_occurences, teta0, alpha)
-            ScoreUtils.smooth_after(teta_pos, pos_occurences)
-
-            teta_neg = ScoreUtils.calculate_teta1(neg_occurences, teta0, alpha)
-            ScoreUtils.smooth_after(teta_neg, neg_occurences)
-
-            # substracting 1 because of the smoothing
-            for anchor, score in teta_pos.items():
-                pos_percent = round((pos_occurences[anchor]-1)/anchor_occurences[anchor], 2)
-                neg_percent = 1-pos_percent
-                both = (pos_occurences[anchor]-1)>0 and (neg_occurences[anchor]-1)>0
-                df_pos.append([anchor, score , pos_occurences[anchor]-1, anchor_occurences[anchor], pos_percent, neg_percent, both,  normal_occurences[anchor]-1]) 
-
-
-            for anchor, score in teta_neg.items():
-                pos_percent = round((pos_occurences[anchor]-1)/anchor_occurences[anchor], 2)
-                neg_percent = 1-pos_percent
-                both = (pos_occurences[anchor]-1)>0 and (neg_occurences[anchor]-1)>0
-                df_neg.append([anchor, score , neg_occurences[anchor]-1, anchor_occurences[anchor], pos_percent, neg_percent, both,  normal_occurences[anchor]-1]) 
-
-            df_pos.sort(key=lambda exp: -exp[1])
-            df_neg.sort(key=lambda exp: -exp[1])
-            df_pos = pd.DataFrame(data = df_pos, columns = columns ).set_index('name')
-            df_neg = pd.DataFrame(data = df_neg, columns = columns ).set_index('name')
-
-            dfs.extend([df_pos, df_neg])
-
-        writer = pd.ExcelWriter(f'{folder_name}/percents/scores-{percent}.xlsx', engine='xlsxwriter') 
-
-        workbook=writer.book
-        worksheet=workbook.add_worksheet('Sheet1')
-        writer.sheets['Sheet1'] = worksheet
-
-        cur_col = 0
-        is_positive = False
-        alphas = np.repeat(alphas, 2)
-
-        for df, alpha in zip(dfs, alphas):
-            cur_type = 'positive' if is_positive else 'negative'
-            is_positive = not is_positive
-            worksheet.write(0, cur_col, f'{alpha}-{cur_type}')
-            df.to_excel(writer, sheet_name=f'Sheet1', startrow=1, startcol=cur_col)
-            cur_col+= len(columns) + 1
-
-        writer.save() 
+        pos_sentences = [s for s, l in zip(sentences, labels) if l==0]
+        pos_index = int((percent*len(pos_sentences)/100))
+        pos_exps = filter(lambda e: labels[e.index]==0 and e.index<=pos_index, exps)
         
+        neg_sentences = [s for s, l in zip(sentences, labels) if l==1]
+        neg_index = int((percent*len(neg_sentences)/100))
+        neg_exps = filter(lambda e: labels[e.index]==1 and e.index<=neg_index, exps)
+        
+        sentences = pos_sentences[:pos_index] + neg_sentences[:neg_index]
+        labels = [0]*pos_index + [1]*neg_index
+        path = f'{folder_name}/percents/scores-{percent}.xlsx'
+        calculate_scores(path, tokenizer, sentences, neg_exps + pos_exps, labels)
+
     @staticmethod
-    def calculate_scores(folder_name, tokenizer, anchor_examples, exps, labels):
+    def calculate_scores(path, tokenizer, sentences, exps, labels):
         alphas = [0.95, 0.8, 0.65, 0.5]
         dfs = []
-        columns = ['name', 'anchor score', 'type occurences', 'total occurences','+%', '-%', 'both', 'normal']
+        anchor_occurences, pos_occurences, neg_occurences, normal_occurences = ScoreUtils.get_occurences(sentences, exps, labels, tokenizer)
         
-        pos_exps = [exp for exp in exps if labels[exp.index]==0]
-        neg_exps = [exp for exp in exps if labels[exp.index]==1]
-
-        anchor_occurences = ScoreUtils.get_anchor_occurences(exps)
-        pos_occurences = ScoreUtils.get_anchor_occurences(pos_exps)
-        neg_occurences = ScoreUtils.get_anchor_occurences(neg_exps)
-
-        normal_occurences = ScoreUtils.get_normal_occurences(anchor_examples, anchor_occurences, tokenizer)
         ScoreUtils.smooth_before(normal_occurences, [pos_occurences, neg_occurences])
-
         teta0 = ScoreUtils.calculate_teta0(normal_occurences)
 
-
         for alpha in alphas:
-            df_pos, df_neg = [], []
-
-            teta_pos = ScoreUtils.calculate_teta1(pos_occurences, teta0, alpha)
-            ScoreUtils.smooth_after(teta_pos, pos_occurences)
-
-            teta_neg = ScoreUtils.calculate_teta1(neg_occurences, teta0, alpha)
-            ScoreUtils.smooth_after(teta_neg, neg_occurences)
-
-            # substracting 1 because of the smoothing
-            for anchor, score in teta_pos.items():
-                pos_percent = round((pos_occurences[anchor]-1)/anchor_occurences[anchor], 2)
-                neg_percent = 1-pos_percent
-                both = (pos_occurences[anchor]-1)>0 and (neg_occurences[anchor]-1)>0
-                df_pos.append([anchor, score , pos_occurences[anchor]-1, anchor_occurences[anchor], pos_percent, neg_percent, both,  normal_occurences[anchor]-1]) 
-
-
-            for anchor, score in teta_neg.items():
-                pos_percent = round((pos_occurences[anchor]-1)/anchor_occurences[anchor], 2)
-                neg_percent = 1-pos_percent
-                both = (pos_occurences[anchor]-1)>0 and (neg_occurences[anchor]-1)>0
-                df_neg.append([anchor, score , neg_occurences[anchor]-1, anchor_occurences[anchor], pos_percent, neg_percent, both,  normal_occurences[anchor]-1]) 
-
-            df_pos.sort(key=lambda exp: -exp[1])
-            df_neg.sort(key=lambda exp: -exp[1])
-            df_pos = pd.DataFrame(data = df_pos, columns = columns ).set_index('name')
-            df_neg = pd.DataFrame(data = df_neg, columns = columns ).set_index('name')
-
+            df_pos = ScoreUtils.score_df(pos_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta0, alpha)
+            df_neg = ScoreUtils.score_df(neg_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta0, alpha) 
             dfs.extend([df_pos, df_neg])
+        
+        with pd.ExcelWriter(path, engine='xlsxwriter') as writer:
+            cur_type = 'positive'
+            cur_col = 0
 
-        writer = pd.ExcelWriter(f'{folder_name}/scores.xlsx',engine='xlsxwriter') 
-
-        workbook=writer.book
-        worksheet=workbook.add_worksheet('Sheet1')
-        writer.sheets['Sheet1'] = worksheet
-
-        cur_col = 0
-        is_positive = False
-        alphas = np.repeat(alphas, 2)
-
-        for df, alpha in zip(dfs, alphas):
-            cur_type = 'positive' if is_positive else 'negative'
-            is_positive = not is_positive
-            worksheet.write(0, cur_col, f'{alpha}-{cur_type}')
-            df.to_excel(writer, sheet_name=f'Sheet1', startrow=1, startcol=cur_col)
-            cur_col+= len(columns) + 1
-
-        writer.save()
+            for df, alpha in zip(dfs, np.repeat(alphas, 2)):
+                cur_type = 'positive' if cur_type=='negative' else 'negative'  
+                df.to_excel(writer, startrow=1, startcol=cur_col)
+                writer.book.worksheets()[0].write(0, cur_col, f'{alpha}-{cur_type}')
+                cur_col+= len(ScoreUtils.columns) + 1
