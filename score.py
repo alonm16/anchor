@@ -1,4 +1,4 @@
-from collections import Counter
+from collections import Counter, defaultdict
 import pandas as pd
 import numpy as np
 
@@ -32,8 +32,8 @@ class ScoreUtils:
     @staticmethod
     def get_occurences(sentences, exps, labels, tokenizer):
         anchor_occurences = Counter(map(lambda e: e.names[0], exps))
-        pos_occurences = Counter([e.names[0] for e in exps if labels[e.index]==0])
-        neg_occurences = Counter([e.names[0] for e in exps if labels[e.index]==1])
+        pos_occurences = Counter([e.names[0] for e in exps if labels[e.index]==1])
+        neg_occurences = Counter([e.names[0] for e in exps if labels[e.index]==0])
         normal_occurences=ScoreUtils.get_normal_occurences(sentences, anchor_occurences, tokenizer)
         return anchor_occurences, pos_occurences, neg_occurences, normal_occurences
 
@@ -151,34 +151,36 @@ class ScoreUtils:
                 cur_col+= len(ScoreUtils.columns) + 1
         
     @staticmethod
-    def calculate_percent_scores(folder_name, tokenizer, anchor_examples, exps, labels, percent):
+    def calculate_percent_scores(folder_name, tokenizer, sentences, exps, labels, percent):
         """ calculates the scores for specific time during the running of anchor """
-        pos_sentences = [s for s, l in zip(sentences, labels) if l==0]
+        pos_sentences = [s for s, l in zip(sentences, labels) if l==1]
+        pos_indices = [i for i, l in enumerate(labels) if l==1]
         pos_index = int((percent*len(pos_sentences)/100))
-        pos_exps = filter(lambda e: labels[e.index]==0 and e.index<=pos_index, exps)
-        
-        neg_sentences = [s for s, l in zip(sentences, labels) if l==1]
+        pos_exps = list(filter(lambda e: labels[e.index]==1 and pos_indices.index(e.index)<=pos_index, exps))
+ 
+        neg_sentences = [s for s, l in zip(sentences, labels) if l==0]
+        neg_indices = [i for i, l in enumerate(labels) if l==0]
         neg_index = int((percent*len(neg_sentences)/100))
-        neg_exps = filter(lambda e: labels[e.index]==1 and e.index<=neg_index, exps)
+        neg_exps = list(filter(lambda e: labels[e.index]==0 and neg_indices.index(e.index)<=neg_index, exps))
         
         sentences = pos_sentences[:pos_index] + neg_sentences[:neg_index]
-        labels = [0]*pos_index + [1]*neg_index
+    
         path = f'{folder_name}/percents/scores-{percent}.xlsx'
-        calculate_scores(path, tokenizer, sentences, neg_exps + pos_exps, labels)
+        calculate_scores(path, tokenizer, sentences, pos_exps + neg_exps, labels)
 
     @staticmethod
     def calculate_scores(path, tokenizer, sentences, exps, labels):
         alphas = [0.95, 0.8, 0.65, 0.5]
         dfs = []
         anchor_occurences, pos_occurences, neg_occurences, normal_occurences = ScoreUtils.get_occurences(sentences, exps, labels, tokenizer)
-        
+
         ScoreUtils.smooth_before(normal_occurences, [pos_occurences, neg_occurences])
         teta0 = ScoreUtils.calculate_teta0(normal_occurences)
 
         for alpha in alphas:
             df_pos = ScoreUtils.score_df(pos_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta0, alpha)
             df_neg = ScoreUtils.score_df(neg_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta0, alpha) 
-            dfs.extend([df_pos, df_neg])
+            dfs.extend([df_neg, df_pos])
         
         with pd.ExcelWriter(path, engine='xlsxwriter') as writer:
             cur_type = 'positive'
@@ -189,3 +191,33 @@ class ScoreUtils:
                 df.to_excel(writer, startrow=1, startcol=cur_col)
                 writer.book.worksheets()[0].write(0, cur_col, f'{alpha}-{cur_type}')
                 cur_col+= len(ScoreUtils.columns) + 1
+                
+    @staticmethod
+    def calculate_time_scores(tokenizer, sentences, exps, labels):
+        """ calculates the scores for specific time during the running of anchor """
+        alphas = [0.95, 0.8, 0.65, 0.5]
+        pos_sentences = [s for s, l in zip(sentences, labels) if l==1]
+        pos_indices = [i for i, l in enumerate(labels) if l==1]
+        neg_sentences = [s for s, l in zip(sentences, labels) if l==0]
+        neg_indices = [i for i, l in enumerate(labels) if l==0]
+        
+        results = defaultdict(lambda: defaultdict(dict))
+        for percent in range(10, 101, 2):
+            pos_index = int(percent*len(pos_sentences)/100)
+            pos_exps = list(filter(lambda e: labels[e.index]==1 and pos_indices.index(e.index)<=pos_index, exps))
+
+            neg_index = int(percent*len(neg_sentences)/100)
+            neg_exps = list(filter(lambda e: labels[e.index]==0 and neg_indices.index(e.index)<=neg_index, exps))
+            
+            sentences = pos_sentences[:pos_index] + neg_sentences[:neg_index]
+            
+            anchor_occurences, pos_occurences, neg_occurences, normal_occurences = ScoreUtils.get_occurences(sentences, pos_exps+neg_exps, labels, tokenizer)
+
+            ScoreUtils.smooth_before(normal_occurences, [pos_occurences, neg_occurences])
+            teta0 = ScoreUtils.calculate_teta0(normal_occurences)    
+            
+            for alpha in alphas:
+                results[alpha]['pos'][percent] = ScoreUtils.score_df(pos_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta0, alpha)[[ScoreUtils.columns[1]]]
+                results[alpha]['neg'][percent] = ScoreUtils.score_df(neg_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta0, alpha)[[ScoreUtils.columns[1]]]
+            
+        return results
