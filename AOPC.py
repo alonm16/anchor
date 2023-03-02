@@ -322,3 +322,38 @@ class AOPC:
         neg_tokens = list(map(lambda x: x[0], sorted(c_neg.items(), key=lambda item: -item[1])))
 
         return pos_tokens[:num_removes], neg_tokens[:num_removes]
+
+    @staticmethod
+    def time_monitor(model_type, ds_name, exps_dict, tokenizer, sentences, labels, top=30, alpha = 0.95):
+        """
+        compare best topk negative and positive anchors between current result and the
+        end result top scores
+        """
+        fig, axs = plt.subplots(1, 2, figsize=(15, 5))
+        times = pd.read_csv('times.csv', index_col=0)
+        pos_percent = sum(labels)/len(labels)
+        percents_dict = {}
+        for opt, exps in exps_dict.items():
+            percents_dict[opt] = ScoreUtils.calculate_time_scores(tokenizer,sentences,exps,labels,[alpha]) 
+
+        for opt in exps_dict.keys():
+            final_top_pos = set(percents_dict[opt][alpha]['pos'][100].index[:top])
+            final_top_neg = set(percents_dict[opt][alpha]['neg'][100].index[:top])
+            pos_results, neg_results = [], []
+            percents = percents_dict[opt][alpha]['pos'].keys()
+            for i in percents:
+                top_pos = set(percents_dict[alpha]['pos'][i].index[:top])
+                pos_results.append(len(top_pos.intersection(final_top_pos))/top)
+                top_neg = set(percents_dict[alpha]['neg'][i].index[:top])
+                neg_results.append(len(top_neg.intersection(final_top_neg))/top)
+            time = df.loc[f'{model_type}/{ds_name}/confidence/{opt}'].time
+            pos_times = [time*pos_percent*percent/100 for i in percents]
+            neg_times = [time*neg_percent*percent/100 for i in percents]
+            axs[0].plot(pos_times , pos_results, label = opt)
+            axs[1].plot(neg_times , neg_results, label = opt)
+        axs[0].set_title('positive')
+        axs[1].set_title('negative')
+        axs[0].set(xlabel = 'ds percents', ylabel='percents')
+        axs[1].set(xlabel = 'ds percents', ylabel='percents')
+        axs[0].legend()
+        axs[1].legend()

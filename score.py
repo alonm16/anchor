@@ -193,9 +193,8 @@ class ScoreUtils:
                 cur_col+= len(ScoreUtils.columns) + 1
                 
     @staticmethod
-    def calculate_time_scores(tokenizer, sentences, exps, labels):
+    def calculate_time_scores(tokenizer, sentences, exps, labels, alphas = [0.95, 0.8, 0.65, 0.5]):
         """ calculates the scores for specific time during the running of anchor """
-        alphas = [0.95, 0.8, 0.65, 0.5]
         pos_sentences = [s for s, l in zip(sentences, labels) if l==1]
         pos_indices = [i for i, l in enumerate(labels) if l==1]
         neg_sentences = [s for s, l in zip(sentences, labels) if l==0]
