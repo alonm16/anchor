@@ -48,7 +48,7 @@ optimization = '-'.join(args.optimization)
 optimization = '-'.join([optimization, str(args.delta)]) if args.optimization!='' else args.delta
 model_type = args.model_type
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-folder_name = f'results/{model_type}/{dataset_name}/{sorting}/{optimization}'
+folder_name = f'results2/{model_type}/{dataset_name}/{sorting}/{optimization}'
 
 ds = get_ds(dataset_name)
 model = load_model(f'models/{model_type}/{dataset_name}/traced.pt').to(device).eval()
@@ -104,4 +104,4 @@ with open('times.csv', 'a+', newline='') as write_obj:
         # Create a writer object from csv module
         csv_writer = writer(write_obj)
         # Add contents of list as last row in the csv file
-        csv_writer.writerow([folder_name[len('results/'):], (time.time()-st)/60, do_ignore, topk_optimize, desired_optimize ,examples_max_length])
+        csv_writer.writerow([folder_name[len('results2/'):], (time.time()-st)/60, do_ignore, topk_optimize, desired_optimize ,examples_max_length])

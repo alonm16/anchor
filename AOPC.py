@@ -130,11 +130,12 @@ class AOPC:
         aopc_scores = self._calc_aopc(predictions_arr)
         return aopc_scores  
         
-    def _compare_sorts(self, tokens_method = 'remove', legends = ['normal', 'random', 'reverse'], plotter = AOPC_Plotter.aopc_plot):
+    def _compare_sorts(self, tokens_method = 'remove', legends = ['normal', 'random', 'reverse', 'baseline'], plotter = AOPC_Plotter.aopc_plot):
         self.tokens_method = self._remove_tokens if tokens_method=='remove' else self._replace_tokens
-        pos_scores = []
+        pos_scores, neg_scores = [], []
         if 'normal' in legends:
             pos_scores.append(self._aopc_global(self.pos_tokens, self.pos_sentences, 1))
+            neg_scores.append(self._aopc_global(self.neg_tokens, self.neg_sentences, 0))
         
         if 'random' in legends:
             random_scores = np.zeros(self.num_removes+1)
@@ -145,15 +146,7 @@ class AOPC:
                 random_scores += np.array(self._aopc_global(shuffled_tokens, self.pos_sentences, 1))
             random_scores/=5
             pos_scores.append(random_scores)
-        
-        if 'reverse' in legends:
-            pos_scores.append(self._aopc_global(self.pos_tokens[::-1], self.pos_sentences, 1))
-                
-        neg_scores = []
-        if 'normal' in legends:
-            neg_scores.append(self._aopc_global(self.neg_tokens, self.neg_sentences, 0))
-        
-        if 'random' in legends:
+            
             random_scores = np.zeros(self.num_removes+1)
             for i in range(5):
                 set_seed((i+1)*100)
@@ -162,9 +155,15 @@ class AOPC:
                 random_scores += np.array(self._aopc_global(shuffled_tokens, self.neg_sentences, 0))
             random_scores/=5
             neg_scores.append(random_scores)
-            
+        
         if 'reverse' in legends:
+            pos_scores.append(self._aopc_global(self.pos_tokens[::-1], self.pos_sentences, 1))
             neg_scores.append(self._aopc_global(self.neg_tokens[::-1], self.neg_sentences, 0))
+            
+        if 'baseline' in legends:
+            p, n = AOPC.words_distributions(self.pos_sentences+self.neg_sentences, [1]*len(self.pos_sentences)+[0]*len(self.neg_sentences), self.tokenizer)
+            pos_scores.append(self._aopc_global(p, self.pos_sentences, 1))
+            neg_scores.append(self._aopc_global(n, self.neg_sentences, 0))
 
         plotter(pos_scores, neg_scores, legends, self.title)
         
@@ -189,11 +188,6 @@ class AOPC:
         
     @staticmethod
     def compare_all(folder_name, model, tokenizer, sentences, labels, title, num_removes = 30, from_img = [], skip = []):
-        def show_baseline():
-            p, n = AOPC.words_distributions(sentences, labels, tokenizer)
-            aopc = AOPC(model, tokenizer, sentences, labels, p, n, title + ' baseline')
-            aopc._compare_sorts('remove', ['normal'])
-
         def compare_sorts():
             pos_scores, neg_scores = ScoreUtils.get_scores_dict(folder_name, trail_path = "../0.1/scores.xlsx")
             pos_tokens, neg_tokens = list(pos_scores.keys()), list(neg_scores.keys())
@@ -231,7 +225,7 @@ class AOPC:
             get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(folder_name, trail_path = f"../0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
             AOPC.compare_aopcs(model, tokenizer, percents, get_scores_fn, sentences, labels, percents, f'{title} time-percents', num_removes, plotter=AOPC_Plotter.time_aopc_plot)
             
-        compares = {'baseline': show_baseline, 'sorts': compare_sorts, 'deltas': compare_deltas, 'alphas': compare_alphas, 'optimizations': compare_optimizations, 'aggragations': compare_aggragations, 'percents': compare_percents, 'time-percents': compare_time_percents} 
+        compares = {'sorts': compare_sorts, 'deltas': compare_deltas, 'alphas': compare_alphas, 'optimizations': compare_optimizations, 'aggragations': compare_aggragations, 'percents': compare_percents, 'time-percents': compare_time_percents} 
 
         for c in compares:
             if c in skip:
@@ -296,9 +290,9 @@ class AOPC:
 
         for sentence, label in zip(sentences, labels):
             if label == 1:
-                c_pos.update(set(tokenizer.tokenize(sentence)))
+                c_pos.update(sentence)
             else:
-                c_neg.update(set(tokenizer.tokenize(sentence)))
+                c_neg.update(sentence)
 
         all_words = list(c_pos.keys())
         all_words.extend(c_neg.keys())
@@ -342,7 +336,10 @@ class AOPC:
                 pos_results.append(len(top_pos.intersection(final_top_pos))/top)
                 top_neg = set(percents_dict[opt][alpha]['neg'][i].index[:top])
                 neg_results.append(len(top_neg.intersection(final_top_neg))/top)
-            time = times.loc[f'{model_type}/{ds_name}/confidence/{opt}'].time
+            try:
+                time = times.loc[f'{model_type}/{ds_name}/confidence/{opt}'].time
+            except:
+                time = times.loc[f'{model_type}/{ds_name}/confidence/{opt}-0.1'].time
             pos_times = [time*pos_percent*i/100 for i in percents]
             neg_times = [time*(1-pos_percent)*i/100 for i in percents]
             
@@ -377,8 +374,11 @@ class AOPC:
                 aopc =  AOPC(model, tokenizer, sentences, labels, top_pos, top_neg, title, num_removes = top)
                 pos_scores.append(2*aopc._aopc_global(aopc.pos_tokens, aopc.pos_sentences, 1, [0, top])[1])
                 neg_scores.append(2*aopc._aopc_global(aopc.neg_tokens, aopc.neg_sentences, 0, [0, top])[1])
-                
-            time = times.loc[f'{model_type}/{ds_name}/confidence/{opt}'].time
+            
+            try:
+                time = times.loc[f'{model_type}/{ds_name}/confidence/{opt}'].time
+            except:
+                time = times.loc[f'{model_type}/{ds_name}/confidence/{opt}-0.1'].time
             pos_times = [time*pos_percent*i/100 for i in percents]
             neg_times = [time*(1-pos_percent)*i/100 for i in percents]
             axs[0].plot(pos_times , pos_scores, label = opt)
