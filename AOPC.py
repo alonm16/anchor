@@ -2,6 +2,7 @@ import torch
 import matplotlib.pyplot as plt
 import numpy as np
 import random
+import pickle
 from collections import Counter, defaultdict
 from functools import reduce
 from transformers import pipeline
@@ -88,26 +89,26 @@ class AOPC:
             replaced_sentences.append(tokenized_sentence)
         return replaced_sentences      
 
-    # def _predict_scores(self, sentences):
-    #     pad = max(len(s) for s in sentences)
-    #     input_ids = [[101] +[self.tokenizer.vocab[token] for token in tokens] + [102] + [0]*(pad-len(tokens)) for tokens in sentences]
-    #     input_ids = torch.tensor(input_ids, device=self.device)
-    #     attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
-    #     attention_mask = torch.tensor(attention_mask, device=self.device)
-    #     outputs = self.softmax(self.model(input_ids = input_ids, attention_mask=attention_mask)[0])
-    #     return outputs.detach().cpu().numpy()
+    def _predict_scores(self, sentences):
+        pad = max(len(s) for s in sentences)
+        input_ids = [[101] +[self.tokenizer.vocab[token] for token in tokens] + [102] + [0]*(pad-len(tokens)) for tokens in sentences]
+        input_ids = torch.tensor(input_ids, device=self.device)
+        attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
+        attention_mask = torch.tensor(attention_mask, device=self.device)
+        outputs = self.softmax(self.model(input_ids = input_ids, attention_mask=attention_mask)[0])
+        return outputs.detach().cpu().numpy()
     
     def _aopc_predictions(self, sentences_arr, label):
         return np.array([self._predict_scores(sentences)[:, label] for sentences in sentences_arr])
     
-    def _aopc_predictions(self, sentences_arr, label):
-        predictions = []
-        for sentences in sentences_arr:
-            predictions_batch = []
-            for i in range(0, len(sentences), 50):
-                predictions_batch.extend(self._predict_scores(sentences[i:i+50])[:, label])
-            predictions.append(predictions_batch)
-        return np.array(predictions)
+    # def _aopc_predictions(self, sentences_arr, label):
+    #     predictions = []
+    #     for sentences in sentences_arr:
+    #         predictions_batch = []
+    #         for i in range(0, len(sentences), 50):
+    #             predictions_batch.extend(self._predict_scores(sentences[i:i+50])[:, label])
+    #         predictions.append(predictions_batch)
+    #     return np.array(predictions)
     
     def _aopc_formula(self, orig_predictions, predictions_arr, k):
         N = len(orig_predictions)    
@@ -187,10 +188,10 @@ class AOPC:
         plotter(pos_scores, neg_scores, legends, title)
         
     @staticmethod
-    def compare_all(folder_name, model, tokenizer, sentences, labels, title, num_removes = 30, from_img = []):
+    def compare_all(folder_name, model, tokenizer, sentences, labels, title, num_removes = 30, from_img = [], skip = []):
         def show_baseline():
-            p, n = AOPC.words_distributions(anchor_examples, labels, tokenizer)
-            aopc = AOPC(model, tokenizer, anchor_examples, labels, p, n, title + ' baseline')
+            p, n = AOPC.words_distributions(sentences, labels, tokenizer)
+            aopc = AOPC(model, tokenizer, sentences, labels, p, n, title + ' baseline')
             aopc._compare_sorts('remove', ['normal'])
 
         def compare_sorts():
@@ -199,7 +200,7 @@ class AOPC:
             aopc = AOPC(model, tokenizer, sentences, labels, pos_tokens, neg_tokens, title + ' sorts', num_removes)._compare_sorts()
             
         def compare_deltas():
-            deltas = [0.1, 0.15, 0.2, 0.35, 0.5]
+            deltas = [0.1, 0.15, 0.2, 0.35, 0.5, 0.6, 0.7, 0.8]
             get_scores_fn = lambda delta: ScoreUtils.get_scores_dict(folder_name, trail_path = f"../{delta}/scores.xlsx")
             AOPC.compare_aopcs(model, tokenizer, deltas, get_scores_fn, sentences, labels, deltas, f'{title} deltas', num_removes)
         
@@ -233,7 +234,9 @@ class AOPC:
         compares = {'baseline': show_baseline, 'sorts': compare_sorts, 'deltas': compare_deltas, 'alphas': compare_alphas, 'optimizations': compare_optimizations, 'aggragations': compare_aggragations, 'percents': compare_percents, 'time-percents': compare_time_percents} 
 
         for c in compares:
-            if c in from_img:
+            if c in skip:
+                continue
+            elif c in from_img:
                 plt.figure(figsize = (15, 5))
                 img = plt.imread(f'results/graphs/{title} {c}.png')
                 imgplot = plt.imshow(img)
@@ -315,22 +318,23 @@ class AOPC:
         return pos_tokens[:num_removes], neg_tokens[:num_removes]
 
     @staticmethod
-    def time_monitor(model_type, ds_name, exps_dict, tokenizer, sentences, labels, top=30, alpha = 0.95):
+    def time_percent_monitor(path, model_type, ds_name, opts, tokenizer, sentences, labels, top=30, alpha = 0.95):
         """
         compare top k anchors during runtime to the final top k of the default running
         """
+        get_exps = lambda opt: pickle.load(open(f"{path}/../{opt}/exps_list.pickle", "rb"))
         fig, axs = plt.subplots(1, 2, figsize=(15, 5))
         times = pd.read_csv('times.csv', index_col=0)
         pos_percent = sum(labels)/len(labels)
         percents_dict = dict()
-        percents_dict['0.1'] = ScoreUtils.calculate_time_scores(tokenizer, sentences, exps_dict['0.1'], labels,[alpha])
+        percents_dict['0.1'] = ScoreUtils.calculate_time_scores(tokenizer, sentences, get_exps('0.1'), labels,[alpha])
         final_top_pos = set(percents_dict['0.1'][alpha]['pos'][100].index[:top])
         final_top_neg = set(percents_dict['0.1'][alpha]['neg'][100].index[:top])
         
-        for opt, exps in exps_dict.items():
-            percents_dict[opt] = ScoreUtils.calculate_time_scores(tokenizer,sentences,exps,labels,[alpha]) 
+        for opt in opts:
+            percents_dict[opt] = ScoreUtils.calculate_time_scores(tokenizer,sentences,get_exps(opt),labels,[alpha]) 
 
-        for opt in exps_dict.keys():
+        for opt in opts:
             pos_results, neg_results = [], []
             percents = percents_dict[opt][alpha]['pos'].keys()
             for i in percents:
@@ -344,34 +348,35 @@ class AOPC:
             
             axs[0].plot(pos_times , pos_results, label = opt)
             axs[1].plot(neg_times , neg_results, label = opt)
-        axs[0].set_title('positive')
-        axs[1].set_title('negative')
+        axs[0].set_title(f'{model_type} {ds_name} percentage time positive')
+        axs[1].set_title(f'{model_type} {ds_name} percentage time negative')
         axs[0].set(xlabel = 'time (minutes)', ylabel='percents')
         axs[1].set(xlabel = 'time (minutes)', ylabel='percents')
         axs[0].legend()
         axs[1].legend()
         
     @staticmethod
-    def time_aopc_monitor(title, model, model_type, ds_name, exps_dict, tokenizer, sentences, labels, top=30, alpha = 0.95):
+    def time_aopc_monitor(path, title, model, model_type, ds_name, opts, tokenizer, sentences, labels, top=30, alpha = 0.95):
         """
         compare best topk negative and positive anchors between current result and the
         end result top scores
         """
+        get_exps = lambda opt: pickle.load(open(f"{path}/../{opt}/exps_list.pickle", "rb"))
         fig, axs = plt.subplots(1, 2, figsize=(15, 5))
         times = pd.read_csv('times.csv', index_col=0)
         pos_percent = sum(labels)/len(labels)
         percents_dict = dict()
 
-        for opt, exps in exps_dict.items():
+        for opt in opts:
             pos_scores, neg_scores = [], []
-            percents_dict[opt] = ScoreUtils.calculate_time_scores(tokenizer,sentences,exps,labels,[alpha]) 
+            percents_dict[opt] = ScoreUtils.calculate_time_scores(tokenizer,sentences,get_exps(opt),labels,[alpha]) 
             percents = percents_dict[opt][alpha]['pos'].keys()
             for i in percents:
                 top_pos = list(percents_dict[opt][alpha]['pos'][i].index[:top])
                 top_neg = list(percents_dict[opt][alpha]['neg'][i].index[:top])
                 aopc =  AOPC(model, tokenizer, sentences, labels, top_pos, top_neg, title, num_removes = top)
-                pos_scores.append(aopc._aopc_global(aopc.pos_tokens, aopc.pos_sentences, 1, [0, top])[1])
-                neg_scores.append(aopc._aopc_global(aopc.neg_tokens, aopc.neg_sentences, 0, [0, top])[1])
+                pos_scores.append(2*aopc._aopc_global(aopc.pos_tokens, aopc.pos_sentences, 1, [0, top])[1])
+                neg_scores.append(2*aopc._aopc_global(aopc.neg_tokens, aopc.neg_sentences, 0, [0, top])[1])
                 
             time = times.loc[f'{model_type}/{ds_name}/confidence/{opt}'].time
             pos_times = [time*pos_percent*i/100 for i in percents]
@@ -379,8 +384,8 @@ class AOPC:
             axs[0].plot(pos_times , pos_scores, label = opt)
             axs[1].plot(neg_times , neg_scores, label = opt)
 
-        axs[0].set_title('positive')
-        axs[1].set_title('negative')
+        axs[0].set_title(f'{model_type} {ds_name} aopc time positive')
+        axs[1].set_title(f'{model_type} {ds_name} aopc time negative')
         axs[0].set(xlabel = 'time (minutes)', ylabel='AOPC - global')
         axs[1].set(xlabel = 'time (minutes)', ylabel='AOPC - global')
         axs[0].legend()

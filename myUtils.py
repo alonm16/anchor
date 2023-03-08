@@ -236,12 +236,10 @@ class MyExplanation:
         self.precision = exp.precision()
     
 class TextUtils:
-    def __init__(self, dataset, test, explainer, predict_fn, ignored, result_path, optimize = False, delta=0.1):
+    def __init__(self, dataset, explainer, predict_fn, ignored, optimize = False, delta=0.1):
         self.dataset = dataset
         self.explainer = explainer
         self.predict_fn = predict_fn
-        self.test = test
-        self.path = result_path
         self.ignored = ignored
         self.delta = delta
         
@@ -252,14 +250,11 @@ class TextUtils:
 
     def compute_explanations(self, indices):
         explanations = list()
-        with open(self.path, 'wb') as fp:
-            for i, index in enumerate(indices):
-                print('number '+str(i))
-                cur_exps = self.get_exp(index)
-                for cur_exp in cur_exps:
-                    explanation = MyExplanation(index, cur_exp)
-                    explanations.append(explanation)
-                    pickle.dump(explanation, fp)
-                    fp.flush()
+        for i, index in enumerate(indices):
+            print('number '+str(i))
+            cur_exps = self.get_exp(index)
+            for cur_exp in cur_exps:
+                explanation = MyExplanation(index, cur_exp)
+                explanations.append(explanation)
         
         return explanations

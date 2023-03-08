@@ -162,11 +162,10 @@ class ScoreUtils:
         neg_indices = [i for i, l in enumerate(labels) if l==0]
         neg_index = int((percent*len(neg_sentences)/100))
         neg_exps = list(filter(lambda e: labels[e.index]==0 and neg_indices.index(e.index)<=neg_index, exps))
-        
         sentences = pos_sentences[:pos_index] + neg_sentences[:neg_index]
     
         path = f'{folder_name}/percents/scores-{percent}.xlsx'
-        calculate_scores(path, tokenizer, sentences, pos_exps + neg_exps, labels)
+        ScoreUtils.calculate_scores(path, tokenizer, sentences, pos_exps + neg_exps, labels)
 
     @staticmethod
     def calculate_scores(path, tokenizer, sentences, exps, labels):
