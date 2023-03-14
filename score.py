@@ -147,7 +147,7 @@ class ScoreUtils:
             cur_type = 'positive'
             cur_col = 0
             
-            for df in [df_pos, df_neg]:
+            for df in [df_neg, df_pos]:
                 cur_type = 'positive' if cur_type=='negative' else 'negative'
                 df.to_excel(writer, sheet_name=f'Sheet1', startrow=1, startcol=cur_col)
                 writer.book.worksheets()[0].write(0, cur_col, f'{cur_type}')

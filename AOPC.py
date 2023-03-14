@@ -23,10 +23,11 @@ class AOPC_Plotter:
         
         y_arrs = [pos_y_arr, neg_y_arr]
         if pos_x_arr is None:
-            pos_x_arr = neg_x_arr = range(len(pos_y_arr[0]))
+            pos_x_arr = np.tile(np.arange(len(pos_y_arr[0])), (len(pos_y_arr), 1))
+            neg_x_arr = np.tile(np.arange(len(neg_y_arr[0])), (len(neg_y_arr), 1))
         x_arrs = [pos_x_arr, neg_x_arr]
         ax_titles = ['positive', 'negative']
-        
+
         for i in range(len(axs)):
             for ys, xs, legend in zip(y_arrs[i], x_arrs[i], legends):
                 axs[i].plot(xs, ys, label = legend)
@@ -107,7 +108,7 @@ class AOPC:
     
     @staticmethod
     def _aopc_predictions(sentences_arr, label):
-       return np.array([AOPC._predict_scores(sentences)[:, label] for sentences in sentences_arr])
+        return np.array([AOPC._predict_scores(sentences)[:, label] for sentences in sentences_arr])
     
     
     # @staticmethod
@@ -209,7 +210,7 @@ class AOPC:
             AOPC._compare_sorts()
             
         def compare_deltas():
-            deltas = [0.1, 0.15, 0.2, 0.35, 0.5, 0.6, 0.7, 0.8]
+            deltas = [0.1, 0.15, 0.2, 0.35, 0.5, 0.6, 0.7]
             get_scores_fn = lambda delta: ScoreUtils.get_scores_dict(folder_name, trail_path = f"../{delta}/scores.xlsx")
             AOPC.compare_aopcs(model, tokenizer, deltas, get_scores_fn, sentences, labels, deltas, f'{title} deltas', num_removes)
         
@@ -292,11 +293,7 @@ class AOPC:
         axs[0].set_xticks(np.arange(0, num_removes, 5)) 
         axs[1].set_xticks(np.arange(0, num_removes, 5)) 
         plt.show()
-        
-        if modified:
-            fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
-        else:
-            fig.savefig(f'results/graphs/original/{title}', bbox_inches='tight')
+        fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
             
     @staticmethod
     def words_distributions(sentences, labels, tokenizer, num_removes = 30):
@@ -337,7 +334,8 @@ class AOPC:
         default_res = ScoreUtils.calculate_time_scores(tokenizer, sentences, get_exps('0.1'), labels,[alpha])[alpha]
         final_top_pos = set(default_res['pos'][100].index[:top])
         final_top_neg = set(default_res['neg'][100].index[:top])
-        plot_dict = defaultdict(list)
+        pos_df = pd.DataFrame(columns = ['time (minutes)', "percents", "optimization"])
+        neg_df = pd.DataFrame(columns = pos_df.columns)
 
         for opt in opts:
             percents_dict = ScoreUtils.calculate_time_scores(tokenizer,sentences,get_exps(opt),labels,[alpha])[alpha]
@@ -352,12 +350,16 @@ class AOPC:
                 time = times.loc[f'{model_type}/{ds_name}/confidence/{opt}'].time
             except:
                 time = times.loc[f'{model_type}/{ds_name}/confidence/{opt}-0.1'].time
-            plot_dict['pos_x'].append([time*pos_percent*i/100 for i in percents])
-            plot_dict['neg_x'].append([time*(1-pos_percent)*i/100 for i in percents])
-            plot_dict['pos_y'].append(pos_results)
-            plot_dict['neg_y'].append(neg_results)
-
-        AOPC_Plotter.aopc_plot(plot_dict['pos_y'], plot_dict['neg_y'], opts, f'{model_type} {ds_name} percentage time', plot_dict['pos_x'], plot_dict['neg_x'], 'time (minutes)', 'percents')
+            pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
+            neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
+            
+        fig, axs = plt.subplots(1, 2, figsize=(14, 4))
+        sns.lineplot(data=pos_df, x='time (minutes)', y="percents", hue = "optimization", legend = opts, ax = axs[0], palette=sns.color_palette()).set(title="positive")
+        sns.lineplot(data=neg_df, x='time (minutes)', y="percents", hue = "optimization", legend = opts, ax = axs[1], palette=sns.color_palette()).set(title="negative")
+        fig.suptitle(f'{model_type} {ds_name} percents time')
+        plt.show()
+        fig.savefig(f'results/graphs/{model_type} {ds_name} percents time', bbox_inches='tight')
+        #AOPC_Plotter.aopc_plot(plot_dict['pos_y'], plot_dict['neg_y'], opts, f'{model_type} {ds_name} percentage time', plot_dict['pos_x'], plot_dict['neg_x'], 'time (minutes)', 'percents')
                 
     @staticmethod
     def time_aopc_monitor(path, title, model, model_type, ds_name, opts, tokenizer, sentences, labels, top=30, alpha = 0.95):
