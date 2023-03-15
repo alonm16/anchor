@@ -104,4 +104,4 @@ with open('times.csv', 'a+', newline='') as write_obj:
         # Create a writer object from csv module
         csv_writer = writer(write_obj)
         # Add contents of list as last row in the csv file
-        csv_writer.writerow([folder_name[len('results2/'):], (time.time()-st)/60, do_ignore, topk_optimize, desired_optimize ,examples_max_length])
+        csv_writer.writerow([folder_name[len('results/'):], (time.time()-st)/60, do_ignore, topk_optimize, desired_optimize ,examples_max_length])
