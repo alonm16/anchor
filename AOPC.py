@@ -178,41 +178,41 @@ class AOPC:
     def compare_all(folder_name, model, tokenizer, sentences, labels, title, num_removes = 30, from_img = [], skip = []):
         
         def compare_sorts():
-            pos_scores, neg_scores = ScoreUtils.get_scores_dict(folder_name, trail_path = "../0.1/scores.xlsx")
+            pos_scores, neg_scores = ScoreUtils.get_scores_dict(folder_name, trail_path = "0.1/scores.xlsx")
             pos_tokens, neg_tokens = list(pos_scores.keys()), list(neg_scores.keys())
             AOPC.init(model, tokenizer, sentences, labels, pos_tokens, neg_tokens, title, num_removes)
             AOPC._compare_sorts()
             
         def compare_deltas():
             deltas = [0.1, 0.15, 0.2, 0.35, 0.5, 0.6, 0.7]
-            get_scores_fn = lambda delta: ScoreUtils.get_scores_dict(folder_name, trail_path = f"../{delta}/scores.xlsx")
+            get_scores_fn = lambda delta: ScoreUtils.get_scores_dict(folder_name, trail_path = f"{delta}/scores.xlsx")
             AOPC.compare_aopcs(model, tokenizer, deltas, get_scores_fn, sentences, labels, deltas, title, num_removes, 'delta')
         
         def compare_alphas():
             alphas = [0.95, 0.8, 0.65, 0.5]
-            get_scores_fn = lambda alpha: ScoreUtils.get_scores_dict(folder_name, trail_path = "../0.1/scores.xlsx", alpha = alpha)
+            get_scores_fn = lambda alpha: ScoreUtils.get_scores_dict(folder_name, trail_path = "0.1/scores.xlsx", alpha = alpha)
             AOPC.compare_aopcs(model, tokenizer, alphas, get_scores_fn, sentences, labels, alphas, title, num_removes, 'alpha')
         
         def compare_optimizations():
             optimizations = [str(0.1), 'lossy', 'topk', 'desired']
-            get_scores_fn = lambda optimization: ScoreUtils.get_scores_dict(folder_name, trail_path = f"../{optimization}/scores.xlsx")
+            get_scores_fn = lambda optimization: ScoreUtils.get_scores_dict(folder_name, trail_path = f"{optimization}/scores.xlsx")
             AOPC.compare_aopcs(model, tokenizer, optimizations, get_scores_fn, sentences, labels, optimizations, title, num_removes, 'optimization')
     
         def compare_aggregations():
             aggregations = ['', '', 'sum_', 'avg_']
             alphas = [0.5, 0.95, None, None]
             legends = ['probabilistic α=0.5', 'probabilistic α=0.95', 'sum', 'avg']
-            get_scores_fn = lambda x: ScoreUtils.get_scores_dict(folder_name, folder_name, trail_path = f"../0.1/{x[0]}scores.xlsx", alpha = x[1])
+            get_scores_fn = lambda x: ScoreUtils.get_scores_dict(folder_name, folder_name, trail_path = f"0.1/{x[0]}scores.xlsx", alpha = x[1])
             AOPC.compare_aopcs(model, tokenizer, zip(aggregations, alphas), get_scores_fn, sentences, labels, legends, title, num_removes, 'aggregation')
         
         def compare_percents():
             percents = [10, 25, 50, 75, 100]
-            get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(folder_name, trail_path = f"../0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
+            get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(folder_name, trail_path = f"0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
             AOPC.compare_aopcs(model, tokenizer, percents, get_scores_fn, sentences, labels, percents, title, num_removes, 'percent')
         
         def compare_time_percents():
             percents = [10, 25, 50, 75, 100]
-            get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(folder_name, trail_path = f"../0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
+            get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(folder_name, trail_path = f"0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
             AOPC.compare_aopcs(model, tokenizer, percents, get_scores_fn, sentences, labels, percents, title, num_removes, 'time-percent', plotter=AOPC_Plotter.time_aopc_plot)
             
         compares = {'sorts': compare_sorts, 'deltas': compare_deltas, 'alphas': compare_alphas, 'optimizations': compare_optimizations, 'aggregations': compare_aggregations, 'percents': compare_percents, 'time-percents': compare_time_percents} 
@@ -302,7 +302,7 @@ class AOPC:
         """
         compare top k anchors during runtime to the final top k of the default running
         """
-        get_exps = lambda opt: pickle.load(open(f"{path}/../{opt}/exps_list.pickle", "rb"))
+        get_exps = lambda opt: pickle.load(open(f"{path}{opt}/exps_list.pickle", "rb"))
         times = pd.read_csv('times.csv', index_col=0)
         pos_percent = sum(labels)/len(labels)
         default_res = ScoreUtils.calculate_time_scores(tokenizer, sentences, get_exps('0.1'), labels,[alpha])[alpha]
@@ -335,7 +335,7 @@ class AOPC:
         compare best topk negative and positive anchors between current result and the
         end result top scores
         """
-        get_exps = lambda opt: pickle.load(open(f"{path}/../{opt}/exps_list.pickle", "rb"))
+        get_exps = lambda opt: pickle.load(open(f"{path}{opt}/exps_list.pickle", "rb"))
         times = pd.read_csv('times.csv', index_col=0)
         pos_percent = sum(labels)/len(labels)
         pos_df = pd.DataFrame(columns = ['time (minutes)', "AOPC - global", "optimization"])

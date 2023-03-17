@@ -108,18 +108,18 @@ def sort_polarity(sentences):
 
 def sort_confidence(sentences, labels):
     """sorts them according to the prediction confidence"""
-    softmax = torch.nn.Softmax()
-    
-    def predict_sentence_logits(sentence):
-        encoded = tokenizer.encode(sentence, add_special_tokens=True, return_tensors="pt").to(device)
-        return softmax(model(encoded)[0])
-    
-    predictions = [predict_sentence_logits(sentence)[0] for sentence in sentences]
-    predictions_confidence = [prediction[torch.argmax(prediction, dim=-1).item()] for prediction in predictions]
-    scored_sentences = [(sentence, labels[i], predictions_confidence[i]) for i, sentence in enumerate(sentences)]
-    scored_sentences.sort(key=lambda exp: -abs(exp[2]))
-    return [exp[0] for exp in scored_sentences], [exp[1] for exp in scored_sentences]
-    
+    with torch.no_grad():
+        softmax = torch.nn.Softmax()
+
+        def predict_sentence_logits(sentence):
+            encoded = tokenizer.encode(sentence, add_special_tokens=True, return_tensors="pt").to(device)
+            return softmax(model(encoded)[0])
+
+        predictions = [predict_sentence_logits(sentence)[0] for sentence in sentences]
+        predictions_confidence = [prediction[torch.argmax(prediction, dim=-1).item()] for prediction in predictions]
+        scored_sentences = [(sentence, labels[i], predictions_confidence[i]) for i, sentence in enumerate(sentences)]
+        scored_sentences.sort(key=lambda exp: -abs(exp[2]))
+        return [exp[0] for exp in scored_sentences], [exp[1] for exp in scored_sentences]
 
 class BestGroupInner:
     # better to update when a word is found normal, 
