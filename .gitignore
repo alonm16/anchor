@@ -12,7 +12,6 @@ models/tinybert/
 models/mlm_models/
 models/gru/
 **/exps.pickle
-**/exps_list.pickle
 **/extended_exps.pickle
 **/profile_list.pickle
 profile-*
