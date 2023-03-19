@@ -6,7 +6,7 @@ class ScoreUtils:
     columns=['name','anchor score','type occurences','total occurences','+%','-%','both', 'normal']
         
     @staticmethod
-    def get_scores_dict(folder_name, top=25, trail_path = "0.1/scores.xlsx", alpha = 0.95):
+    def get_scores_dict(folder_name, trail_path = "0.1/scores.xlsx", alpha = 0.95):
         """
         returns dict of (anchor, score) pairs, and sum of the topk positive/negative
         """
@@ -38,7 +38,7 @@ class ScoreUtils:
         return anchor_occurences, pos_occurences, neg_occurences, normal_occurences
 
     @staticmethod
-    def calculate_sum(anchor_occurences, normal_occurences):
+    def calculate_sum(anchor_occurences, normal_occurences, min_occurrences=0):
         sums = dict()
         sum_occurences = sum(anchor_occurences.values())
         for word, count in anchor_occurences.items():
@@ -47,10 +47,12 @@ class ScoreUtils:
         return sums
 
     @staticmethod
-    def calculate_avg(anchor_occurences, normal_occurences):
+    def calculate_avg(anchor_occurences, normal_occurences, min_occurrences=0):
         avgs = dict()
         for word, count in anchor_occurences.items():
-            avgs[word] = count/(anchor_occurences[word]+normal_occurences[word])
+            occurrences = anchor_occurences[word]+normal_occurences[word]
+            if occurrences > min_occurrences:
+                avgs[word] = count/occurrences
 
         return avgs
     
@@ -113,15 +115,15 @@ class ScoreUtils:
         return pd.DataFrame(data = df, columns = ScoreUtils.columns).set_index('name')
     
     @staticmethod
-    def calculate_agg_score(folder_name, tokenizer, sentences, exps, labels, agg_name):
+    def calculate_agg_score(folder_name, tokenizer, sentences, exps, labels, agg_name, min_count=0):
         aggs = {'sum': ScoreUtils.calculate_sum, 'avg': ScoreUtils.calculate_avg}
         alphas = [0.95, 0.8, 0.65, 0.5]
         anchor_occurences, pos_occurences, neg_occurences, normal_occurences = ScoreUtils.get_occurences(sentences, exps, labels, tokenizer)
         
         df_pos, df_neg = [], []
 
-        teta_pos = aggs[agg_name](pos_occurences, normal_occurences)
-        teta_neg = aggs[agg_name](neg_occurences, normal_occurences)
+        teta_pos = aggs[agg_name](pos_occurences, normal_occurences, min_count)
+        teta_neg = aggs[agg_name](neg_occurences, normal_occurences, min_count)
 
         for anchor, score in teta_pos.items():
             pos_percent = round((pos_occurences[anchor])/anchor_occurences[anchor], 2)
@@ -140,11 +142,12 @@ class ScoreUtils:
         df_pos = pd.DataFrame(data = df_pos, columns = ScoreUtils.columns).set_index('name')
         df_neg = pd.DataFrame(data = df_neg, columns = ScoreUtils.columns).set_index('name')
 
-        with pd.ExcelWriter(f'{folder_name}/{agg_name}_scores.xlsx',engine='xlsxwriter') as writer:
+        agg_name = agg_name if min_count == 0 else agg_name+f'_{min_count}'
+        with pd.ExcelWriter(f'{folder_name}/{agg_name}_scores.xlsx', engine='xlsxwriter') as writer:
             cur_type = 'positive'
             cur_col = 0
-
-            for df in [df_pos, df_neg]:
+            
+            for df in [df_neg, df_pos]:
                 cur_type = 'positive' if cur_type=='negative' else 'negative'
                 df.to_excel(writer, sheet_name=f'Sheet1', startrow=1, startcol=cur_col)
                 writer.book.worksheets()[0].write(0, cur_col, f'{cur_type}')
@@ -162,11 +165,10 @@ class ScoreUtils:
         neg_indices = [i for i, l in enumerate(labels) if l==0]
         neg_index = int((percent*len(neg_sentences)/100))
         neg_exps = list(filter(lambda e: labels[e.index]==0 and neg_indices.index(e.index)<=neg_index, exps))
-        
         sentences = pos_sentences[:pos_index] + neg_sentences[:neg_index]
     
         path = f'{folder_name}/percents/scores-{percent}.xlsx'
-        calculate_scores(path, tokenizer, sentences, pos_exps + neg_exps, labels)
+        ScoreUtils.calculate_scores(path, tokenizer, sentences, pos_exps + neg_exps, labels)
 
     @staticmethod
     def calculate_scores(path, tokenizer, sentences, exps, labels):

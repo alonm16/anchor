@@ -108,18 +108,18 @@ def sort_polarity(sentences):
 
 def sort_confidence(sentences, labels):
     """sorts them according to the prediction confidence"""
-    softmax = torch.nn.Softmax()
-    
-    def predict_sentence_logits(sentence):
-        encoded = tokenizer.encode(sentence, add_special_tokens=True, return_tensors="pt").to(device)
-        return softmax(model(encoded)[0])
-    
-    predictions = [predict_sentence_logits(sentence)[0] for sentence in sentences]
-    predictions_confidence = [prediction[torch.argmax(prediction, dim=-1).item()] for prediction in predictions]
-    scored_sentences = [(sentence, labels[i], predictions_confidence[i]) for i, sentence in enumerate(sentences)]
-    scored_sentences.sort(key=lambda exp: -abs(exp[2]))
-    return [exp[0] for exp in scored_sentences], [exp[1] for exp in scored_sentences]
-    
+    with torch.no_grad():
+        softmax = torch.nn.Softmax()
+
+        def predict_sentence_logits(sentence):
+            encoded = tokenizer.encode(sentence, add_special_tokens=True, return_tensors="pt").to(device)
+            return softmax(model(encoded)[0])
+
+        predictions = [predict_sentence_logits(sentence)[0] for sentence in sentences]
+        predictions_confidence = [prediction[torch.argmax(prediction, dim=-1).item()] for prediction in predictions]
+        scored_sentences = [(sentence, labels[i], predictions_confidence[i]) for i, sentence in enumerate(sentences)]
+        scored_sentences.sort(key=lambda exp: -abs(exp[2]))
+        return [exp[0] for exp in scored_sentences], [exp[1] for exp in scored_sentences]
 
 class BestGroupInner:
     # better to update when a word is found normal, 
@@ -236,12 +236,10 @@ class MyExplanation:
         self.precision = exp.precision()
     
 class TextUtils:
-    def __init__(self, dataset, test, explainer, predict_fn, ignored, result_path, optimize = False, delta=0.1):
+    def __init__(self, dataset, explainer, predict_fn, ignored, optimize = False, delta=0.1):
         self.dataset = dataset
         self.explainer = explainer
         self.predict_fn = predict_fn
-        self.test = test
-        self.path = result_path
         self.ignored = ignored
         self.delta = delta
         
@@ -252,14 +250,11 @@ class TextUtils:
 
     def compute_explanations(self, indices):
         explanations = list()
-        with open(self.path, 'wb') as fp:
-            for i, index in enumerate(indices):
-                print('number '+str(i))
-                cur_exps = self.get_exp(index)
-                for cur_exp in cur_exps:
-                    explanation = MyExplanation(index, cur_exp)
-                    explanations.append(explanation)
-                    pickle.dump(explanation, fp)
-                    fp.flush()
+        for i, index in enumerate(indices):
+            print('number '+str(i))
+            cur_exps = self.get_exp(index)
+            for cur_exp in cur_exps:
+                explanation = MyExplanation(index, cur_exp)
+                explanations.append(explanation)
         
         return explanations

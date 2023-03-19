@@ -19,8 +19,8 @@ sys.path.append('models')
 torch._C._jit_set_texpr_fuser_enabled(False)
 
 parser = argparse.ArgumentParser()
-
 warnings.simplefilter("ignore")
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 sort_functions = {'polarity': sort_polarity, 'confidence': sort_confidence}
@@ -60,6 +60,7 @@ nlp = spacy.load('en_core_web_sm')
 
 anchor_examples, true_labels = preprocess_examples(ds, examples_max_length)
 anchor_examples, _ = sort_function(anchor_examples, true_labels)
+torch.cuda.empty_cache()
 
 if not os.path.exists(folder_name):
     os.makedirs(folder_name)
@@ -90,8 +91,8 @@ pickle.dump(anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb"
 
 st = time.time()
 
-my_utils = TextUtils(anchor_examples, anchor_examples, explainer, myUtils.predict_sentences, ignored, f"profile.pickle", optimize = True, delta = args.delta)
-set_seed(seed)
+my_utils = TextUtils(anchor_examples, explainer, myUtils.predict_sentences, ignored, optimize = optimize, delta = args.delta)
+set_seed()
 #torch._C._jit_set_texpr_fuser_enabled(False)
 explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
 
