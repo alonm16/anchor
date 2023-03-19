@@ -134,7 +134,7 @@ class AOPC:
 
         if 'random' in legends:
             for i in range(5):
-                set_seed((i+1)*100)
+                random.seed((i+1)*100)
                 shuffled_pos, shuffled_neg = AOPC.pos_tokens.copy(), AOPC.neg_tokens.copy()
                 random.shuffle(shuffled_pos), random.shuffle(shuffled_neg)
                 pos_scores, neg_scores = AOPC._aopc_global(shuffled_pos, AOPC.pos_sentences, 1), AOPC._aopc_global(shuffled_neg, AOPC.neg_sentences, 0)
@@ -152,7 +152,7 @@ class AOPC:
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip(np.arange(num_removes+1), pos_scores, np.repeat('baseline', num_removes+1))), columns=pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip(np.arange(num_removes+1), neg_scores, np.repeat('baseline', num_removes+1))), columns=neg_df.columns)])
 
-        plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, AOPC.title + f' {hue}')
+        return pos_df, neg_df, xlabel, ylabel, hue, legends, AOPC.title + f' {hue}', plotter
         
     @staticmethod
     def compare_aopcs(model, tokenizer, compare_list, get_scores_fn, sentences, labels, legends, title, num_removes, hue, xlabel="# of features removed", ylabel="AOPC-global", plotter=AOPC_Plotter.aopc_plot):         
@@ -172,51 +172,50 @@ class AOPC:
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip(np.arange(num_removes+1), pos_scores, np.repeat(legends[i], num_removes+1))), columns=pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip(np.arange(num_removes+1), neg_scores, np.repeat(legends[i], num_removes+1))), columns=neg_df.columns)])
         
-        plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, title + f' {hue}')
+        return pos_df, neg_df, xlabel, ylabel, hue, legends, title + f' {hue}', plotter
         
     @staticmethod
-    def compare_all(folder_name, model, tokenizer, sentences, labels, title, num_removes = 30, from_img = [], skip = []):
-        
+    def compare_all(path, model, tokenizer, sentences, labels, title, num_removes=30, seeds=None, from_img=[], skip=[]):       
         def compare_sorts():
-            pos_scores, neg_scores = ScoreUtils.get_scores_dict(folder_name, trail_path = "0.1/scores.xlsx")
+            pos_scores, neg_scores = ScoreUtils.get_scores_dict(path, trail_path = "0.1/scores.xlsx")
             pos_tokens, neg_tokens = list(pos_scores.keys()), list(neg_scores.keys())
             AOPC.init(model, tokenizer, sentences, labels, pos_tokens, neg_tokens, title, num_removes)
-            AOPC._compare_sorts()
+            return AOPC._compare_sorts()
             
         def compare_deltas():
-            deltas = [0.1, 0.15, 0.2, 0.35, 0.5, 0.6, 0.7]
-            get_scores_fn = lambda delta: ScoreUtils.get_scores_dict(folder_name, trail_path = f"{delta}/scores.xlsx")
-            AOPC.compare_aopcs(model, tokenizer, deltas, get_scores_fn, sentences, labels, deltas, title, num_removes, 'delta')
+            deltas = [0.1, 0.15, 0.2, 0.35, 0.5]#, 0.6, 0.7, 0.8]
+            get_scores_fn = lambda delta: ScoreUtils.get_scores_dict(path, trail_path = f"{delta}/scores.xlsx")
+            return AOPC.compare_aopcs(model, tokenizer, deltas, get_scores_fn, sentences, labels, deltas, title, num_removes, 'delta')
         
         def compare_alphas():
             alphas = [0.95, 0.8, 0.65, 0.5]
-            get_scores_fn = lambda alpha: ScoreUtils.get_scores_dict(folder_name, trail_path = "0.1/scores.xlsx", alpha = alpha)
-            AOPC.compare_aopcs(model, tokenizer, alphas, get_scores_fn, sentences, labels, alphas, title, num_removes, 'alpha')
+            get_scores_fn = lambda alpha: ScoreUtils.get_scores_dict(path, trail_path = "0.1/scores.xlsx", alpha = alpha)
+            return AOPC.compare_aopcs(model, tokenizer, alphas, get_scores_fn, sentences, labels, alphas, title, num_removes, 'alpha')
         
         def compare_optimizations():
             optimizations = [str(0.1), 'lossy', 'topk', 'desired']
-            get_scores_fn = lambda optimization: ScoreUtils.get_scores_dict(folder_name, trail_path = f"{optimization}/scores.xlsx")
-            AOPC.compare_aopcs(model, tokenizer, optimizations, get_scores_fn, sentences, labels, optimizations, title, num_removes, 'optimization')
+            get_scores_fn = lambda optimization: ScoreUtils.get_scores_dict(path, trail_path = f"{optimization}/scores.xlsx")
+            return AOPC.compare_aopcs(model, tokenizer, optimizations, get_scores_fn, sentences, labels, optimizations, title, num_removes, 'optimization')
     
         def compare_aggregations():
             aggregations = ['', '', 'sum_', 'avg_']
             alphas = [0.5, 0.95, None, None]
             legends = ['probabilistic α=0.5', 'probabilistic α=0.95', 'sum', 'avg']
-            get_scores_fn = lambda x: ScoreUtils.get_scores_dict(folder_name, folder_name, trail_path = f"0.1/{x[0]}scores.xlsx", alpha = x[1])
-            AOPC.compare_aopcs(model, tokenizer, zip(aggregations, alphas), get_scores_fn, sentences, labels, legends, title, num_removes, 'aggregation')
+            get_scores_fn = lambda x: ScoreUtils.get_scores_dict(path, trail_path=f"0.1/{x[0]}scores.xlsx", alpha = x[1])
+            return AOPC.compare_aopcs(model, tokenizer, zip(aggregations, alphas), get_scores_fn, sentences, labels, legends, title, num_removes, 'aggregation')
         
         def compare_percents():
             percents = [10, 25, 50, 75, 100]
-            get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(folder_name, trail_path = f"0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
-            AOPC.compare_aopcs(model, tokenizer, percents, get_scores_fn, sentences, labels, percents, title, num_removes, 'percent')
+            get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(path, trail_path = f"0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
+            return AOPC.compare_aopcs(model, tokenizer, percents, get_scores_fn, sentences, labels, percents, title, num_removes, 'percent')
         
         def compare_time_percents():
             percents = [10, 25, 50, 75, 100]
-            get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(folder_name, trail_path = f"0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
-            AOPC.compare_aopcs(model, tokenizer, percents, get_scores_fn, sentences, labels, percents, title, num_removes, 'time-percent', plotter=AOPC_Plotter.time_aopc_plot)
+            get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(path, trail_path = f"0.1/percents/scores-{percent}.xlsx", alpha = 0.95)
+            return AOPC.compare_aopcs(model, tokenizer, percents, get_scores_fn, sentences, labels, percents, title, num_removes, 'time-percent', plotter=AOPC_Plotter.time_aopc_plot)
             
         compares = {'sorts': compare_sorts, 'deltas': compare_deltas, 'alphas': compare_alphas, 'optimizations': compare_optimizations, 'aggregations': compare_aggregations, 'percents': compare_percents, 'time-percents': compare_time_percents} 
-
+        
         for c in compares:
             if c in skip:
                 continue
@@ -227,10 +226,20 @@ class AOPC:
                 plt.axis('off')
                 plt.show()
             else:
-                compares[c]()
+                if seeds:
+                    orig_path = path
+                    pos_df, neg_df = pd.DataFrame(), pd.DataFrame()
+                    for seed in seeds:
+                        path = orig_path+f'seed/{seed}/'
+                        cur_pos, cur_neg, xlabel, ylabel, hue, legends, c_title, plotter = compares[c]()
+                        pos_df, neg_df = pd.concat([pos_df, cur_pos]), pd.concat([neg_df, cur_neg])
+                    path = orig_path
+                else:
+                    pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, plotter = compares[c]()
+                plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title)
                 
     @staticmethod
-    def compare_random_aopcs(folder_name, model, tokenizer, seeds, compare_list, sentences, labels, legends, title = "", num_removes = 30): 
+    def compare_random_aopcs(path, model, tokenizer, seeds, compare_list, sentences, labels, legends, title = "", num_removes = 30): 
         fig, axs = plt.subplots(1, 2, figsize=(14, 4))
         
         def random_helper(get_score_fn, pos_df, neg_df):
@@ -255,7 +264,7 @@ class AOPC:
         pos_df = pd.DataFrame(columns = ["# of removed features", "AOPC global", "delta"])
         neg_df = pd.DataFrame(columns = ["# of removed features", "AOPC global", "delta"])
         for i, seed in enumerate(seeds):
-            seed_folder = f'{folder_name}/../seed/{seed}/0.1'
+            seed_folder = f'{path}/../seed/{seed}/0.1'
             get_scores_fn = lambda delta: ScoreUtils.get_scores_dict(seed_folder, trail_path = f"../{delta}/scores.xlsx")
             pos_df, neg_df = random_helper(get_scores_fn, pos_df, neg_df)
 
@@ -360,3 +369,7 @@ class AOPC:
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
 
         AOPC_Plotter.aopc_plot(pos_df, neg_df, 'time (minutes)', 'AOPC - global', "optimization", opts, f'{model_type} {ds_name} aopc time')
+        #sns.boxplot(data=pos_df, x="# of removed features", y="AOPC global", hue = "delta", ax = axs[0]).set(title = title+' positive')
+        #sns.boxplot(data=neg_df, x="# of removed features", y="AOPC global", hue = "delta", ax = axs[1]).set(title = title + ' negative')
+        #axs[0].set_xticks(np.arange(0, num_removes, 5)) 
+        #axs[1].set_xticks(np.arange(0, num_removes, 5)) 

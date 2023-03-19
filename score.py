@@ -6,7 +6,7 @@ class ScoreUtils:
     columns=['name','anchor score','type occurences','total occurences','+%','-%','both', 'normal']
         
     @staticmethod
-    def get_scores_dict(folder_name, top=25, trail_path = "0.1/scores.xlsx", alpha = 0.95):
+    def get_scores_dict(folder_name, trail_path = "0.1/scores.xlsx", alpha = 0.95):
         """
         returns dict of (anchor, score) pairs, and sum of the topk positive/negative
         """

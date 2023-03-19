@@ -19,9 +19,9 @@ sys.path.append('models')
 torch._C._jit_set_texpr_fuser_enabled(False)
 
 parser = argparse.ArgumentParser()
-
 warnings.simplefilter("ignore")
-device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
+
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 sort_functions = {'polarity': sort_polarity, 'confidence': sort_confidence}
 
