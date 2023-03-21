@@ -129,13 +129,13 @@ class ScoreUtils:
             pos_percent = round((pos_occurences[anchor])/anchor_occurences[anchor], 2)
             neg_percent = 1-pos_percent
             both = pos_occurences[anchor]>0 and neg_occurences[anchor]>0
-            df_pos.append([anchor, score , pos_occurences[anchor], anchor_occurences[anchor], pos_percent, neg_percent, both,  normal_occurences[anchor]]) 
+            df_pos.append([anchor, score , pos_occurences[anchor], anchor_occurences[anchor], pos_percent, neg_percent, both, normal_occurences[anchor]]) 
 
         for anchor, score in teta_neg.items():
             pos_percent = round((pos_occurences[anchor])/anchor_occurences[anchor], 2)
             neg_percent = 1-pos_percent
             both = pos_occurences[anchor]>0 and neg_occurences[anchor]>0
-            df_neg.append([anchor, score, neg_occurences[anchor], anchor_occurences[anchor], pos_percent, neg_percent, both,  normal_occurences[anchor]])
+            df_neg.append([anchor, score, neg_occurences[anchor], anchor_occurences[anchor], pos_percent, neg_percent, both, normal_occurences[anchor]])
 
         df_pos.sort(key=lambda exp: -exp[1])
         df_neg.sort(key=lambda exp: -exp[1])

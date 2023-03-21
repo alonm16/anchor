@@ -1,38 +1,10 @@
 #!/bin/sh 
 
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 168 --delta 0.5 --optimization lossy
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 210 --delta 0.5 --optimization lossy
-
-#python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 42 --delta 0.1 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 84 --delta 0.1 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 126 --delta 0.1 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 168 --delta 0.1 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 210 --delta 0.1 --optimization topk
-
-#python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 42 --delta 0.15 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 84 --delta 0.15 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 126 --delta 0.15 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 168 --delta 0.15 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 210 --delta 0.15 --optimization topk
-
-#python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 42 --delta 0.2 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 84 --delta 0.2 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 126 --delta 0.2 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 168 --delta 0.2 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 210 --delta 0.2 --optimization topk
-
-#python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 42 --delta 0.35 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 84 --delta 0.35 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 126 --delta 0.35 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 168 --delta 0.35 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 210 --delta 0.35 --optimization topk
-
-#python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 42 --delta 0.5 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 84 --delta 0.5 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 126 --delta 0.5 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 168 --delta 0.5 --optimization topk
-python run_seed.py --model_type tinybert --dataset_name corona --sorting confidence --seed 210 --delta 0.5 --optimization topk
-
+for delta_val in 0.1 0.15 0.2 0.35 0.5; do
+	for seed_val in 42 84 126 168 210; do
+		python run_seed.py --model_type tinybert --dataset_name dilemma --sorting confidence --seed $seed_val --delta $delta_val
+	done
+done
 
 # for s in 10; do
 # 	for d in results1/tinybert/corona/confidence/seed/$s/* ; do
@@ -42,36 +14,3 @@ python run_seed.py --model_type tinybert --dataset_name corona --sorting confide
 # 		done
 # 	done
 # done
-
-# python run.py --model_type tinybert --dataset_name toy-spam --sorting confidence --delta 0.15
-# python run.py --model_type tinybert --dataset_name toy-spam --sorting confidence --delta 0.155 
-# python run.py --model_type tinybert --dataset_name toy-spam --sorting confidence --delta 0.2
-# python run.py --model_type tinybert --dataset_name toy-spam --sorting confidence --delta 0.35 
-# python run.py --model_type tinybert --dataset_name toy-spam --sorting confidence --delta 0.5
-# python run.py --model_type tinybert --dataset_name toy-spam --sorting confidence --delta 0.6 
-# python run.py --model_type tinybert --dataset_name toy-spam --sorting confidence --delta 0.7
-# python run.py --model_type tinybert --dataset_name toy-spam --sorting confidence --optimization topk
-# python run.py --model_type tinybert --dataset_name toy-spam --sorting confidence --optimization topk
-# python run.py --model_type tinybert --dataset_name toy-spam --sorting confidence --optimization topk
-
-# python run.py --model_type tinybert --dataset_name home-spam --sorting confidence --delta 0.15
-# python run.py --model_type tinybert --dataset_name home-spam --sorting confidence --delta 0.155 
-# python run.py --model_type tinybert --dataset_name home-spam --sorting confidence --delta 0.2
-# python run.py --model_type tinybert --dataset_name home-spam --sorting confidence --delta 0.35 
-# python run.py --model_type tinybert --dataset_name home-spam --sorting confidence --delta 0.5
-# python run.py --model_type tinybert --dataset_name home-spam --sorting confidence --delta 0.6 
-# python run.py --model_type tinybert --dataset_name home-spam --sorting confidence --delta 0.7
-# python run.py --model_type tinybert --dataset_name home-spam --sorting confidence --optimization lossy
-# python run.py --model_type tinybert --dataset_name home-spam --sorting confidence --optimization topk
-# python run.py --model_type tinybert --dataset_name home-spam --sorting confidence --optimization lossy
-
-# python run.py --model_type tinybert --dataset_name sport-spam --sorting confidence --delta 0.15
-# python run.py --model_type tinybert --dataset_name sport-spam --sorting confidence --delta 0.155 
-# python run.py --model_type tinybert --dataset_name sport-spam --sorting confidence --delta 0.2
-# python run.py --model_type tinybert --dataset_name sport-spam --sorting confidence --delta 0.35 
-# python run.py --model_type tinybert --dataset_name sport-spam --sorting confidence --delta 0.5
-# python run.py --model_type tinybert --dataset_name sport-spam --sorting confidence --delta 0.6 
-# python run.py --model_type tinybert --dataset_name sport-spam --sorting confidence --delta 0.7
-# python run.py --model_type tinybert --dataset_name sport-spam --sorting confidence --optimization lossy
-# python run.py --model_type tinybert --dataset_name sport-spam --sorting confidence --optimization topk
-# python run.py --model_type tinybert --dataset_name sport-spam --sorting confidence --optimization lossy

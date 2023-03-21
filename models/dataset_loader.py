@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 from datasets import Dataset, DatasetDict
 
-ds_dir = '/home/almr16_04/anchor/dataset/'
+ds_dir = '/home/almr16/anchor/dataset/'
 
 def set_seed(seed=42):
     """
