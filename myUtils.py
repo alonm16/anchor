@@ -28,6 +28,16 @@ def predict_sentences(sentences):
     to_pred = torch.tensor(encoded, device=device)
     outputs = model(to_pred)[0]
     return torch.argmax(outputs, dim=1).cpu().numpy()
+    
+def old_predict_sentences(sentences):
+    sentences = [tokenizer.tokenize(s) for s in sentences]
+    pad = max(len(s) for s in sentences)
+    input_ids = [[101] +[tokenizer.vocab[token] for token in tokens] + [102] + [0]*(pad-len(tokens)) for tokens in sentences]
+    input_ids = torch.tensor(input_ids, device=device)
+    attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
+    attention_mask = torch.tensor(attention_mask, device=device)
+    outputs = model(input_ids)[0]
+    return torch.argmax(outputs, dim=1).cpu().numpy()
 
 def predict_scores(sentences):
     softmax = torch.nn.Softmax()

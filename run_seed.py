@@ -92,7 +92,7 @@ pickle.dump(anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb"
 st = time.time()
 
 my_utils = TextUtils(anchor_examples, explainer, myUtils.predict_sentences, ignored, optimize = optimize, delta = args.delta)
-set_seed()
+set_seed(seed)
 #torch._C._jit_set_texpr_fuser_enabled(False)
 explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
 
