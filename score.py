@@ -51,7 +51,7 @@ class ScoreUtils:
         avgs = dict()
         for word, count in anchor_occurences.items():
             occurrences = anchor_occurences[word]+normal_occurences[word]
-            if occurrences > min_occurrences:
+            if anchor_occurences[word] > min_occurrences:
                 avgs[word] = count/occurrences
 
         return avgs
