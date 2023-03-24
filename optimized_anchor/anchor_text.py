@@ -29,7 +29,7 @@ def exp_normalize(x):
     return y / y.sum()
 
 class TextGenerator(object):
-    def __init__(self, url=None):
+    def __init__(self, url=None, num_unmask = 500):
         self.url = url
         if url is None:
             self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -37,6 +37,7 @@ class TextGenerator(object):
             if optimize:
                 self.bert = torch.jit.load('models/mlm_models/distil_mlm.pt').to(self.device)
                 self.ids_to_tokens = dict(self.bert_tokenizer.ids_to_tokens)
+                self.num_unmask = num_unmask
             else:
                 self.bert = DistilBertForMaskedLM.from_pretrained('distilbert-base-cased', torchscript=True)
                 self.bert.to(self.device)
@@ -62,8 +63,8 @@ class TextGenerator(object):
             ret = []  
 
             if optimize:
-                #### try change to 100!!!!!!!!!!!!!!!!!!!
-                v_array, top_preds_array = torch.topk(outputs[j, masked_array[j]], 500)
+                # optimize: change num of unmask options
+                v_array, top_preds_array = torch.topk(outputs[j, masked_array[j]], self.num_unmask)
                 top_preds_array = top_preds_array.tolist()
                 v_array = v_array.cpu().numpy()
 
@@ -186,7 +187,7 @@ class SentencePerturber:
 class AnchorText(object):
     """bla"""
     
-    def __init__(self, nlp, class_names, use_unk_distribution=True, mask_string='UNK'):
+    def __init__(self, nlp, class_names, use_unk_distribution=True, mask_string='UNK', num_unmask = 500):
         """
         Args:
             nlp: spacy object
@@ -203,7 +204,7 @@ class AnchorText(object):
         self.tg = None
         self.mask_string = mask_string
         if not self.use_unk_distribution:
-            self.tg = TextGenerator()
+            self.tg = TextGenerator(num_unmask = num_unmask)
             
     @staticmethod       
     def set_optimize(should_optimize):

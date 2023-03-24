@@ -33,6 +33,7 @@ parser.add_argument("--sorting", default='confidence', choices=['polarity', 'con
 parser.add_argument("--optimization", default='', choices = ['', 'topk', 'lossy', 'desired'], nargs = '+')
 parser.add_argument("--examples_max_length", default=150, type=int)
 parser.add_argument("--delta", default=0.1, type=float)
+parser.add_argument("--num_unmask", default=500, type=int)
 
 args = parser.parse_args()
 
@@ -40,6 +41,7 @@ examples_max_length = args.examples_max_length
 do_ignore = 'lossy' in args.optimization
 topk_optimize = 'topk' in args.optimization
 desired_optimize = 'desired' in args.optimization
+num_unmask = 50 if 'masking_50' in args.optimization else 500
 sort_function = sort_functions[args.sorting]
 
 dataset_name = args.dataset_name
@@ -48,7 +50,7 @@ optimization = '-'.join(args.optimization)
 optimization = '-'.join([optimization, str(args.delta)]) if args.optimization!='' else args.delta
 model_type = args.model_type
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-folder_name = f'results/{model_type}/{dataset_name}/{sorting}/{optimization}'
+path = f'results/{model_type}/{dataset_name}/{sorting}/{optimization}'
 
 ds = get_ds(dataset_name)
 model = load_model(f'models/{model_type}/{dataset_name}/traced.pt').to(device).eval()
@@ -62,13 +64,13 @@ anchor_examples, true_labels = preprocess_examples(ds, examples_max_length)
 anchor_examples, _ = sort_function(anchor_examples, true_labels)
 torch.cuda.empty_cache()
 
-if not os.path.exists(folder_name):
-    os.makedirs(folder_name)
+if not os.path.exists(path):
+    os.makedirs(path)
 
 # In[6]:
 
 normal_occurences = get_occurences(anchor_examples)
-anchor_base.AnchorBaseBeam.best_group = BestGroup(folder_name, normal_occurences, filter_anchors = topk_optimize, desired_optimize = desired_optimize)
+anchor_base.AnchorBaseBeam.best_group = BestGroup(path, normal_occurences, filter_anchors = topk_optimize, desired_optimize = desired_optimize)
 
 # In[7]:
 
@@ -79,15 +81,15 @@ else:
 
 
 # In[10]:
-print(folder_name)
+print(path)
 print(datetime.datetime.now())
 
 optimize = True
 anchor_text.AnchorText.set_optimize(optimize)
-explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False)
+explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False, num_unmask=num_unmask)
 
 
-pickle.dump(anchor_examples, open( f"{folder_name}/anchor_examples.pickle", "wb" ))
+pickle.dump(anchor_examples, open( f"{path}/anchor_examples.pickle", "wb" ))
 
 st = time.time()
 
@@ -96,7 +98,7 @@ set_seed()
 #torch._C._jit_set_texpr_fuser_enabled(False)
 explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
 
-pickle.dump(explanations, open( f"{folder_name}/exps_list.pickle", "wb"))
+pickle.dump(explanations, open( f"{path}/exps_list.pickle", "wb"))
 
 print(datetime.datetime.now())
 
@@ -105,4 +107,4 @@ with open('times.csv', 'a+', newline='') as write_obj:
         # Create a writer object from csv module
         csv_writer = writer(write_obj)
         # Add contents of list as last row in the csv file
-        csv_writer.writerow([folder_name[len('results/'):], (time.time()-st)/60, do_ignore, topk_optimize, desired_optimize ,examples_max_length])
+        csv_writer.writerow([path[len('results/'):], (time.time()-st)/60, do_ignore, topk_optimize, desired_optimize ,examples_max_length])

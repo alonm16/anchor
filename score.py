@@ -34,11 +34,11 @@ class ScoreUtils:
         anchor_occurences = Counter(map(lambda e: e.names[0], exps))
         pos_occurences = Counter([e.names[0] for e in exps if labels[e.index]==1])
         neg_occurences = Counter([e.names[0] for e in exps if labels[e.index]==0])
-        normal_occurences=ScoreUtils.get_normal_occurences(sentences, anchor_occurences, tokenizer)
+        normal_occurences = ScoreUtils.get_normal_occurences(sentences, anchor_occurences, tokenizer)
         return anchor_occurences, pos_occurences, neg_occurences, normal_occurences
 
     @staticmethod
-    def calculate_sum(anchor_occurences, normal_occurences, min_occurrences=0):
+    def calculate_sum(anchor_occurences, normal_occurences, min_occurrences=0, ds_size=3400):
         sums = dict()
         sum_occurences = sum(anchor_occurences.values())
         for word, count in anchor_occurences.items():
@@ -47,11 +47,12 @@ class ScoreUtils:
         return sums
 
     @staticmethod
-    def calculate_avg(anchor_occurences, normal_occurences, min_occurrences=0):
+    def calculate_avg(anchor_occurences, normal_occurences, min_percent=0, ds_size=3400):
         avgs = dict()
+        min_count = min_percent*ds_size
         for word, count in anchor_occurences.items():
             occurrences = anchor_occurences[word]+normal_occurences[word]
-            if anchor_occurences[word] > min_occurrences:
+            if anchor_occurences[word] > min_count:
                 avgs[word] = count/occurrences
 
         return avgs
@@ -122,8 +123,8 @@ class ScoreUtils:
         
         df_pos, df_neg = [], []
 
-        teta_pos = aggs[agg_name](pos_occurences, normal_occurences, min_count)
-        teta_neg = aggs[agg_name](neg_occurences, normal_occurences, min_count)
+        teta_pos = aggs[agg_name](pos_occurences, normal_occurences, min_count, len(sentences))
+        teta_neg = aggs[agg_name](neg_occurences, normal_occurences, min_count, len(sentences))
 
         for anchor, score in teta_pos.items():
             pos_percent = round((pos_occurences[anchor])/anchor_occurences[anchor], 2)

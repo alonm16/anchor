@@ -20,9 +20,10 @@ class AOPC_Plotter:
             pos_df = pos_df[pos_df['time (minutes)'] <= 10]
             neg_df = neg_df[neg_df['time (minutes)'] <= 10]
             title+=' limit'
-        fig, axs = plt.subplots(1, 2, figsize=(14, 4))
+        fig, axs = plt.subplots(1, 2, figsize=(10, 3))
         for ax, df, type_title in zip(axs, [pos_df, neg_df], ['positive', 'negative']): 
             sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend=legend, ax = ax, palette=sns.color_palette()).set(title=type_title)
+            ax.grid()
         fig.suptitle(title)
         plt.show()
         fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
@@ -30,13 +31,12 @@ class AOPC_Plotter:
     @staticmethod       
     def time_aopc_plot(pos_df, neg_df, xlabel, ylabel, hue, legend, title, limit=False):
         fig, axs = plt.subplots(1, 2, figsize=(14, 4))
-        pos_df = pos_df[pos_df[xlabel].isin([1, 5 ,10, 20 ,30])]
-        neg_df = neg_df[neg_df[xlabel].isin([1, 5 ,10, 20 ,30])]
-        sns.lineplot(data=pos_df, x=hue, y=ylabel, hue=xlabel, legend=legend, ax = axs[0], palette=sns.color_palette()).set(title="positive")
-        sns.lineplot(data=neg_df, x=hue, y=ylabel, hue=xlabel, legend=legend, ax = axs[1], palette=sns.color_palette()).set(title="negative")
+        for ax, df, type_title in zip(axs, [pos_df, neg_df], ['positive', 'negative']):
+            df = df[df[xlabel].isin([1, 5 ,10, 20 ,30])]
+            sns.lineplot(data=df, x=hue, y=ylabel, hue=xlabel, legend=legend, ax = ax, palette=sns.color_palette()).set(title=type_title)
+            sns.move_legend(ax, "lower left")
+            ax.grid()
         fig.suptitle(title)
-        sns.move_legend(axs[0], "lower left")
-        sns.move_legend(axs[1], "lower left")
         plt.show()
         fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
 
@@ -209,6 +209,8 @@ class AOPC:
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip(np.arange(num_removes+1), pos_scores, np.repeat(legends[i], num_removes+1))), columns=pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip(np.arange(num_removes+1), neg_scores, np.repeat(legends[i], num_removes+1))), columns=neg_df.columns)])
         
+        if normalizer:
+            print(pos_tokens_arr[legends.index(normalizer)])
         return pos_df, neg_df, xlabel, ylabel, hue, legends, title + f' {hue}', plotter, normalizer
         
     @staticmethod
@@ -236,9 +238,9 @@ class AOPC:
     
         def compare_aggregations(**kwargs):
             if 'agg_params' not in kwargs:
-                aggregations = ['', '', 'sum_', 'avg_']
-                alphas = [0.5, 0.95, None, None]
-                legends = ['probabilistic α=0.5', 'probabilistic α=0.95', 'sum', 'avg']
+                aggregations = ['', '', 'sum_', 'avg_', f'avg_{2e-3}_', f'avg_{3e-3}_', f'avg_{4e-3}_']
+                alphas = [0.5, 0.95, None, None, None, None, None]
+                legends = ['probabilistic α=0.5', 'probabilistic α=0.95', 'sum', 'avg', 'avg_2e-3', 'avg_3e-3', 'avg_4e-3']
             else:
                 aggregations, alphas, legends = kwargs['agg_params']
             get_scores_fn = lambda x: ScoreUtils.get_scores_dict(path, trail_path=f"{delta}/{x[0]}scores.xlsx", alpha = x[1])
@@ -263,21 +265,8 @@ class AOPC:
             ds_name = path.split('/')[2]
             opts = kwargs['opts'] if 'opts' in kwargs else [delta, f'lossy-{delta}', f'topk-{delta}', f'desired-{delta}']
             return AOPC.time_aopc_monitor(path, title, model, model_type, ds_name, opts, tokenizer, sentences, labels, seed, top=30, alpha=0.95, delta=delta)
-        
-        def calc_c(c):
-            print(seeds)
-            print(path)
-            if seeds:
-                orig_path = path
-                pos_df, neg_df = pd.DataFrame(), pd.DataFrame()
-                for seed in seeds:
-                    path = orig_path+f'seed/{seed}/'
-                    cur_pos, cur_neg, xlabel, ylabel, hue, legends, c_title, plotter, normalizer = compares[c](**kwargs)
-                    pos_df, neg_df = pd.concat([pos_df, cur_pos]), pd.concat([neg_df, cur_neg])
-                path = orig_path
 
-
-        compares = {'sorts': compare_sorts, 'delta': compare_deltas, 'alpha': compare_alphas, 'optimization': compare_optimizations, 'aggregation': compare_aggregations, 'percent': compare_percents, 'percents-remove': compare_percents_remove, 'time-percent': time_percent, 'time-aopc': time_aopc} 
+        compares = {'sorts': compare_sorts, 'delta': compare_deltas, 'alpha': compare_alphas, 'optimization': compare_optimizations, 'aggregation': compare_aggregations, 'percent': compare_percents, 'percents-remove': compare_percents_remove, 'percents time': time_percent, 'aopc time': time_aopc} 
         delta = kwargs['delta'] if 'delta' in kwargs else 0.1
         
         for c in compares:
