@@ -78,6 +78,7 @@ class AOPC:
         return replaced_sentences      
 
     @staticmethod
+    @torch.no_grad()
     def _predict_scores(sentences):
         pad = max(len(s) for s in sentences)
         input_ids = [[101] +[AOPC.tokenizer.vocab[token] for token in tokens] + [102] + [0]*(pad-len(tokens)) for tokens in sentences]
@@ -158,11 +159,14 @@ class AOPC:
         AOPC.tokens_method = AOPC._remove_tokens if tokens_method=='remove' else AOPC._replace_tokens
         pos_df = pd.DataFrame(columns = [xlabel, ylabel, hue])
         neg_df = pd.DataFrame(columns = pos_df.columns)
+        pos_tokens_arr, neg_tokens_arr = [], []
 
         if 'normal' in legends:
             pos_scores, neg_scores = AOPC._aopc_global(AOPC.pos_tokens, AOPC.pos_sentences, 1), AOPC._aopc_global(AOPC.neg_tokens, AOPC.neg_sentences, 0)
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip(np.arange(num_removes+1), pos_scores, np.repeat('normal', num_removes+1))), columns=pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip(np.arange(num_removes+1), neg_scores, np.repeat('normal', num_removes+1))), columns=neg_df.columns)])
+            pos_tokens_arr.append(AOPC.pos_tokens)
+            neg_tokens_arr.append(AOPC.neg_tokens)
 
         if 'random' in legends:
             random.seed(seed)
@@ -171,17 +175,23 @@ class AOPC:
             pos_scores, neg_scores = AOPC._aopc_global(shuffled_pos, AOPC.pos_sentences, 1), AOPC._aopc_global(shuffled_neg, AOPC.neg_sentences, 0)
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip(np.arange(num_removes+1), pos_scores, np.repeat('random', num_removes+1))), columns=pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip(np.arange(num_removes+1), neg_scores, np.repeat('random', num_removes+1))), columns=pos_df.columns)])
+            pos_tokens_arr.append(shuffled_pos)
+            neg_tokens_arr.append(shuffled_neg)
 
         if 'reverse' in legends:
             pos_scores, neg_scores = AOPC._aopc_global(AOPC.pos_tokens[::-1], AOPC.pos_sentences, 1), AOPC._aopc_global(AOPC.neg_tokens[::-1], AOPC.neg_sentences, 0)
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip(np.arange(num_removes+1), pos_scores, np.repeat('reverse', num_removes+1))), columns=pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip(np.arange(num_removes+1), neg_scores, np.repeat('reverse', num_removes+1))), columns=neg_df.columns)])
-
+            pos_tokens_arr.append(AOPC.pos_tokens[::-1])
+            neg_tokens_arr.append(AOPC.neg_tokens[::-1])
+            
         if 'baseline' in legends:
             p, n = AOPC.words_distributions(AOPC.pos_sentences+AOPC.neg_sentences, [1]*len(AOPC.pos_sentences)+[0]*len(AOPC.neg_sentences), AOPC.tokenizer)
             pos_scores, neg_scores = AOPC._aopc_global(p, AOPC.pos_sentences, 1), AOPC._aopc_global(n, AOPC.neg_sentences, 0)
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip(np.arange(num_removes+1), pos_scores, np.repeat('baseline', num_removes+1))), columns=pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip(np.arange(num_removes+1), neg_scores, np.repeat('baseline', num_removes+1))), columns=neg_df.columns)])
+            pos_tokens_arr.append(p)
+            neg_tokens_arr.append(n)
         
         
         pos_normalizer = pos_df[pos_df['sorts']=='normal'].iloc[-1, 1]
@@ -189,6 +199,13 @@ class AOPC:
         pos_df.iloc[:, 1]/=pos_normalizer
         neg_df.iloc[:, 1]/=neg_normalizer
         
+        if seed==42:
+            print('pos')
+            for l in legends:
+                print(f'{l}: {pos_tokens_arr[legends.index(l)][:10]}')
+            print('\nneg')
+            for l in legends:
+                print(f'{l}: {neg_tokens_arr[legends.index(l)][:10]}')
         return pos_df, neg_df, xlabel, ylabel, hue, legends, AOPC.title + f' {hue}', plotter, 'normal'
         
     @staticmethod
@@ -209,12 +226,17 @@ class AOPC:
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip(np.arange(num_removes+1), pos_scores, np.repeat(legends[i], num_removes+1))), columns=pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip(np.arange(num_removes+1), neg_scores, np.repeat(legends[i], num_removes+1))), columns=neg_df.columns)])
         
-        # if normalizer:
-        #     print(pos_tokens_arr[legends.index(normalizer)][:num_removes])
+        if AOPC.seed==42:
+            print('pos')
+            for l in legends:
+                print(f'{l}: {pos_tokens_arr[legends.index(l)][:10]}')
+            print('\nneg')
+            for l in legends:
+                print(f'{l}: {neg_tokens_arr[legends.index(l)][:10]}')
         return pos_df, neg_df, xlabel, ylabel, hue, legends, title + f' {hue}', plotter, normalizer
         
     @staticmethod
-    def compare_all(path, model, tokenizer, sentences, labels, title, num_removes=30, seeds=None, model_type='tinybert', limit=False, from_img=[], skip=[], only=None, **kwargs):       
+    def compare_all(path, model, tokenizer, sentences, labels, title, num_removes=30, seeds=[42, 84, 126, 168, 210], model_type='tinybert', from_img=[], skip=[], only=None, **kwargs):       
         def compare_sorts(**kwargs):
             pos_scores, neg_scores = ScoreUtils.get_scores_dict(path, trail_path = f"{delta}/scores.xlsx")
             pos_tokens, neg_tokens = list(pos_scores.keys()), list(neg_scores.keys())
@@ -232,7 +254,7 @@ class AOPC:
             return AOPC.compare_aopcs(model, tokenizer, alphas, get_scores_fn, sentences, labels, alphas, title, num_removes, 'alpha', normalizer=0.95)
         
         def compare_optimizations(**kwargs):
-            optimizations = kwargs['opts'] if 'opts' in kwargs else [delta, f'lossy-{delta}', f'topk-{delta}', f'desired-{delta}']
+            optimizations = kwargs['opts'] if 'opts' in kwargs else [delta, f'lossy-{delta}', f'topk-{delta}', f'desired-{delta}', f'lossy-0.5']
             get_scores_fn = lambda optimization: ScoreUtils.get_scores_dict(path, trail_path = f"{optimization}/scores.xlsx")
             return AOPC.compare_aopcs(model, tokenizer, optimizations, get_scores_fn, sentences, labels, optimizations, title, num_removes, 'optimization', normalizer=delta)
     
@@ -258,12 +280,12 @@ class AOPC:
         
         def time_percent(**kwargs):
             ds_name = path.split('/')[2]
-            opts = kwargs['opts'] if 'opts' in kwargs else [delta, f'lossy-{delta}', f'topk-{delta}', f'desired-{delta}']
+            opts = kwargs['opts'] if 'opts' in kwargs else [delta, f'lossy-{delta}', f'topk-{delta}', f'desired-{delta}', f'lossy-0.5']
             return AOPC.time_percent_monitor(path, model_type, ds_name, opts, tokenizer, sentences, labels, seed, top=30, alpha=0.95, delta=delta)
         
         def time_aopc(**kwargs):
             ds_name = path.split('/')[2]
-            opts = kwargs['opts'] if 'opts' in kwargs else [delta, f'lossy-{delta}', f'topk-{delta}', f'desired-{delta}']
+            opts = kwargs['opts'] if 'opts' in kwargs else [delta, f'lossy-{delta}', f'topk-{delta}', f'desired-{delta}', f'lossy-0.5']
             return AOPC.time_aopc_monitor(path, title, model, model_type, ds_name, opts, tokenizer, sentences, labels, seed, top=30, alpha=0.95, delta=delta)
 
         compares = {'sorts': compare_sorts, 'delta': compare_deltas, 'alpha': compare_alphas, 'optimization': compare_optimizations, 'aggregation': compare_aggregations, 'percent': compare_percents, 'percents-remove': compare_percents_remove, 'percents time': time_percent, 'aopc time': time_aopc} 
@@ -280,23 +302,30 @@ class AOPC:
                 imgplot = plt.imshow(img)
                 plt.axis('off')
                 plt.show()
+                if c in ['percents time', 'aopc time']:
+                    plt.figure(figsize = (14, 4))
+                    img = plt.imread(f'results/graphs/{title} {c} limit.png')
+                    imgplot = plt.imshow(img)
+                    plt.axis('off')
+                    plt.show()
             else:
-                if seeds:
-                    orig_path = path
-                    pos_df, neg_df = pd.DataFrame(), pd.DataFrame()
-                    for seed in seeds:
-                        path = orig_path+f'seed/{seed}/'
-                        cur_pos, cur_neg, xlabel, ylabel, hue, legends, c_title, plotter, normalizer = compares[c](**kwargs)
-                        pos_df, neg_df = pd.concat([pos_df, cur_pos]), pd.concat([neg_df, cur_neg])
-                    path = orig_path
-                else:
-                    pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, plotter, normalizer = compares[c](**kwargs)
+                orig_path = path
+                pos_df, neg_df = pd.DataFrame(), pd.DataFrame()
+                for seed in seeds:
+                    AOPC.seed = seed
+                    path = orig_path+f'{seed}/'
+                    cur_pos, cur_neg, xlabel, ylabel, hue, legends, c_title, plotter, normalizer = compares[c](**kwargs)
+                    pos_df, neg_df = pd.concat([pos_df, cur_pos]), pd.concat([neg_df, cur_neg])
+                path = orig_path
+                
                 if normalizer:
                     pos_normalizer = pos_df[pos_df[hue]==normalizer].iloc[-1, 1]
                     neg_normalizer = neg_df[neg_df[hue]==normalizer].iloc[-1, 1]
                     pos_df.iloc[:, 1]/=pos_normalizer
                     neg_df.iloc[:, 1]/=neg_normalizer
-                plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, limit)
+                plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title)
+                if c in ['percents time', 'aopc time']:
+                    plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, True) 
                 
                 
     @staticmethod
@@ -324,7 +353,7 @@ class AOPC:
                 neg_results.append(len(top_neg.intersection(final_top_neg))/top)
             
             #only time of one seed so the aggregation of lineplot will work
-            time = times.loc[f'{model_type}/{ds_name}/confidence/seed/42/{opt}'].time
+            time = times.loc[f'{model_type}/{ds_name}/confidence/42/{opt}'].time
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
             
@@ -353,7 +382,7 @@ class AOPC:
                 pos_results.append(2*AOPC._aopc_global(top_pos, AOPC.pos_sentences, 1, [0, top])[1])
                 neg_results.append(2*AOPC._aopc_global(top_neg, AOPC.neg_sentences, 0, [0, top])[1])
             
-            time = times.loc[f'{model_type}/{ds_name}/confidence/seed/42/{opt}'].time
+            time = times.loc[f'{model_type}/{ds_name}/confidence/42/{opt}'].time
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
 

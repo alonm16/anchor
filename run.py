@@ -19,21 +19,19 @@ sys.path.append('models')
 torch._C._jit_set_texpr_fuser_enabled(False)
 
 parser = argparse.ArgumentParser()
-
-SEED = 84
-torch.manual_seed(SEED)
 warnings.simplefilter("ignore")
+
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 sort_functions = {'polarity': sort_polarity, 'confidence': sort_confidence}
 
-parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'toy-spam', "dilemma", "sport-spam", "home-spam"])
+parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'sentiment_twitter', "dilemma"])
 parser.add_argument("--model_type", default = 'tinybert', choices = ['tinybert', 'gru', 'svm', 'logistic'])
 parser.add_argument("--sorting", default='confidence', choices=['polarity', 'confidence'])
-parser.add_argument("--optimization", default='', choices = ['', 'topk', 'lossy', 'desired'], nargs = '+')
+parser.add_argument("--optimization", default='', choices = ['', 'topk', 'lossy', 'desired', 'masking_50'], nargs = '+')
 parser.add_argument("--examples_max_length", default=150, type=int)
 parser.add_argument("--delta", default=0.1, type=float)
-parser.add_argument("--num_unmask", default=500, type=int)
+parser.add_argument("--seed", default=42, type=int)
 
 args = parser.parse_args()
 
@@ -42,15 +40,16 @@ do_ignore = 'lossy' in args.optimization
 topk_optimize = 'topk' in args.optimization
 desired_optimize = 'desired' in args.optimization
 num_unmask = 50 if 'masking_50' in args.optimization else 500
-sort_function = sort_functions[args.sorting]
+sort_function = sort_functions[args.sorting] 
 
 dataset_name = args.dataset_name
 sorting = args.sorting
+seed = args.seed
 optimization = '-'.join(args.optimization)
 optimization = '-'.join([optimization, str(args.delta)]) if args.optimization!='' else args.delta
 model_type = args.model_type
 model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-path = f'results/{model_type}/{dataset_name}/{sorting}/{optimization}'
+path = f'results/{model_type}/{dataset_name}/{sorting}/{seed}/{optimization}'
 
 ds = get_ds(dataset_name)
 model = load_model(f'models/{model_type}/{dataset_name}/traced.pt').to(device).eval()
@@ -94,7 +93,7 @@ pickle.dump(anchor_examples, open( f"{path}/anchor_examples.pickle", "wb" ))
 st = time.time()
 
 my_utils = TextUtils(anchor_examples, explainer, myUtils.predict_sentences, ignored, optimize = optimize, delta = args.delta)
-set_seed()
+set_seed(seed)
 #torch._C._jit_set_texpr_fuser_enabled(False)
 explanations = my_utils.compute_explanations(list(range(len(anchor_examples))))
 
