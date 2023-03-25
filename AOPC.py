@@ -209,8 +209,8 @@ class AOPC:
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip(np.arange(num_removes+1), pos_scores, np.repeat(legends[i], num_removes+1))), columns=pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip(np.arange(num_removes+1), neg_scores, np.repeat(legends[i], num_removes+1))), columns=neg_df.columns)])
         
-        if normalizer:
-            print(pos_tokens_arr[legends.index(normalizer)])
+        # if normalizer:
+        #     print(pos_tokens_arr[legends.index(normalizer)][:num_removes])
         return pos_df, neg_df, xlabel, ylabel, hue, legends, title + f' {hue}', plotter, normalizer
         
     @staticmethod
