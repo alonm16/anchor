@@ -39,13 +39,14 @@ def old_predict_sentences(sentences):
     outputs = model(input_ids)[0]
     return torch.argmax(outputs, dim=1).cpu().numpy()
 
+@torch.no_grad()
 def predict_scores(sentences):
     softmax = torch.nn.Softmax()
     encoded = [[101] +[tokenizer.vocab[token] for token in tokens] + [102]         
                for tokens in sentences]
     to_pred = torch.tensor(encoded, device=device)
     outputs = softmax(model(to_pred)[0])
-    return outputs.detach().cpu().numpy()
+    return outputs.cpu().numpy()
 
 def get_stopwords():
     stop_words = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '.', 
