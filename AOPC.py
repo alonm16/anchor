@@ -25,6 +25,8 @@ class self_Plotter:
             sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend=legend, ax = ax, palette=sns.color_palette()).set(title=type_title)
             ax.grid()
         fig.suptitle(title)
+        axs[0].legend().remove()
+        plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
         plt.show()
         fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
         
@@ -151,7 +153,7 @@ class AOPC:
 
         return pos_tokens[:num_removes], neg_tokens[:num_removes]
     
-    def _compare_sorts(self, seed = 42, tokens_method = 'remove', legends = ['normal', 'random', 'reverse', 'baseline'], hue = 'sorts', xlabel="# of features removed", ylabel="self-global", plotter = self_Plotter.aopc_plot):
+    def _compare_sorts(self, tokens_method = 'remove', legends = ['normal', 'random', 'reverse', 'baseline'], hue = 'sorts', xlabel="# of features removed", ylabel="AOPC-global", plotter = self_Plotter.aopc_plot):
         self.tokens_method = self._remove_tokens if tokens_method=='remove' else self._replace_tokens
         pos_df = pd.DataFrame(columns = [xlabel, ylabel, hue])
         neg_df = pd.DataFrame(columns = pos_df.columns)
@@ -166,7 +168,7 @@ class AOPC:
             neg_tokens_arr.append(self.neg_tokens)
 
         if 'random' in legends:
-            random.seed(seed)
+            random.seed(self.seed)
             shuffled_pos, shuffled_neg = self.pos_tokens.copy(), self.neg_tokens.copy()
             random.shuffle(shuffled_pos), random.shuffle(shuffled_neg)
             pos_scores, neg_scores = self._aopc_global(shuffled_pos, self.pos_sentences, 1), self._aopc_global(shuffled_neg, self.neg_sentences, 0)
@@ -195,7 +197,7 @@ class AOPC:
         pos_df.iloc[:, 1]/=pos_normalizer
         neg_df.iloc[:, 1]/=neg_normalizer
         
-        if seed==42:
+        if self.seed==42:
             print('pos')
             for l in legends:
                 print(f'{l}: {pos_tokens_arr[legends.index(l)][:10]}')
@@ -204,7 +206,7 @@ class AOPC:
                 print(f'{l}: {neg_tokens_arr[legends.index(l)][:10]}')
         return pos_df, neg_df, xlabel, ylabel, hue, legends, self.title + f' {hue}', plotter, 'normal'
         
-    def compare_aopcs(self, compare_list, get_scores_fn, legends, hue, xlabel="# of features removed", ylabel="self-global", plotter=self_Plotter.aopc_plot, normalizer = None): 
+    def compare_aopcs(self, compare_list, get_scores_fn, legends, hue, xlabel="# of features removed", ylabel="AOPC-global", plotter=self_Plotter.aopc_plot, normalizer = None): 
         num_removes = self.num_removes
         pos_tokens_arr = []
         neg_tokens_arr = []
@@ -235,7 +237,7 @@ class AOPC:
         pos_scores, neg_scores = ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{self.delta}/scores.xlsx")
         pos_tokens, neg_tokens = list(pos_scores.keys()), list(neg_scores.keys())
         self.set_tokens(pos_tokens, neg_tokens)
-        return self._compare_sorts(self.seed)
+        return self._compare_sorts()
     
     def compare_deltas(self, **kwargs):
         deltas = [0.1, 0.15, 0.2, 0.35, 0.5]#, 0.6, 0.7, 0.8]
@@ -328,7 +330,7 @@ class AOPC:
         top = self.num_removes
         get_exps = lambda opt: pickle.load(open(f"{self.seed_path}{opt}/exps_list.pickle", "rb"))
         times = pd.read_csv('times.csv', index_col=0)
-        pos_percent = sum(labels)/len(labels)
+        pos_percent = sum(self.labels)/len(self.labels)
         default_res = ScoreUtils.calculate_time_scores(self.tokenizer, self.sentences, get_exps(self.delta), labels,[alpha])[alpha]
         final_top_pos = set(default_res['pos'][100].index[:top])
         final_top_neg = set(default_res['neg'][100].index[:top])
@@ -360,7 +362,7 @@ class AOPC:
         """
         get_exps = lambda opt: pickle.load(open(f"{path}{opt}/exps_list.pickle", "rb"))
         times = pd.read_csv('times.csv', index_col=0)
-        pos_percent = sum(labels)/len(labels)
+        pos_percent = sum(self.labels)/len(self.labels)
         pos_df = pd.DataFrame(columns = ['time (minutes)', "self - global", "optimization"])
         neg_df = pd.DataFrame(columns = pos_df.columns)
 
