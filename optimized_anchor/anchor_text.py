@@ -8,7 +8,7 @@ import string
 import sys
 from io import open
 import numpy as np
-from transformers import AutoTokenizer, AutoModelForMaskedLM
+from transformers import AutoTokenizer, AutoModelForMaskedLM, DistilBertForMaskedLM
 import torch
 from numba import jit, njit, float32
 from numpy.random import default_rng
@@ -29,13 +29,13 @@ def exp_normalize(x):
     return y / y.sum()
 
 class TextGenerator(object):
-    def __init__(self, url=None, num_unmask = 500):
+    def __init__(self, url=None, num_unmask = 500, device = None):
         self.url = url
         if url is None:
-            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            self.device = device if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")
             self.bert_tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased', use_fast=False)
             if optimize:
-                self.bert = torch.jit.load('models/mlm_models/distil_mlm.pt').to(self.device)
+                self.bert = torch.jit.load(f'models/mlm_models/distil_mlm_{device.index}.pt').to(self.device)
                 self.ids_to_tokens = dict(self.bert_tokenizer.ids_to_tokens)
                 self.num_unmask = num_unmask
             else:
@@ -57,6 +57,7 @@ class TextGenerator(object):
         to_pred = torch.tensor(encoded_array, device=self.device)
         with torch.no_grad():
             outputs = model(to_pred)[0]
+
         rets = []  
         
         for j in range(len(encoded_array)):
@@ -187,7 +188,7 @@ class SentencePerturber:
 class AnchorText(object):
     """bla"""
     
-    def __init__(self, nlp, class_names, use_unk_distribution=True, mask_string='UNK', num_unmask = 500):
+    def __init__(self, nlp, class_names, use_unk_distribution=True, mask_string='UNK', num_unmask = 500, device = None):
         """
         Args:
             nlp: spacy object
@@ -204,7 +205,7 @@ class AnchorText(object):
         self.tg = None
         self.mask_string = mask_string
         if not self.use_unk_distribution:
-            self.tg = TextGenerator(num_unmask = num_unmask)
+            self.tg = TextGenerator(num_unmask = num_unmask, device = device)
             
     @staticmethod       
     def set_optimize(should_optimize):

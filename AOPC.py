@@ -39,6 +39,8 @@ class self_Plotter:
             sns.move_legend(ax, "lower left")
             ax.grid()
         fig.suptitle(title)
+        axs[0].legend().remove()
+        plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
         plt.show()
         fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
 
@@ -315,7 +317,7 @@ class AOPC:
                     self.seed_path = self.path+f'{seed}/'
                     cur_pos, cur_neg, xlabel, ylabel, hue, legends, c_title, plotter, normalizer = compares[c](**kwargs)
                     pos_df, neg_df = pd.concat([pos_df, cur_pos]), pd.concat([neg_df, cur_neg])
-                
+
                 if normalizer:
                     pos_normalizer = pos_df[pos_df[hue]==normalizer].iloc[-1, 1]
                     neg_normalizer = neg_df[neg_df[hue]==normalizer].iloc[-1, 1]
@@ -365,13 +367,13 @@ class AOPC:
         get_exps = lambda opt: pickle.load(open(f"{self.seed_path}{opt}/exps_list.pickle", "rb"))
         times = pd.read_csv('times.csv', index_col=0)
         pos_percent = sum(self.labels)/len(self.labels)
-        pos_df = pd.DataFrame(columns = ['time (minutes)', "self - global", "optimization"])
+        pos_df = pd.DataFrame(columns = ['time (minutes)', "AOPC-global", "optimization"])
         neg_df = pd.DataFrame(columns = pos_df.columns)
         pos_tok_arr, neg_tok_arr = [], []
 
         for opt in opts:
             pos_results, neg_results = [], []
-            percents_dict = ScoreUtils.calculate_time_scores(self.tokenizer, self. sentences, get_exps(opt), self.labels, [alpha])[alpha]
+            percents_dict = ScoreUtils.calculate_time_scores(self.tokenizer, self.sentences, get_exps(opt), self.labels, [alpha])[alpha]
             percents = percents_dict['pos'].keys()
             for i in percents:
                 top_pos = list(percents_dict['pos'][i].index[:top])
@@ -381,6 +383,11 @@ class AOPC:
                 neg_results.append(2*self._aopc_global(top_neg, self.neg_sentences, 0, [0, top])[1])
             pos_tok_arr.append(top_pos)
             neg_tok_arr.append(top_neg)
+                
+            time = times.loc[f'{model_type}/{ds_name}/confidence/42/{opt}'].time
+            pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
+            neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
+
         if self.seed==42:
             print('pos')
             for opt in opts:
@@ -389,8 +396,4 @@ class AOPC:
             for opt in opts:
                 print(f'{opt}: {neg_tok_arr[opts.index(opt)][:10]}')
                 
-            time = times.loc[f'{model_type}/{ds_name}/confidence/42/{opt}'].time
-            pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
-            neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
-
-        return pos_df, neg_df, 'time (minutes)', 'self - global', "optimization", opts, f'{model_type} {ds_name} aopc time', self_Plotter.aopc_plot, self.delta
+        return pos_df, neg_df, 'time (minutes)', 'AOPC-global', "optimization", opts, f'{model_type} {ds_name} aopc time', self_Plotter.aopc_plot, self.delta

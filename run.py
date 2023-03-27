@@ -78,15 +78,12 @@ if do_ignore:
 else:
     ignored = []
 
-
-# In[10]:
 print(path)
 print(datetime.datetime.now())
 
 optimize = True
 anchor_text.AnchorText.set_optimize(optimize)
 explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False, num_unmask=num_unmask)
-
 
 pickle.dump(anchor_examples, open( f"{path}/anchor_examples.pickle", "wb" ))
 
