@@ -55,6 +55,8 @@ class AOPC:
         self.pos_tokens, self.neg_tokens = None, None
         self.pos_sentences = [tokenizer.tokenize(s) for i, s in enumerate(sentences) if labels[i]==1]
         self.neg_sentences = [tokenizer.tokenize(s) for i, s in enumerate(sentences) if labels[i]==0]
+        self.labels = labels
+        self.sentences = sentences
         
     def set_tokens(self, pos_tokens, neg_tokens):
         self.pos_tokens, self.neg_tokens = pos_tokens, neg_tokens
@@ -250,7 +252,7 @@ class AOPC:
         return self.compare_aopcs(alphas, get_scores_fn, alphas, 'alpha', normalizer=0.95)
     
     def compare_optimizations(self, **kwargs):
-        optimizations = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-topk-0.1']
+        optimizations = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-topk-0.1', 'lossy-topk-0.5']
         get_scores_fn = lambda optimization: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{optimization}/scores.xlsx")
         return self.compare_aopcs(optimizations, get_scores_fn, optimizations, 'optimization', normalizer=self.delta)
     
@@ -277,14 +279,14 @@ class AOPC:
     def time_percent(self, **kwargs):
             ds_name = self.seed_path.split('/')[2]
             model_type = self.seed_path.split('/')[1]
-            opts = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-topk-0.1']
-            return self.time_percent_monitor(model_type, ds_name, opts, self.seed, alpha=0.95)
+            opts = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-topk-0.1', 'lossy-topk-0.5']
+            return self.time_percent_monitor(model_type, ds_name, opts, alpha=0.95)
         
     def time_aopc(self, **kwargs):
         ds_name = self.seed_path.split('/')[2]
         model_type = self.seed_path.split('/')[1]
-        opts = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-topk-0.1']
-        return self.time_aopc_monitor(model_type, ds_name, opts, self.seed, alpha=0.95)
+        opts = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-topk-0.1', 'lossy-topk-0.5']
+        return self.time_aopc_monitor(model_type, ds_name, opts, alpha=0.95)
     
     def compare_all(self, seeds=[42, 84, 126, 168, 210], from_img=[], skip=[], only=None, **kwargs):       
         compares = {'sorts': self.compare_sorts, 'delta': self.compare_deltas, 'alpha': self.compare_alphas, 'optimization': self.compare_optimizations, 'aggregation': self.compare_aggregations, 'percent': self.compare_percents, 'percents-remove': self.compare_percents_remove, 'percents time': self.time_percent, 'aopc time': self.time_aopc} 
@@ -323,7 +325,7 @@ class AOPC:
                 if c in ['percents time', 'aopc time']:
                     plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, True) 
                 
-    def time_percent_monitor(self, model_type, ds_name, opts, seed, alpha=0.95):
+    def time_percent_monitor(self, model_type, ds_name, opts, alpha=0.95):
         """
         compare top k anchors during runtime to the final top k of the default running
         """
@@ -331,7 +333,7 @@ class AOPC:
         get_exps = lambda opt: pickle.load(open(f"{self.seed_path}{opt}/exps_list.pickle", "rb"))
         times = pd.read_csv('times.csv', index_col=0)
         pos_percent = sum(self.labels)/len(self.labels)
-        default_res = ScoreUtils.calculate_time_scores(self.tokenizer, self.sentences, get_exps(self.delta), labels,[alpha])[alpha]
+        default_res = ScoreUtils.calculate_time_scores(self.tokenizer, self.sentences, get_exps(self.delta), self.labels, [alpha])[alpha]
         final_top_pos = set(default_res['pos'][100].index[:top])
         final_top_neg = set(default_res['neg'][100].index[:top])
         pos_df = pd.DataFrame(columns = ['time (minutes)', "percents", "optimization"])
@@ -352,23 +354,24 @@ class AOPC:
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
             
-        return pos_df, neg_df, 'time (minutes)', 'percents', "optimization", opts, f'{model_type} {ds_name} percents time', self_Plotter.aopc_plot, delta
+        return pos_df, neg_df, 'time (minutes)', 'percents', "optimization", opts, f'{model_type} {ds_name} percents time', self_Plotter.aopc_plot, self.delta
                 
-    @staticmethod
-    def time_aopc_monitor(path, title, model, model_type, ds_name, opts, tokenizer, sentences, labels, seed, top=30, alpha=0.95, delta = 0.1):
+    def time_aopc_monitor(self, model_type, ds_name, opts, alpha=0.95):
         """
         compare best topk negative and positive anchors between current result and the
         end result top scores
         """
-        get_exps = lambda opt: pickle.load(open(f"{path}{opt}/exps_list.pickle", "rb"))
+        top = self.num_removes
+        get_exps = lambda opt: pickle.load(open(f"{self.seed_path}{opt}/exps_list.pickle", "rb"))
         times = pd.read_csv('times.csv', index_col=0)
         pos_percent = sum(self.labels)/len(self.labels)
         pos_df = pd.DataFrame(columns = ['time (minutes)', "self - global", "optimization"])
         neg_df = pd.DataFrame(columns = pos_df.columns)
+        pos_tok_arr, neg_tok_arr = [], []
 
         for opt in opts:
             pos_results, neg_results = [], []
-            percents_dict = ScoreUtils.calculate_time_scores(tokenizer,sentences,get_exps(opt),labels,[alpha])[alpha]
+            percents_dict = ScoreUtils.calculate_time_scores(self.tokenizer, self. sentences, get_exps(opt), self.labels, [alpha])[alpha]
             percents = percents_dict['pos'].keys()
             for i in percents:
                 top_pos = list(percents_dict['pos'][i].index[:top])
@@ -376,9 +379,18 @@ class AOPC:
                 self.set_tokens(top_pos, top_neg)
                 pos_results.append(2*self._aopc_global(top_pos, self.pos_sentences, 1, [0, top])[1])
                 neg_results.append(2*self._aopc_global(top_neg, self.neg_sentences, 0, [0, top])[1])
-            
+            pos_tok_arr.append(top_pos)
+            neg_tok_arr.append(top_neg)
+        if self.seed==42:
+            print('pos')
+            for opt in opts:
+                print(f'{opt}: {pos_tok_arr[opts.index(opt)][:10]}')
+            print('\nneg')
+            for opt in opts:
+                print(f'{opt}: {neg_tok_arr[opts.index(opt)][:10]}')
+                
             time = times.loc[f'{model_type}/{ds_name}/confidence/42/{opt}'].time
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
 
-        return pos_df, neg_df, 'time (minutes)', 'self - global', "optimization", opts, f'{model_type} {ds_name} aopc time', self_Plotter.aopc_plot, delta
+        return pos_df, neg_df, 'time (minutes)', 'self - global', "optimization", opts, f'{model_type} {ds_name} aopc time', self_Plotter.aopc_plot, self.delta
