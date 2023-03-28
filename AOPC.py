@@ -13,7 +13,7 @@ from torch.nn.functional import softmax
 from myUtils import set_seed
 from score import ScoreUtils
 
-class self_Plotter:
+class AOPC_Plotter:
     @staticmethod
     def aopc_plot(pos_df, neg_df, xlabel, ylabel, hue, legend, title, limit=False):
         if limit and 'time (minutes)' == xlabel:
@@ -157,7 +157,7 @@ class AOPC:
 
         return pos_tokens[:num_removes], neg_tokens[:num_removes]
     
-    def _compare_sorts(self, tokens_method = 'remove', legends = ['normal', 'random', 'reverse', 'baseline'], hue = 'sorts', xlabel="# of features removed", ylabel="AOPC-global", plotter = self_Plotter.aopc_plot):
+    def _compare_sorts(self, tokens_method = 'remove', legends = ['normal', 'random', 'reverse', 'baseline'], hue = 'sorts', xlabel="# of features removed", ylabel="AOPC-global", plotter = AOPC_Plotter.aopc_plot):
         self.tokens_method = self._remove_tokens if tokens_method=='remove' else self._replace_tokens
         pos_df = pd.DataFrame(columns = [xlabel, ylabel, hue])
         neg_df = pd.DataFrame(columns = pos_df.columns)
@@ -210,7 +210,7 @@ class AOPC:
                 print(f'{l}: {neg_tokens_arr[legends.index(l)][:10]}')
         return pos_df, neg_df, xlabel, ylabel, hue, legends, self.title + f' {hue}', plotter, 'normal'
         
-    def compare_aopcs(self, compare_list, get_scores_fn, legends, hue, xlabel="# of features removed", ylabel="AOPC-global", plotter=self_Plotter.aopc_plot, normalizer = None): 
+    def compare_aopcs(self, compare_list, get_scores_fn, legends, hue, xlabel="# of features removed", ylabel="AOPC-global", plotter=AOPC_Plotter.aopc_plot, normalizer = None): 
         num_removes = self.num_removes
         pos_tokens_arr = []
         neg_tokens_arr = []
@@ -276,7 +276,7 @@ class AOPC:
     def compare_percents_remove(self, **kwargs):
             percents = [10, 25, 50, 75, 100]
             get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{self.delta}/percents/scores-{percent}.xlsx", alpha = 0.95)
-            return self.compare_aopcs(percents, get_scores_fn, percents, 'percents-remove', plotter=self_Plotter.time_aopc_plot, normalizer=100)
+            return self.compare_aopcs(percents, get_scores_fn, percents, 'percents-remove', plotter=AOPC_Plotter.time_aopc_plot, normalizer=100)
             
     def time_percent(self, **kwargs):
             ds_name = self.seed_path.split('/')[2]
@@ -356,7 +356,7 @@ class AOPC:
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
             
-        return pos_df, neg_df, 'time (minutes)', 'percents', "optimization", opts, f'{model_type} {ds_name} percents time', self_Plotter.aopc_plot, self.delta
+        return pos_df, neg_df, 'time (minutes)', 'percents', "optimization", opts, f'{model_type} {ds_name} percents time', AOPC_Plotter.aopc_plot, self.delta
                 
     def time_aopc_monitor(self, model_type, ds_name, opts, alpha=0.95):
         """
@@ -396,4 +396,4 @@ class AOPC:
             for opt in opts:
                 print(f'{opt}: {neg_tok_arr[opts.index(opt)][:10]}')
                 
-        return pos_df, neg_df, 'time (minutes)', 'AOPC-global', "optimization", opts, f'{model_type} {ds_name} aopc time', self_Plotter.aopc_plot, self.delta
+        return pos_df, neg_df, 'time (minutes)', 'AOPC-global', "optimization", opts, f'{model_type} {ds_name} aopc time', AOPC_Plotter.aopc_plot, self.delta

@@ -190,7 +190,6 @@ class BestGroup:
         self.normal_counts = defaultdict(int)
         self.pos_BG = BestGroupInner(occurences, self.normal_counts, group_size//2)
         self.neg_BG = BestGroupInner(occurences, self.normal_counts, group_size//2)
-        self.cur_type = None
         self.pos_monitor_writer = writer(open(f'{folder_name}/pos_monitor.csv', 'a+', newline='', encoding='utf8'))
         self.neg_monitor_writer = writer(open(f'{folder_name}/neg_monitor.csv', 'a+', newline='', encoding='utf8'))
         self.time_monitor_writer = writer(open(f'{folder_name}/time_monitor.csv', 'a+', newline=''))
@@ -198,8 +197,8 @@ class BestGroup:
         self.desired_optimize = desired_optimize
         self.st = time.time()
         
-    def update_anchor(self, anchor):
-        if self.cur_type == 1:
+    def update_anchor(self, anchor, label):
+        if label == 1:
             self.pos_BG.update(anchor)
         else:
             self.neg_BG.update(anchor)
@@ -207,15 +206,15 @@ class BestGroup:
     def update_normal(self, anchor):
         self.normal_counts[anchor]+=1
         
-    def should_calculate(self, anchor):
+    def should_calculate(self, anchor, label):
         if not self.filter_anchors:
             return True
-        if self.cur_type == 1:
+        if label == 1:
             return self.pos_BG.should_calculate(anchor)
         else:
             return self.neg_BG.should_calculate(anchor)
     
-    def desired_confidence_factor(self, anchor):
+    def desired_confidence_factor(self, anchor, label):
         """ 
         NOT RELATED TO TOPK OPTIMIZATION
         substract this factor from the desired confidence so if a word occured a lot as anchor, we need to calculate less
@@ -227,7 +226,7 @@ class BestGroup:
             return 0
         all_occurences = self.occurences_left[anchor] + self.normal_counts[anchor] + self.pos_BG.anchor_counts[anchor] + self.neg_BG.anchor_counts[anchor]
         pseudo_score = 0
-        if self.cur_type == 1:
+        if label == 1:
             pseudo_score = self.pos_BG.pseudo_score(anchor)
         else:
             pseudo_score = self.neg_BG.pseudo_score(anchor)

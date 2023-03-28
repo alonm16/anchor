@@ -18,20 +18,22 @@ sys.path.append('models')
 # when apply torchscript to models sometimes
 torch._C._jit_set_texpr_fuser_enabled(False)
 from torch.multiprocessing import Pool, Process, set_start_method, SimpleQueue
+from multiprocessing.managers import BaseManager
 import copy
 
-def process_compute(seed, anchor_examples, ignored, delta, dataset_name, model_type, i, indices, tokenizer, optimize, path, normal_occurences, topk_optimize, desired_optimize, result_queue):
+def process_compute(seed, anchor_examples, ignored, delta, dataset_name, model_type, i, indices, tokenizer, optimize, path, normal_occurences, topk_optimize, desired_optimize, bg, result_queue):
+    
     torch._C._jit_set_texpr_fuser_enabled(False)
     anchor_text.AnchorText.set_optimize(optimize)
     
     nlp = spacy.load('en_core_web_sm')    
-    device = torch.device(f'cuda:{i}')
+    device = torch.device(f'cuda:{0}')
     explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False, device=device)
     my_utils = TextUtils(anchor_examples, explainer, myUtils.predict_sentences, ignored, optimize = optimize, delta = delta)
     
-    anchor_base.AnchorBaseBeam.best_group = BestGroup(path, normal_occurences, filter_anchors = topk_optimize, desired_optimize = desired_optimize)
+    anchor_base.AnchorBaseBeam.best_group = bg
 
-    model = load_model(f'models/{model_type}/{dataset_name}/traced_{i}.pt').to(device)
+    model = load_model(f'models/{model_type}/{dataset_name}/traced_{0}.pt').to(device)
     myUtils.model = model
     myUtils.tokenizer = tokenizer
     myUtils.device = device
@@ -92,9 +94,6 @@ def run():
     if not os.path.exists(path):
         os.makedirs(path)
 
-    normal_occurences = get_occurences(anchor_examples)
-    anchor_base.AnchorBaseBeam.best_group = BestGroup(path, normal_occurences, filter_anchors = topk_optimize, desired_optimize = desired_optimize)
-
     if do_ignore:
         ignored = get_ignored(anchor_examples)
     else:
@@ -110,23 +109,29 @@ def run():
     indices_list = np.array_split(indices, num_processes)
     
     result_queue = SimpleQueue()
+    
+    normal_occurences = get_occurences(anchor_examples)
+    CustomManager.register('bg', BestGroup)
+    
+    with CustomManager() as manager:
+        # create a shared bg instance
+        bg = manager.bg(path, normal_occurences, filter_anchors = topk_optimize, desired_optimize = desired_optimize)
 
-    for i in range(num_processes):
-        p = torch.multiprocessing.Process(target=process_compute, args=([seed, anchor_examples, ignored, args.delta, dataset_name, model_type, i, indices_list[i], tokenizer, optimize, path, normal_occurences, topk_optimize, desired_optimize, result_queue]))
-        processes.append(p)
-		
-    st = time.time()
+        for i in range(num_processes):
+            p = torch.multiprocessing.Process(target=process_compute, args=([seed, anchor_examples, ignored, args.delta, dataset_name, model_type, i, indices_list[i], tokenizer, optimize, path, normal_occurences, topk_optimize, desired_optimize, bg, result_queue]))
+            processes.append(p)
 
-    for p in processes:
-        set_seed()
-        p.start()
-        
-    explanations = []
-    for _ in range(num_processes):
-        explanations.extend(result_queue.get())
-        
-    for p in processes:
-        p.join()
+        st = time.time()
+
+        for p in processes:
+            p.start()
+
+        explanations = []
+        for _ in range(num_processes):
+            explanations.extend(result_queue.get())
+
+        for p in processes:
+            p.join()
         
     pickle.dump(anchor_examples, open(f"{path}/anchor_examples.pickle", "wb"))
     pickle.dump(explanations, open(f"{path}/exps_list.pickle", "wb"))
@@ -138,6 +143,10 @@ def run():
             csv_writer = writer(write_obj)
             # Add contents of list as last row in the csv file
             csv_writer.writerow([path[len('results/'):], (time.time()-st)/60, do_ignore, topk_optimize, desired_optimize ,examples_max_length])
+
+            
+class CustomManager(BaseManager):
+    pass
 
 if __name__ == '__main__':
     run()
