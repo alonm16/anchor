@@ -1,12 +1,12 @@
 #!/bin/sh 
 
-for "lossy" "topk" "desired"; do
-	for opt in delta_val in 0.1 0.15 0.2 0.35 0.5; do
+for opt in "lossy" "topk" "desired"; do
+	for delta_val in 0.1 0.15 0.2 0.35 0.5; do
 		for seed_val in 42 84 126 168 210; do
 			python run.py --model_type tinybert --dataset_name toy-spam --sorting confidence --seed $seed_val --delta $delta_val --optimization $opt
- 		done
+		done
  	done
- done
+done
 
 # for s in 10; do
 # 	for d in results1/tinybert/corona/confidence/seed/$s/* ; do
