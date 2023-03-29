@@ -11,6 +11,8 @@ import pandas as pd
 import seaborn as sns
 from torch.nn.functional import softmax
 from myUtils import set_seed
+import pickle
+import os
 from score import ScoreUtils
 
 class AOPC_Plotter:
@@ -196,18 +198,17 @@ class AOPC:
             pos_tokens_arr.append(p)
             neg_tokens_arr.append(n)
         
-        pos_normalizer = pos_df[pos_df['sorts']=='normal'].iloc[-1, 1]
-        neg_normalizer = neg_df[neg_df['sorts']=='normal'].iloc[-1, 1]
-        pos_df.iloc[:, 1]/=pos_normalizer
-        neg_df.iloc[:, 1]/=neg_normalizer
-        
         if self.seed==42:
             print('pos')
             for l in legends:
                 print(f'{l}: {pos_tokens_arr[legends.index(l)][:10]}')
+                os.makedirs(os.path.dirname(f"{self.seed_path}tokens/{l}_pos_tokens.pickle"), exist_ok=True)
+                pickle.dump(pos_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_pos_tokens.pickle", "wb" ))
             print('\nneg')
             for l in legends:
                 print(f'{l}: {neg_tokens_arr[legends.index(l)][:10]}')
+                os.makedirs(os.path.dirname(f"{self.seed_path}tokens/{l}_neg_tokens.pickle"), exist_ok=True)
+                pickle.dump(neg_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_neg_tokens.pickle", "wb" ))
         return pos_df, neg_df, xlabel, ylabel, hue, legends, self.title + f' {hue}', plotter, 'normal'
         
     def compare_aopcs(self, compare_list, get_scores_fn, legends, hue, xlabel="# of features removed", ylabel="AOPC-global", plotter=AOPC_Plotter.aopc_plot, normalizer = None): 
@@ -232,9 +233,14 @@ class AOPC:
             print('pos')
             for l in legends:
                 print(f'{l}: {pos_tokens_arr[legends.index(l)][:10]}')
+                os.makedirs(os.path.dirname(f"{self.seed_path}tokens/{l}_pos_tokens.pickle"), exist_ok=True)
+                pickle.dump(pos_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_pos_tokens.pickle", "wb" ))
             print('\nneg')
             for l in legends:
                 print(f'{l}: {neg_tokens_arr[legends.index(l)][:10]}')
+                os.makedirs(os.path.dirname(f"{self.seed_path}tokens/{l}_neg_tokens.pickle"), exist_ok=True)
+                pickle.dump(neg_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_neg_tokens.pickle", "wb" ))
+            
         return pos_df, neg_df, xlabel, ylabel, hue, legends, self.title + f' {hue}', plotter, normalizer
         
     def compare_sorts(self, **kwargs):
@@ -254,7 +260,7 @@ class AOPC:
         return self.compare_aopcs(alphas, get_scores_fn, alphas, 'alpha', normalizer=0.95)
     
     def compare_optimizations(self, **kwargs):
-        optimizations = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-topk-0.1', 'lossy-topk-0.5']
+        optimizations = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-0.5', 'topk-0.5']#'lossy-topk-0.1', 'lossy-topk-0.5']
         get_scores_fn = lambda optimization: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{optimization}/scores.xlsx")
         return self.compare_aopcs(optimizations, get_scores_fn, optimizations, 'optimization', normalizer=self.delta)
     
@@ -279,15 +285,15 @@ class AOPC:
             return self.compare_aopcs(percents, get_scores_fn, percents, 'percents-remove', plotter=AOPC_Plotter.time_aopc_plot, normalizer=100)
             
     def time_percent(self, **kwargs):
-            ds_name = self.seed_path.split('/')[2]
-            model_type = self.seed_path.split('/')[1]
-            opts = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-topk-0.1', 'lossy-topk-0.5']
+            ds_name = self.seed_path.split('/')[3]
+            model_type = self.seed_path.split('/')[2]
+            opts = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}',  'lossy-0.5', 'topk-0.5']#'lossy-topk-0.1', 'lossy-topk-0.5']
             return self.time_percent_monitor(model_type, ds_name, opts, alpha=0.95)
         
     def time_aopc(self, **kwargs):
-        ds_name = self.seed_path.split('/')[2]
-        model_type = self.seed_path.split('/')[1]
-        opts = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-topk-0.1', 'lossy-topk-0.5']
+        ds_name = self.seed_path.split('/')[3]
+        model_type = self.seed_path.split('/')[2]
+        opts = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-0.5', 'topk-0.5']#'lossy-topk-0.1', 'lossy-topk-0.5']
         return self.time_aopc_monitor(model_type, ds_name, opts, alpha=0.95)
     
     def compare_all(self, seeds=[42, 84, 126, 168, 210], from_img=[], skip=[], only=None, **kwargs):       
@@ -317,7 +323,9 @@ class AOPC:
                     self.seed_path = self.path+f'{seed}/'
                     cur_pos, cur_neg, xlabel, ylabel, hue, legends, c_title, plotter, normalizer = compares[c](**kwargs)
                     pos_df, neg_df = pd.concat([pos_df, cur_pos]), pd.concat([neg_df, cur_neg])
-
+                pos_df.to_csv(f'{self.path}/{c}_pos_aopc.csv')
+                neg_df.to_csv(f'{self.path}/{c}_neg_aopc.csv')
+                
                 if normalizer:
                     pos_normalizer = pos_df[pos_df[hue]==normalizer].iloc[-1, 1]
                     neg_normalizer = neg_df[neg_df[hue]==normalizer].iloc[-1, 1]
@@ -352,7 +360,7 @@ class AOPC:
                 neg_results.append(len(top_neg.intersection(final_top_neg))/top)
             
             #only time of one seed so the aggregation of lineplot will work
-            time = times.loc[f'{model_type}/{ds_name}/confidence/42/{opt}'].time
+            time = times.loc[f'mp/{model_type}/{ds_name}/confidence/42/{opt}'].time
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
             
@@ -384,7 +392,7 @@ class AOPC:
             pos_tok_arr.append(top_pos)
             neg_tok_arr.append(top_neg)
                 
-            time = times.loc[f'{model_type}/{ds_name}/confidence/42/{opt}'].time
+            time = times.loc[f'mp/{model_type}/{ds_name}/confidence/42/{opt}'].time
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
 

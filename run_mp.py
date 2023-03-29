@@ -27,13 +27,13 @@ def process_compute(seed, anchor_examples, ignored, delta, dataset_name, model_t
     anchor_text.AnchorText.set_optimize(optimize)
     
     nlp = spacy.load('en_core_web_sm')    
-    device = torch.device(f'cuda:{0}')
+    device = torch.device(f'cuda:{i}')
     explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False, device=device)
     my_utils = TextUtils(anchor_examples, explainer, myUtils.predict_sentences, ignored, optimize = optimize, delta = delta)
     
     anchor_base.AnchorBaseBeam.best_group = bg
 
-    model = load_model(f'models/{model_type}/{dataset_name}/traced_{0}.pt').to(device)
+    model = load_model(f'models/{model_type}/{dataset_name}/traced_{i}.pt').to(device)
     myUtils.model = model
     myUtils.tokenizer = tokenizer
     myUtils.device = device
