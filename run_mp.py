@@ -28,7 +28,7 @@ def process_compute(seed, anchor_examples, ignored, delta, dataset_name, model_t
     
     nlp = spacy.load('en_core_web_sm')    
     device = torch.device(f'cuda:{i}')
-    explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False, device=device)
+    explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False, device=device, num_unmask=num_unmask))
     my_utils = TextUtils(anchor_examples, explainer, myUtils.predict_sentences, ignored, optimize = optimize, delta = delta)
     
     anchor_base.AnchorBaseBeam.best_group = bg

@@ -1,24 +1,18 @@
 #!/bin/sh 
 
-for delta_val in 0.1 0.15 0.2 0.35 0.5; do
-	for seed_val in 42 84 126 168 210; do
-		python run_mp.py --model_type tinybert --dataset_name dilemma --sorting confidence --seed $seed_val --delta $delta_val 
-	done
-done
+deltas = (0.1 0.15 0.2 0.35 0.5)
+seeds = (42 84 126 168 210)
 
-for opt in "lossy" "topk" "desired"; do
-	for delta_val in 0.1 0.15 0.2 0.35 0.5; do
-		for seed_val in 42 84 126 168 210; do
-			python run_mp.py --model_type tinybert --dataset_name dilemma --sorting confidence --seed $seed_val --delta $delta_val --optimization $opt
+for ds in "corona" "dilemma"; do
+	for opt in "masking_50"; do
+		for delta_val in ${deltas[@]}; do
+			for seed_val in ${seeds[@]}; do
+				python run_mp.py --model_type tinybert --dataset_name $ds --sorting confidence --seed $seed_val --delta $delta_val --optimization $opt
+			done
 		done
- 	done
-done
-
-for delta_val in 0.1 0.15 0.2 0.35 0.5; do
-	for seed_val in 42 84 126 168 210; do
-		python run_mp.py --model_type tinybert --dataset_name dilemma --sorting confidence --seed $seed_val --delta $delta_val  --optimization lossy topk
 	done
 done
+
 <<c
 for opt in "topk" "desired"; do
 	for delta_val in 0.1 0.15 0.2 0.35 0.5; do
