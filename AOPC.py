@@ -1,4 +1,5 @@
 import torch
+from torch.nn.functional import softmax
 import matplotlib.pyplot as plt
 import numpy as np
 import random
@@ -9,22 +10,29 @@ from transformers import pipeline
 import copy
 import pandas as pd
 import seaborn as sns
-from torch.nn.functional import softmax
-from myUtils import set_seed
 import pickle
 import os
+import simple_colors
 from score import ScoreUtils
+from myUtils import set_seed
+import myUtils
+from models.utils import *
+colors = [simple_colors.red, simple_colors.blue, simple_colors.cyan, 
+          simple_colors.green, simple_colors.magenta, simple_colors.yellow, 
+          simple_colors.blue, simple_colors.red]
 
 class AOPC_Plotter:
     @staticmethod
-    def aopc_plot(pos_df, neg_df, xlabel, ylabel, hue, legend, title, limit=False):
+    def aopc_plot(pos_df, neg_df, xlabel, ylabel, hue, legend, title, limit=False, limit_normalizer=None):
         if limit and 'time (minutes)' == xlabel:
-            pos_df = pos_df[pos_df['time (minutes)'] <= 10]
-            neg_df = neg_df[neg_df['time (minutes)'] <= 10]
-            title+=' limit'
+            pos_limit = pos_df[pos_df[hue]==str(limit_normalizer)]['time (minutes)'].iloc[-1]
+            neg_limit = neg_df[neg_df[hue]==str(limit_normalizer)]['time (minutes)'].iloc[-1]
+            pos_df = pos_df[pos_df['time (minutes)'] <= pos_limit*0.2]
+            neg_df = neg_df[neg_df['time (minutes)'] <= neg_limit*0.2]
+            title += ' limit'
         fig, axs = plt.subplots(1, 2, figsize=(10, 3))
         for ax, df, type_title in zip(axs, [pos_df, neg_df], ['positive', 'negative']): 
-            sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend=legend, ax = ax, palette=sns.color_palette()).set(title=type_title)
+            sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend=legend, ax=ax, palette=sns.color_palette()).set(title=type_title)
             ax.grid()
         fig.suptitle(title)
         axs[0].legend().remove()
@@ -47,20 +55,22 @@ class AOPC_Plotter:
         fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
 
 class AOPC:
-    def __init__(self, path, model, tokenizer, sentences, labels, title, delta=0.1, num_removes = 30):
-        self.path = path
-        self.model = model
-        self.tokenizer = tokenizer
+    def __init__(self, path, tokenizer, delta=0.1, num_removes = 30, base_opt='0.1'):
+        self.model_type, self.ds_name = path.split('/')[-4:-2]
+        self.sentences = pickle.load(open(f"{path}42/{base_opt}/anchor_examples.pickle", "rb" ))
+        self.labels = pickle.load(open(f"{path}42/{base_opt}/labels.pickle", "rb" ))
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+        self.model = load_model(f'models/{self.model_type}/{self.ds_name}/model').to(self.device).eval()
+        myUtils.model = self.model
+        self.title = f"{self.model_type} {self.ds_name}"
+        self.path = path
+        self.tokenizer = tokenizer
         self.tokens_method = self._remove_tokens
-        self.title = title
         self.delta = delta
         self.num_removes = num_removes
         self.pos_tokens, self.neg_tokens = None, None
-        self.pos_sentences = [tokenizer.tokenize(s) for i, s in enumerate(sentences) if labels[i]==1]
-        self.neg_sentences = [tokenizer.tokenize(s) for i, s in enumerate(sentences) if labels[i]==0]
-        self.labels = labels
-        self.sentences = sentences
+        self.pos_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==1]
+        self.neg_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==0]
         
     def set_tokens(self, pos_tokens, neg_tokens):
         self.pos_tokens, self.neg_tokens = pos_tokens, neg_tokens
@@ -99,16 +109,7 @@ class AOPC:
     
     def _aopc_predictions(self, sentences_arr, label):
         return np.array([self._predict_scores(sentences)[:, label] for sentences in sentences_arr])
-    
-    # def _aopc_predictions(self, sentences_arr, label):
-    #     predictions = []
-    #     for sentences in sentences_arr:
-    #         predictions_batch = []
-    #         for i in range(0, len(sentences), 50):
-    #             predictions_batch.extend(self._predict_scores(sentences[i:i+50])[:, label])
-    #         predictions.append(predictions_batch)
-    #     return np.array(predictions)
-    
+       
     @staticmethod
     def _aopc_formula(orig_predictions, predictions_arr, k):
         N = len(orig_predictions)    
@@ -260,7 +261,7 @@ class AOPC:
         return self.compare_aopcs(alphas, get_scores_fn, alphas, 'alpha', normalizer=0.95)
     
     def compare_optimizations(self, **kwargs):
-        optimizations = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-0.5', 'topk-0.5']#'lossy-topk-0.1', 'lossy-topk-0.5']
+        optimizations = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-0.5', 'topk-0.5', 'lossy-topk-0.1', 'lossy-topk-0.5']
         get_scores_fn = lambda optimization: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{optimization}/scores.xlsx")
         return self.compare_aopcs(optimizations, get_scores_fn, optimizations, 'optimization', normalizer=self.delta)
     
@@ -280,24 +281,22 @@ class AOPC:
         return self.compare_aopcs(percents, get_scores_fn, percents, 'percent', normalizer=100)
 
     def compare_percents_remove(self, **kwargs):
-            percents = [10, 25, 50, 75, 100]
-            get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{self.delta}/percents/scores-{percent}.xlsx", alpha = 0.95)
-            return self.compare_aopcs(percents, get_scores_fn, percents, 'percents-remove', plotter=AOPC_Plotter.time_aopc_plot, normalizer=100)
-            
+        percents = [10, 25, 50, 75, 100]
+        get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{self.delta}/percents/scores-{percent}.xlsx", alpha = 0.95)
+        return self.compare_aopcs(percents, get_scores_fn, percents, 'percents-remove', plotter=AOPC_Plotter.time_aopc_plot, normalizer=100)
+          
     def time_percent(self, **kwargs):
-            ds_name = self.seed_path.split('/')[3]
-            model_type = self.seed_path.split('/')[2]
-            opts = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}',  'lossy-0.5', 'topk-0.5']#'lossy-topk-0.1', 'lossy-topk-0.5']
-            return self.time_percent_monitor(model_type, ds_name, opts, alpha=0.95)
+        opts = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-0.5', 'topk-0.5', 'lossy-topk-0.1', 'lossy-topk-0.5']
+        return self.time_percent_monitor(opts, alpha=0.95)
         
     def time_aopc(self, **kwargs):
-        ds_name = self.seed_path.split('/')[3]
-        model_type = self.seed_path.split('/')[2]
-        opts = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-0.5', 'topk-0.5']#'lossy-topk-0.1', 'lossy-topk-0.5']
-        return self.time_aopc_monitor(model_type, ds_name, opts, alpha=0.95)
+        opts = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-0.5', 'topk-0.5', 'lossy-topk-0.1', 'lossy-topk-0.5']
+        return self.time_aopc_monitor(opts, alpha=0.95)
     
-    def compare_all(self, seeds=[42, 84, 126, 168, 210], from_img=[], skip=[], only=None, **kwargs):       
-        compares = {'sorts': self.compare_sorts, 'delta': self.compare_deltas, 'alpha': self.compare_alphas, 'optimization': self.compare_optimizations, 'aggregation': self.compare_aggregations, 'percent': self.compare_percents, 'percents-remove': self.compare_percents_remove, 'percents time': self.time_percent, 'aopc time': self.time_aopc} 
+    def compare_all(self, seeds=[42, 84, 126, 168, 210], from_img=[], skip=[], only=None, **kwargs): 
+        compares = {'sorts': self.compare_sorts, 'delta': self.compare_deltas, 'alpha': self.compare_alphas, 'optimization': self.compare_optimizations, 'aggregation': self.compare_aggregations, 'percent': self.compare_percents, 'percents-remove': self.compare_percents_remove, 'percents time': self.time_percent, 'aopc time': self.time_aopc}
+        
+        normalizers =  dict(zip(compares.keys(),['normal', 0.1, 0.95, str(self.delta), 'probabilistic α=0.95', 100, 100, str(self.delta), str(self.delta)]))
         
         for c in compares:
             if only and c not in only:
@@ -305,18 +304,32 @@ class AOPC:
             if c in skip:
                 continue
             elif c in from_img:
-                plt.figure(figsize = (14, 4))
-                img = plt.imread(f'results/graphs/{self.title} {c}.png')
-                imgplot = plt.imshow(img)
-                plt.axis('off')
-                plt.show()
+                pos_df = pd.read_csv(f'{self.path}/{c}_pos_aopc.csv', index_col=0)
+                neg_df = pd.read_csv(f'{self.path}/{c}_neg_aopc.csv', index_col=0)
+                legends = list(pos_df.iloc[:, -1].unique())
+                xlabel, ylabel, hue = pos_df.columns
+                normalizer = normalizers[c]
+                pos_normalizer = pos_df[pos_df[hue]==normalizer].iloc[-1, 1]
+                neg_normalizer = neg_df[neg_df[hue]==normalizer].iloc[-1, 1]
+                pos_df.iloc[:, 1]/=pos_normalizer
+                neg_df.iloc[:, 1]/=neg_normalizer
+                c_title = self.title + f' {hue}'
+                plotter = AOPC_Plotter.aopc_plot if c!='percents-remove' else AOPC_Plotter.time_aopc_plot
+                print('pos')
+                for l in legends:
+                    pos_tok = pickle.load(open(f"{self.path}42/tokens/{l}_pos_tokens.pickle", "rb"))
+                    print(colors[legends.index(l)](f'{l}:'), f'{pos_tok[:10]}')
+                print('\nneg')
+                for l in legends:
+                    neg_tok = pickle.load(open(f"{self.path}42/tokens/{l}_neg_tokens.pickle", "rb"))
+                    print(colors[legends.index(l)](f'{l}:'), f'{neg_tok[:10]}')
                 if c in ['percents time', 'aopc time']:
-                    plt.figure(figsize = (14, 4))
-                    img = plt.imread(f'results/graphs/{self.title} {c} limit.png')
-                    imgplot = plt.imshow(img)
-                    plt.axis('off')
-                    plt.show()
+                    c_title = f'{self.model_type} {self.ds_name} {c}'
+                    plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, True, self.delta)
+                plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title)
+                
             else:
+                continue
                 pos_df, neg_df = pd.DataFrame(), pd.DataFrame()
                 for seed in seeds:
                     self.seed = seed
@@ -333,9 +346,9 @@ class AOPC:
                     neg_df.iloc[:, 1]/=neg_normalizer
                 plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title)
                 if c in ['percents time', 'aopc time']:
-                    plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, True) 
+                    plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, True, normalizer) 
                 
-    def time_percent_monitor(self, model_type, ds_name, opts, alpha=0.95):
+    def time_percent_monitor(self, opts, alpha=0.95):
         """
         compare top k anchors during runtime to the final top k of the default running
         """
@@ -360,13 +373,13 @@ class AOPC:
                 neg_results.append(len(top_neg.intersection(final_top_neg))/top)
             
             #only time of one seed so the aggregation of lineplot will work
-            time = times.loc[f'mp/{model_type}/{ds_name}/confidence/42/{opt}'].time
+            time = times.loc[f'mp/{self.model_type}/{self.ds_name}/confidence/42/{opt}'].time
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
             
-        return pos_df, neg_df, 'time (minutes)', 'percents', "optimization", opts, f'{model_type} {ds_name} percents time', AOPC_Plotter.aopc_plot, self.delta
+        return pos_df, neg_df, 'time (minutes)', 'percents', "optimization", opts, f'{self.model_type} {self.ds_name} percents time', AOPC_Plotter.aopc_plot, str(self.delta)
                 
-    def time_aopc_monitor(self, model_type, ds_name, opts, alpha=0.95):
+    def time_aopc_monitor(self, opts, alpha=0.95):
         """
         compare best topk negative and positive anchors between current result and the
         end result top scores
@@ -392,7 +405,7 @@ class AOPC:
             pos_tok_arr.append(top_pos)
             neg_tok_arr.append(top_neg)
                 
-            time = times.loc[f'mp/{model_type}/{ds_name}/confidence/42/{opt}'].time
+            time = times.loc[f'mp/{self.model_type}/{self.ds_name}/confidence/42/{opt}'].time
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
 
@@ -404,4 +417,4 @@ class AOPC:
             for opt in opts:
                 print(f'{opt}: {neg_tok_arr[opts.index(opt)][:10]}')
                 
-        return pos_df, neg_df, 'time (minutes)', 'AOPC-global', "optimization", opts, f'{model_type} {ds_name} aopc time', AOPC_Plotter.aopc_plot, self.delta
+        return pos_df, neg_df, 'time (minutes)', 'AOPC-global', "optimization", opts, f'{self.model_type} {self.ds_name} aopc time', AOPC_Plotter.aopc_plot, str(self.delta)
