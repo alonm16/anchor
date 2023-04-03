@@ -6,7 +6,7 @@ from sklearn.model_selection import train_test_split
 import pandas as pd
 from datasets import Dataset, DatasetDict
 
-ds_dir = '/home/almr16/anchor/dataset/'
+ds_dir = '/home/almr16_04/anchor/dataset/'
 
 def set_seed(seed=42):
     """
@@ -160,8 +160,8 @@ def get_ds(ds_name):
               }
     return ds_dict[ds_name]()
 
-def preprocess_examples(ds, max_example_len = 150, for_retrain = False, max_examples = 3400):
+def preprocess_examples(ds, max_example_len = 200, for_retrain = False, max_examples = 7000):
     examples = ds['test'] if not for_retrain else ds['train']
     examples = examples.filter(lambda x: 20 < len(x['text']) < max_example_len)
-    return examples['text'][:3400], examples['label'][:3400]
+    return examples['text'][:max_examples], examples['label'][:max_examples]
     
