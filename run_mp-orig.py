@@ -3,7 +3,7 @@
 
 import warnings
 import spacy
-from optimized_anchor import anchor_text, anchor_base
+from old.modified_anchor import anchor_text, anchor_base
 import pickle
 import myUtils
 from myUtils import *
@@ -21,17 +21,15 @@ from torch.multiprocessing import Pool, Process, set_start_method, SimpleQueue
 from multiprocessing.managers import BaseManager
 import copy
 
-def process_compute(seed, anchor_examples, ignored, delta, dataset_name, model_type, i, indices, tokenizer, optimize, path, topk_optimize, desired_optimize, num_unmask, bg, result_queue):
+def process_compute(seed, anchor_examples, ignored, delta, dataset_name, model_type, i, indices, tokenizer, optimize, path, result_queue):
     
     torch._C._jit_set_texpr_fuser_enabled(False)
     anchor_text.AnchorText.set_optimize(optimize)
     
     nlp = spacy.load('en_core_web_sm')    
     device = torch.device(f'cuda:{i}')
-    explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False, device=device, num_unmask=num_unmask)
-    my_utils = TextUtils(anchor_examples, explainer, myUtils.predict_sentences, ignored, optimize = optimize, delta = delta)
-    
-    anchor_base.AnchorBaseBeam.best_group = bg
+    explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False)
+    my_utils = TextUtils(anchor_examples, explainer, myUtils.old_predict_sentences, ignored, optimize = optimize, delta = delta)
 
     model = load_model(f'models/{model_type}/{dataset_name}/traced_{i}.pt').to(device)
     myUtils.model = model
@@ -55,7 +53,6 @@ def run():
     parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'sentiment_twitter', "dilemma"])
     parser.add_argument("--model_type", default = 'tinybert', choices = ['tinybert', 'gru', 'svm', 'logistic'])
     parser.add_argument("--sorting", default='confidence', choices=['polarity', 'confidence'])
-    parser.add_argument("--optimization", default='', choices = ['', 'topk', 'lossy', 'desired', 'masking_50'], nargs = '+')
     parser.add_argument("--examples_max_length", default=200, type=int)
     parser.add_argument("--delta", default=0.1, type=float)
     parser.add_argument("--seed", default=42, type=int)
@@ -63,20 +60,14 @@ def run():
     args = parser.parse_args()
 
     examples_max_length = args.examples_max_length
-    do_ignore = 'lossy' in args.optimization
-    topk_optimize = 'topk' in args.optimization
-    desired_optimize = 'desired' in args.optimization
-    num_unmask = 50 if 'masking_50' in args.optimization else 500
     sort_function = sort_functions[args.sorting] 
 
     dataset_name = args.dataset_name
     sorting = args.sorting
     seed = args.seed
-    optimization = '-'.join(args.optimization)
-    optimization = '-'.join([optimization, str(args.delta)]) if args.optimization!='' else args.delta
     model_type = args.model_type
     model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-    path = f'results/mp/{model_type}/{dataset_name}/{sorting}/{seed}/{optimization}'
+    path = f'results/mp/{model_type}/{dataset_name}/{sorting}/{seed}/original'
     
     ds = get_ds(dataset_name)
         
@@ -93,16 +84,13 @@ def run():
 
     if not os.path.exists(path):
         os.makedirs(path)
-
-    if do_ignore:
-        ignored = get_ignored(anchor_examples)
-    else:
-        ignored = []
+        
+    ignored = []
 
     print(path)
     print(datetime.datetime.now())
     
-    optimize = True
+    optimize = False
     
     processes = []
     indices = list(range(len(anchor_examples)))
@@ -110,15 +98,10 @@ def run():
     
     result_queue = SimpleQueue()
     
-    normal_occurences = get_occurences(anchor_examples)
-    CustomManager.register('bg', BestGroup)
-    
     with CustomManager() as manager:
-        # create a shared bg instance
-        bg = manager.bg(path, normal_occurences, filter_anchors = topk_optimize, desired_optimize = desired_optimize)
 
         for i in range(num_processes):
-            p = torch.multiprocessing.Process(target=process_compute, args=([seed, anchor_examples, ignored, args.delta, dataset_name, model_type, i, indices_list[i], tokenizer, optimize, path, topk_optimize, desired_optimize, num_unmask, bg, result_queue]))
+            p = torch.multiprocessing.Process(target=process_compute, args=([seed, anchor_examples, ignored, args.delta, dataset_name, model_type, i, indices_list[i], tokenizer, optimize, path, result_queue]))
             processes.append(p)
 
         st = time.time()
