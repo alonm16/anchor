@@ -12,6 +12,7 @@ import pandas as pd
 import seaborn as sns
 import pickle
 import os
+import sys
 import simple_colors
 from score import ScoreUtils
 from myUtils import set_seed
@@ -261,7 +262,7 @@ class AOPC:
         return self.compare_aopcs(alphas, get_scores_fn, alphas, 'alpha', normalizer=0.95)
     
     def compare_optimizations(self, **kwargs):
-        optimizations = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-0.5', 'topk-0.5', 'lossy-topk-0.1', 'lossy-topk-0.5']
+        optimizations = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'stop-words-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'stop-words-0.5', 'topk-0.5', 'stop-words-topk-0.1', 'stop-words-topk-0.5']
         get_scores_fn = lambda optimization: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{optimization}/scores.xlsx")
         return self.compare_aopcs(optimizations, get_scores_fn, optimizations, 'optimization', normalizer=self.delta)
     
@@ -286,14 +287,17 @@ class AOPC:
         return self.compare_aopcs(percents, get_scores_fn, percents, 'percents-remove', plotter=AOPC_Plotter.time_aopc_plot, normalizer=100)
           
     def time_percent(self, **kwargs):
-        opts = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-0.5', 'topk-0.5', 'lossy-topk-0.1', 'lossy-topk-0.5']
+        opts = kwargs['opts'] if 'opts' in kwargs else [str(self.delta), f'stop-words-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'stop-words-0.5', 'topk-0.5', 'stop-words-topk-0.1', 'stop-words-topk-0.5']
         return self.time_percent_monitor(opts, alpha=0.95)
         
     def time_aopc(self, **kwargs):
-        opts = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'lossy-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'lossy-0.5', 'topk-0.5', 'lossy-topk-0.1', 'lossy-topk-0.5']
+        opts = kwargs['opts'] if 'opts' in kwargs else [str(self.delta), f'stop-words-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'stop-words-0.5', 'topk-0.5', 'stop-words-topk-0.1', 'stop-words-topk-0.5']
         return self.time_aopc_monitor(opts, alpha=0.95)
     
-    def compare_all(self, seeds=[42, 84, 126, 168, 210], from_img=[], skip=[], only=None, **kwargs): 
+    def compare_all(self, seeds=[42, 84, 126, 168, 210], from_img=[], skip=[], only=None, verbose= True, **kwargs): 
+        if not verbose:
+            global print
+            print = lambda *x: None
         compares = {'sorts': self.compare_sorts, 'delta': self.compare_deltas, 'alpha': self.compare_alphas, 'optimization': self.compare_optimizations, 'aggregation': self.compare_aggregations, 'percent': self.compare_percents, 'percents-remove': self.compare_percents_remove, 'percents time': self.time_percent, 'aopc time': self.time_aopc}
         
         normalizers =  dict(zip(compares.keys(),['normal', 0.1, 0.95, str(self.delta), 'probabilistic α=0.95', 100, 100, str(self.delta), str(self.delta)]))
@@ -329,7 +333,6 @@ class AOPC:
                 plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title)
                 
             else:
-                continue
                 pos_df, neg_df = pd.DataFrame(), pd.DataFrame()
                 for seed in seeds:
                     self.seed = seed

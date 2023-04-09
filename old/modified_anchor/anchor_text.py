@@ -20,8 +20,6 @@ def id_generator(size=15):
     chars = list(string.ascii_uppercase + string.digits)
     return ''.join(np.random.choice(chars, size, replace=True))
 
-# TODO optimization
-@njit(cache=True)
 def exp_normalize(x):  
     b = x.max()
     y = np.exp(x - b)
