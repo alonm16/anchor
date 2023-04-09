@@ -63,7 +63,7 @@ class AOPC:
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model = load_model(f'models/{self.model_type}/{self.ds_name}/model').to(self.device).eval()
         myUtils.model = self.model
-        self.title = f"{self.model_type} {self.ds_name}"
+        self.title = f"{self.ds_name} dataset"
         self.path = path
         self.tokenizer = tokenizer
         self.tokens_method = self._remove_tokens
@@ -307,7 +307,7 @@ class AOPC:
                 continue
             if c in skip:
                 continue
-            elif c in from_img:
+            elif True:#c in from_img:
                 pos_df = pd.read_csv(f'{self.path}/{c}_pos_aopc.csv', index_col=0)
                 neg_df = pd.read_csv(f'{self.path}/{c}_neg_aopc.csv', index_col=0)
                 legends = list(pos_df.iloc[:, -1].unique())
@@ -328,7 +328,7 @@ class AOPC:
                     neg_tok = pickle.load(open(f"{self.path}42/tokens/{l}_neg_tokens.pickle", "rb"))
                     print(colors[legends.index(l)](f'{l}:'), f'{neg_tok[:10]}')
                 if c in ['percents time', 'aopc time']:
-                    c_title = f'{self.model_type} {self.ds_name} {c}'
+                    c_title = f'{self.ds_name} dataset {c.split()[0]} evaluation'
                     plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, True, self.delta)
                 plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title)
                 
@@ -380,7 +380,7 @@ class AOPC:
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
             
-        return pos_df, neg_df, 'time (minutes)', 'percents', "optimization", opts, f'{self.model_type} {self.ds_name} percents time', AOPC_Plotter.aopc_plot, str(self.delta)
+        return pos_df, neg_df, 'time (minutes)', 'percents', "optimization", opts, f'{self.ds_name} dataset percents time', AOPC_Plotter.aopc_plot, str(self.delta)
                 
     def time_aopc_monitor(self, opts, alpha=0.95):
         """
@@ -420,4 +420,4 @@ class AOPC:
             for opt in opts:
                 print(f'{opt}: {neg_tok_arr[opts.index(opt)][:10]}')
                 
-        return pos_df, neg_df, 'time (minutes)', 'AOPC-global', "optimization", opts, f'{self.model_type} {self.ds_name} aopc time', AOPC_Plotter.aopc_plot, str(self.delta)
+        return pos_df, neg_df, 'time (minutes)', 'AOPC-global', "optimization", opts, f'{self.ds_name} dataset aopc time', AOPC_Plotter.aopc_plot, str(self.delta)
