@@ -50,7 +50,7 @@ def run():
     warnings.simplefilter("ignore")
     sort_functions = {'polarity': sort_polarity, 'confidence': sort_confidence}
     
-    parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'offensive', 'corona', 'sentiment_twitter', "dilemma"])
+    parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'corona', "dilemma", 'toy-spam', 'home-spam', 'sport-spam'])
     parser.add_argument("--model_type", default = 'tinybert', choices = ['tinybert', 'gru', 'svm', 'logistic'])
     parser.add_argument("--sorting", default='confidence', choices=['polarity', 'confidence'])
     parser.add_argument("--examples_max_length", default=200, type=int)

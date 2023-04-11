@@ -72,6 +72,7 @@ class AOPC:
         self.pos_tokens, self.neg_tokens = None, None
         self.pos_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==1]
         self.neg_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==0]
+        self.opts = [str(delta), f'stop-words-{delta}', f'topk-{delta}', f'desired-{delta}', f'masking-{delta}', 'stop-words-0.5', 'topk-0.5', f'stop-words-topk-{delta}', 'stop-words-topk-0.5', f'stop-words-topk-masking-{delta}']
         
     def set_tokens(self, pos_tokens, neg_tokens):
         self.pos_tokens, self.neg_tokens = pos_tokens, neg_tokens
@@ -262,7 +263,7 @@ class AOPC:
         return self.compare_aopcs(alphas, get_scores_fn, alphas, 'alpha', normalizer=0.95)
     
     def compare_optimizations(self, **kwargs):
-        optimizations = kwargs['opts'] if 'opts' in kwargs else [self.delta, f'stop-words-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'stop-words-0.5', 'topk-0.5', 'stop-words-topk-0.1', 'stop-words-topk-0.5']
+        optimizations = kwargs['opts'] if 'opts' in kwargs else self.opts
         get_scores_fn = lambda optimization: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{optimization}/scores.xlsx")
         return self.compare_aopcs(optimizations, get_scores_fn, optimizations, 'optimization', normalizer=self.delta)
     
@@ -287,11 +288,11 @@ class AOPC:
         return self.compare_aopcs(percents, get_scores_fn, percents, 'percents-remove', plotter=AOPC_Plotter.time_aopc_plot, normalizer=100)
           
     def time_percent(self, **kwargs):
-        opts = kwargs['opts'] if 'opts' in kwargs else [str(self.delta), f'stop-words-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'stop-words-0.5', 'topk-0.5', 'stop-words-topk-0.1', 'stop-words-topk-0.5']
+        opts = kwargs['opts'] if 'opts' in kwargs else self.opts
         return self.time_percent_monitor(opts, alpha=0.95)
         
     def time_aopc(self, **kwargs):
-        opts = kwargs['opts'] if 'opts' in kwargs else [str(self.delta), f'stop-words-{self.delta}', f'topk-{self.delta}', f'desired-{self.delta}', 'stop-words-0.5', 'topk-0.5', 'stop-words-topk-0.1', 'stop-words-topk-0.5']
+        opts = kwargs['opts'] if 'opts' in kwargs else self.opts
         return self.time_aopc_monitor(opts, alpha=0.95)
     
     def compare_all(self, seeds=[42, 84, 126, 168, 210], from_img=[], skip=[], only=None, verbose= True, **kwargs): 
@@ -300,14 +301,14 @@ class AOPC:
             print = lambda *x: None
         compares = {'sorts': self.compare_sorts, 'delta': self.compare_deltas, 'alpha': self.compare_alphas, 'optimization': self.compare_optimizations, 'aggregation': self.compare_aggregations, 'percent': self.compare_percents, 'percents-remove': self.compare_percents_remove, 'percents time': self.time_percent, 'aopc time': self.time_aopc}
         
-        normalizers =  dict(zip(compares.keys(),['normal', 0.1, 0.95, str(self.delta), 'probabilistic α=0.95', 100, 100, str(self.delta), str(self.delta)]))
+        normalizers =  dict(zip(compares.keys(),['normal', 0.1, 0.95, self.delta, 'probabilistic α=0.95', 100, 100, self.delta, self.delta]))
         
         for c in compares:
             if only and c not in only:
                 continue
             if c in skip:
                 continue
-            elif True:#c in from_img:
+            elif c in from_img:
                 pos_df = pd.read_csv(f'{self.path}/{c}_pos_aopc.csv', index_col=0)
                 neg_df = pd.read_csv(f'{self.path}/{c}_neg_aopc.csv', index_col=0)
                 legends = list(pos_df.iloc[:, -1].unique())
@@ -380,7 +381,7 @@ class AOPC:
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
             
-        return pos_df, neg_df, 'time (minutes)', 'percents', "optimization", opts, f'{self.ds_name} dataset percents time', AOPC_Plotter.aopc_plot, str(self.delta)
+        return pos_df, neg_df, 'time (minutes)', 'percents', "optimization", opts, f'{self.ds_name} dataset percents time', AOPC_Plotter.aopc_plot, self.delta
                 
     def time_aopc_monitor(self, opts, alpha=0.95):
         """
@@ -420,4 +421,4 @@ class AOPC:
             for opt in opts:
                 print(f'{opt}: {neg_tok_arr[opts.index(opt)][:10]}')
                 
-        return pos_df, neg_df, 'time (minutes)', 'AOPC-global', "optimization", opts, f'{self.ds_name} dataset aopc time', AOPC_Plotter.aopc_plot, str(self.delta)
+        return pos_df, neg_df, 'time (minutes)', 'AOPC-global', "optimization", opts, f'{self.ds_name} dataset aopc time', AOPC_Plotter.aopc_plot, self.delta

@@ -162,6 +162,6 @@ def get_ds(ds_name):
 
 def preprocess_examples(ds, max_example_len = 200, for_retrain = False, max_examples = 7000):
     examples = ds['test'] if not for_retrain else ds['train']
-    examples = examples.filter(lambda x: 20 < len(x['text']) < max_example_len)
+    examples = examples.filter(lambda x: 20 < len(x['text']) <= max_example_len)
     return examples['text'][:max_examples], examples['label'][:max_examples]
     

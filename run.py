@@ -29,7 +29,7 @@ parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment
 parser.add_argument("--model_type", default = 'tinybert', choices = ['tinybert', 'gru', 'svm', 'logistic'])
 parser.add_argument("--sorting", default='confidence', choices=['polarity', 'confidence'])
 parser.add_argument("--optimization", default='', choices = ['', 'topk', 'stop-words', 'desired', 'masking'], nargs = '+')
-parser.add_argument("--examples_max_length", default=150, type=int)
+parser.add_argument("--examples_max_length", default=200, type=int)
 parser.add_argument("--delta", default=0.1, type=float)
 parser.add_argument("--seed", default=42, type=int)
 
