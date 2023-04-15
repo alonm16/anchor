@@ -56,10 +56,11 @@ class AOPC_Plotter:
         fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
 
 class AOPC:
-    def __init__(self, path, tokenizer, delta=0.1, num_removes = 30, base_opt='0.1'):
+    def __init__(self, path, tokenizer, delta=0.1, num_removes = 30, base_opt=None):
+        self.opt_prefix = f'{base_opt}-' if base_opt else ''
         self.model_type, self.ds_name = path.split('/')[-4:-2]
-        self.sentences = pickle.load(open(f"{path}42/{base_opt}/anchor_examples.pickle", "rb" ))
-        self.labels = pickle.load(open(f"{path}42/{base_opt}/labels.pickle", "rb" ))
+        self.sentences = pickle.load(open(f"{path}42/{self.opt_prefix}{delta}/anchor_examples.pickle", "rb" ))
+        self.labels = pickle.load(open(f"{path}42/{self.opt_prefix}{delta}/labels.pickle", "rb" ))
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model = load_model(f'models/{self.model_type}/{self.ds_name}/model').to(self.device).eval()
         myUtils.model = self.model
@@ -73,6 +74,7 @@ class AOPC:
         self.pos_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==1]
         self.neg_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==0]
         self.opts = [str(delta), f'stop-words-{delta}', f'topk-{delta}', f'desired-{delta}', f'masking-{delta}', 'stop-words-0.5', 'topk-0.5', f'stop-words-topk-{delta}', 'stop-words-topk-0.5', f'stop-words-topk-masking-{delta}']
+        #self.opts = [str(delta), f'topk-{delta}', '0.5', 'topk-0.5', 'topk-0.5', f'topk-masking-{delta}']
         
     def set_tokens(self, pos_tokens, neg_tokens):
         self.pos_tokens, self.neg_tokens = pos_tokens, neg_tokens
@@ -202,16 +204,13 @@ class AOPC:
             neg_tokens_arr.append(n)
         
         if self.seed==42:
-            print('pos')
+            self.print_tokens(legends, pos_tokens_arr, neg_tokens_arr)
             for l in legends:
-                print(f'{l}: {pos_tokens_arr[legends.index(l)][:10]}')
                 os.makedirs(os.path.dirname(f"{self.seed_path}tokens/{l}_pos_tokens.pickle"), exist_ok=True)
                 pickle.dump(pos_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_pos_tokens.pickle", "wb" ))
-            print('\nneg')
-            for l in legends:
-                print(f'{l}: {neg_tokens_arr[legends.index(l)][:10]}')
                 os.makedirs(os.path.dirname(f"{self.seed_path}tokens/{l}_neg_tokens.pickle"), exist_ok=True)
                 pickle.dump(neg_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_neg_tokens.pickle", "wb" ))
+                
         return pos_df, neg_df, xlabel, ylabel, hue, legends, self.title + f' {hue}', plotter, 'normal'
         
     def compare_aopcs(self, compare_list, get_scores_fn, legends, hue, xlabel="# of features removed", ylabel="AOPC-global", plotter=AOPC_Plotter.aopc_plot, normalizer = None): 
@@ -229,18 +228,14 @@ class AOPC:
         for i in range(len(legends)):
             self.set_tokens(pos_tokens_arr[i], neg_tokens_arr[i])
             pos_scores, neg_scores = self._aopc_global(self.pos_tokens, self.pos_sentences, 1), self._aopc_global(self.neg_tokens, self.neg_sentences, 0)
-            pos_df = pd.concat([pos_df, pd.DataFrame(list(zip(np.arange(num_removes+1), pos_scores, np.repeat(legends[i], num_removes+1))), columns=pos_df.columns)])
-            neg_df = pd.concat([neg_df, pd.DataFrame(list(zip(np.arange(num_removes+1), neg_scores, np.repeat(legends[i], num_removes+1))), columns=neg_df.columns)])
+            pos_df = pd.concat([pos_df, pd.DataFrame(list(zip(np.arange(num_removes+1), pos_scores, np.repeat(str(legends[i]), num_removes+1))), columns=pos_df.columns)])
+            neg_df = pd.concat([neg_df, pd.DataFrame(list(zip(np.arange(num_removes+1), neg_scores, np.repeat(str(legends[i]), num_removes+1))), columns=neg_df.columns)])
         
         if self.seed==42:
-            print('pos')
+            self.print_tokens(legends, pos_tokens_arr, neg_tokens_arr)
             for l in legends:
-                print(f'{l}: {pos_tokens_arr[legends.index(l)][:10]}')
                 os.makedirs(os.path.dirname(f"{self.seed_path}tokens/{l}_pos_tokens.pickle"), exist_ok=True)
                 pickle.dump(pos_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_pos_tokens.pickle", "wb" ))
-            print('\nneg')
-            for l in legends:
-                print(f'{l}: {neg_tokens_arr[legends.index(l)][:10]}')
                 os.makedirs(os.path.dirname(f"{self.seed_path}tokens/{l}_neg_tokens.pickle"), exist_ok=True)
                 pickle.dump(neg_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_neg_tokens.pickle", "wb" ))
             
@@ -320,14 +315,10 @@ class AOPC:
                 neg_df.iloc[:, 1]/=neg_normalizer
                 c_title = self.title + f' {hue}'
                 plotter = AOPC_Plotter.aopc_plot if c!='percents-remove' else AOPC_Plotter.time_aopc_plot
-                print('pos')
-                for l in legends:
-                    pos_tok = pickle.load(open(f"{self.path}42/tokens/{l}_pos_tokens.pickle", "rb"))
-                    print(colors[legends.index(l)](f'{l}:'), f'{pos_tok[:10]}')
-                print('\nneg')
-                for l in legends:
-                    neg_tok = pickle.load(open(f"{self.path}42/tokens/{l}_neg_tokens.pickle", "rb"))
-                    print(colors[legends.index(l)](f'{l}:'), f'{neg_tok[:10]}')
+                pos_tok_arr = [pickle.load(open(f"{self.path}42/{self.opt_prefix}tokens/{l}_pos_tokens.pickle", "rb")) for l in legends]
+                neg_tok_arr = [pickle.load(open(f"{self.path}42/{self.opt_prefix}tokens/{l}_neg_tokens.pickle", "rb")) for l in legends]
+                self.print_tokens(legends, pos_tok_arr, neg_tok_arr)
+                
                 if c in ['percents time', 'aopc time']:
                     c_title = f'{self.ds_name} dataset {c.split()[0]} evaluation'
                     plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, True, self.delta)
@@ -337,15 +328,15 @@ class AOPC:
                 pos_df, neg_df = pd.DataFrame(), pd.DataFrame()
                 for seed in seeds:
                     self.seed = seed
-                    self.seed_path = self.path+f'{seed}/'
+                    self.seed_path = self.path+f'{seed}/{self.opt_prefix}'
                     cur_pos, cur_neg, xlabel, ylabel, hue, legends, c_title, plotter, normalizer = compares[c](**kwargs)
                     pos_df, neg_df = pd.concat([pos_df, cur_pos]), pd.concat([neg_df, cur_neg])
                 pos_df.to_csv(f'{self.path}/{c}_pos_aopc.csv')
                 neg_df.to_csv(f'{self.path}/{c}_neg_aopc.csv')
                 
                 if normalizer:
-                    pos_normalizer = pos_df[pos_df[hue]==normalizer].iloc[-1, 1]
-                    neg_normalizer = neg_df[neg_df[hue]==normalizer].iloc[-1, 1]
+                    pos_normalizer = pos_df[pos_df[hue]==str(normalizer)].iloc[-1, 1]
+                    neg_normalizer = neg_df[neg_df[hue]==str(normalizer)].iloc[-1, 1]
                     pos_df.iloc[:, 1]/=pos_normalizer
                     neg_df.iloc[:, 1]/=neg_normalizer
                 plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title)
@@ -377,7 +368,7 @@ class AOPC:
                 neg_results.append(len(top_neg.intersection(final_top_neg))/top)
             
             #only time of one seed so the aggregation of lineplot will work
-            time = times.loc[f'mp/{self.model_type}/{self.ds_name}/confidence/42/{opt}'].time
+            time = times.loc[f'mp/{self.model_type}/{self.ds_name}/confidence/42/{self.opt_prefix}{opt}'].time
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
             
@@ -409,16 +400,20 @@ class AOPC:
             pos_tok_arr.append(top_pos)
             neg_tok_arr.append(top_neg)
                 
-            time = times.loc[f'mp/{self.model_type}/{self.ds_name}/confidence/42/{opt}'].time
+            time = times.loc[f'mp/{self.model_type}/{self.ds_name}/confidence/42/{self.opt_prefix}{opt}'].time
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
 
         if self.seed==42:
-            print('pos')
-            for opt in opts:
-                print(f'{opt}: {pos_tok_arr[opts.index(opt)][:10]}')
-            print('\nneg')
-            for opt in opts:
-                print(f'{opt}: {neg_tok_arr[opts.index(opt)][:10]}')
+            self.print_tokens(opts, pos_tok_arr, neg_tok_arr)
                 
         return pos_df, neg_df, 'time (minutes)', 'AOPC-global', "optimization", opts, f'{self.ds_name} dataset aopc evaluation', AOPC_Plotter.aopc_plot, self.delta
+    
+    @staticmethod
+    def print_tokens(legends, pos_tokens_arr, neg_tokens_arr):
+        print('pos')
+        for l in legends:
+            print(colors[legends.index(l)](f'{l}:'), f'{pos_tokens_arr[legends.index(l)][:10]}')
+        print('\nneg')
+        for l in legends:
+            print(colors[legends.index(l)](f'{l}:'), f'{neg_tokens_arr[legends.index(l)][:10]}')

@@ -10,7 +10,7 @@ class ScoreUtils:
         """
         returns dict of (anchor, score) pairs, and sum of the topk positive/negative
         """
-        df = pd.read_excel(f'{folder_name}/{trail_path}').drop(0)
+        df = pd.read_excel(f'{folder_name}{trail_path}').drop(0)
         index_prefix = f"{alpha}-" if alpha is not None else ""
         
         def get_scores(column):
@@ -204,7 +204,7 @@ class ScoreUtils:
         neg_indices = [i for i, l in enumerate(labels) if l==0]
         
         results = defaultdict(lambda: defaultdict(dict))
-        for percent in range(10, 101, 2):
+        for percent in range(5, 105, 5):
             pos_index = int(percent*len(pos_sentences)/100)
             pos_exps = list(filter(lambda e: labels[e.index]==1 and pos_indices.index(e.index)<=pos_index, exps))
 
