@@ -20,7 +20,7 @@ import myUtils
 from models.utils import *
 colors = [simple_colors.red, simple_colors.blue, simple_colors.cyan, 
           simple_colors.green, simple_colors.magenta, simple_colors.yellow, 
-          simple_colors.blue, simple_colors.red]
+          simple_colors.blue, simple_colors.red, simple_colors.cyan, simple_colors.green]
 
 class AOPC_Plotter:
     @staticmethod
@@ -67,7 +67,7 @@ class AOPC:
         self.path = path
         self.tokenizer = tokenizer
         self.tokens_method = self._remove_tokens
-        self.delta = delta
+        self.delta = str(delta)
         self.num_removes = num_removes
         self.pos_tokens, self.neg_tokens = None, None
         self.pos_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==1]
@@ -381,7 +381,7 @@ class AOPC:
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
             
-        return pos_df, neg_df, 'time (minutes)', 'percents', "optimization", opts, f'{self.ds_name} dataset percents time', AOPC_Plotter.aopc_plot, self.delta
+        return pos_df, neg_df, 'time (minutes)', 'percents', "optimization", opts, f'{self.ds_name} dataset percents evaluation', AOPC_Plotter.aopc_plot, self.delta
                 
     def time_aopc_monitor(self, opts, alpha=0.95):
         """
@@ -421,4 +421,4 @@ class AOPC:
             for opt in opts:
                 print(f'{opt}: {neg_tok_arr[opts.index(opt)][:10]}')
                 
-        return pos_df, neg_df, 'time (minutes)', 'AOPC-global', "optimization", opts, f'{self.ds_name} dataset aopc time', AOPC_Plotter.aopc_plot, self.delta
+        return pos_df, neg_df, 'time (minutes)', 'AOPC-global', "optimization", opts, f'{self.ds_name} dataset aopc evaluation', AOPC_Plotter.aopc_plot, self.delta
