@@ -60,7 +60,7 @@ class AOPC:
         self.opt_prefix = f'{base_opt}-' if base_opt else ''
         self.model_type, self.ds_name = path.split('/')[-4:-2]
         self.sentences = pickle.load(open(f"{path}42/{self.opt_prefix}{delta}/anchor_examples.pickle", "rb" ))
-        self.labels = pickle.load(open(f"{path}42/{self.opt_prefix}{delta}/labels.pickle", "rb" ))
+        self.labels = pickle.load(open(f"{path}42/{self.opt_prefix}0.1/labels.pickle", "rb" ))
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model = load_model(f'models/{self.model_type}/{self.ds_name}/model').to(self.device).eval()
         myUtils.model = self.model
