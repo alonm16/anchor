@@ -56,7 +56,7 @@ class AOPC_Plotter:
         fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
 
 class AOPC:
-    def __init__(self, path, tokenizer, delta=0.1, num_removes = 30, base_opt=None):
+    def __init__(self, path, tokenizer, delta=0.1, alpha=0.95, num_removes = 30, base_opt=None):
         self.opt_prefix = f'{base_opt}-' if base_opt else ''
         self.model_type, self.ds_name = path.split('/')[-4:-2]
         self.sentences = pickle.load(open(f"{path}42/{self.opt_prefix}{delta}/anchor_examples.pickle", "rb" ))
@@ -69,6 +69,7 @@ class AOPC:
         self.tokenizer = tokenizer
         self.tokens_method = self._remove_tokens
         self.delta = str(delta)
+        self.alpha = alpha
         self.num_removes = num_removes
         self.pos_tokens, self.neg_tokens = None, None
         self.pos_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==1]
@@ -242,14 +243,14 @@ class AOPC:
         return pos_df, neg_df, xlabel, ylabel, hue, legends, self.title + f' {hue}', plotter, normalizer
         
     def compare_sorts(self, **kwargs):
-        pos_scores, neg_scores = ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{self.delta}/scores.xlsx")
+        pos_scores, neg_scores = ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{self.delta}/scores.xlsx", alpha = self.alpha)
         pos_tokens, neg_tokens = list(pos_scores.keys()), list(neg_scores.keys())
         self.set_tokens(pos_tokens, neg_tokens)
         return self._compare_sorts()
     
     def compare_deltas(self, **kwargs):
         deltas = [0.1, 0.15, 0.2, 0.35, 0.5]#, 0.6, 0.7, 0.8]
-        get_scores_fn = lambda cur_delta: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{cur_delta}/scores.xlsx")
+        get_scores_fn = lambda cur_delta: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{cur_delta}/scores.xlsx", alpha = self.alpha)
         return self.compare_aopcs(deltas, get_scores_fn, deltas, 'delta', normalizer=self.delta)
     
     def compare_alphas(self, **kwargs):
@@ -259,7 +260,7 @@ class AOPC:
     
     def compare_optimizations(self, **kwargs):
         optimizations = kwargs['opts'] if 'opts' in kwargs else self.opts
-        get_scores_fn = lambda optimization: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{optimization}/scores.xlsx")
+        get_scores_fn = lambda optimization: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{optimization}/scores.xlsx", alpha = self.alpha)
         return self.compare_aopcs(optimizations, get_scores_fn, optimizations, 'optimization', normalizer=self.delta)
     
     def compare_aggregations(self, **kwargs):
@@ -274,21 +275,21 @@ class AOPC:
         
     def compare_percents(self, **kwargs):
         percents = [10, 25, 50, 75, 100]
-        get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{self.delta}/percents/scores-{percent}.xlsx", alpha = 0.95)
+        get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{self.delta}/percents/scores-{percent}.xlsx", alpha = self.alpha)
         return self.compare_aopcs(percents, get_scores_fn, percents, 'percent', normalizer=100)
 
     def compare_percents_remove(self, **kwargs):
         percents = [10, 25, 50, 75, 100]
-        get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{self.delta}/percents/scores-{percent}.xlsx", alpha = 0.95)
+        get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{self.delta}/percents/scores-{percent}.xlsx", alpha = self.alpha)
         return self.compare_aopcs(percents, get_scores_fn, percents, 'percents-remove', plotter=AOPC_Plotter.time_aopc_plot, normalizer=100)
           
     def time_percent(self, **kwargs):
         opts = kwargs['opts'] if 'opts' in kwargs else self.opts
-        return self.time_percent_monitor(opts, alpha=0.95)
+        return self.time_percent_monitor(opts, alpha = self.alpha)
         
     def time_aopc(self, **kwargs):
         opts = kwargs['opts'] if 'opts' in kwargs else self.opts
-        return self.time_aopc_monitor(opts, alpha=0.95)
+        return self.time_aopc_monitor(opts, alpha = self.alpha)
     
     def compare_all(self, seeds=[42, 84, 126, 168, 210], from_img=[], skip=[], only=None, verbose= True, **kwargs): 
         if not verbose:
