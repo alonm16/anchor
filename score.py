@@ -14,8 +14,11 @@ class ScoreUtils:
         index_prefix = f"{alpha}-" if alpha is not None else ""
         
         def get_scores(column):
+            # filter_idx = list(df.columns).index(column)+2
+            # filtered_df = df[df.iloc[:, filter_idx]>5]
+            # keys = filtered_df[column].dropna().tolist()
             keys = df[column].dropna().tolist()
-            values = df.iloc[:, list(df.columns).index(column)+1].tolist()
+            values = filtered_df.iloc[:, list(df.columns).index(column)+1].tolist()
             return dict(zip(keys, values))  
         
         return get_scores(f'{index_prefix}positive'), get_scores(f'{index_prefix}negative')
