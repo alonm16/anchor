@@ -14,6 +14,7 @@ models/gru/
 **/exps.pickle
 **/extended_exps.pickle
 **/profile_list.pickle
+**/traced_*
 profile-*
 jupyter-lab.sh
 py-sbatch.sh
