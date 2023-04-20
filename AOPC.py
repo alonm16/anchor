@@ -74,8 +74,8 @@ class AOPC:
         self.pos_tokens, self.neg_tokens = None, None
         self.pos_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==1]
         self.neg_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==0]
-        #self.opts = [str(delta), f'stop-words-{delta}', f'topk-{delta}', f'desired-{delta}', f'masking-{delta}', 'stop-words-0.5', 'topk-0.5', f'stop-words-topk-{delta}', 'stop-words-topk-0.5', f'stop-words-topk-masking-{delta}']
-        self.opts = [str(delta), f'topk-{delta}', '0.5', 'topk-0.5', 'topk-0.5', f'topk-masking-{delta}']
+        self.opts = [str(delta), f'stop-words-{delta}', f'topk-{delta}', f'desired-{delta}', f'masking-{delta}', f'stop-words-masking-{delta}', 'stop-words-0.5', 'topk-0.5', f'stop-words-topk-{delta}', 'stop-words-topk-0.5', f'stop-words-topk-masking-{delta}']
+        #self.opts = [str(delta), f'topk-{delta}', '0.5', 'topk-0.5', 'topk-0.5', 'masking-{delta}', f'topk-masking-{delta}']
         
     def set_tokens(self, pos_tokens, neg_tokens):
         self.pos_tokens, self.neg_tokens = pos_tokens, neg_tokens
@@ -304,7 +304,7 @@ class AOPC:
                 continue
             if c in skip:
                 continue
-            elif True:#c in from_img:
+            elif c in from_img:
                 pos_df = pd.read_csv(f'{self.path}/{c}_pos_aopc.csv', index_col=0)
                 neg_df = pd.read_csv(f'{self.path}/{c}_neg_aopc.csv', index_col=0)
                 legends = list(pos_df.iloc[:, -1].unique())
