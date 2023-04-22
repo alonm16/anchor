@@ -10,12 +10,11 @@ from transformers import pipeline
 import copy
 import pandas as pd
 import seaborn as sns
-import pickle
 import os
 import sys
 import simple_colors
 from score import ScoreUtils
-from myUtils import set_seed
+from myUtils import set_seed, get_stopwords
 import myUtils
 from models.utils import *
 colors = [simple_colors.red, simple_colors.blue, simple_colors.cyan, 
@@ -74,8 +73,8 @@ class AOPC:
         self.pos_tokens, self.neg_tokens = None, None
         self.pos_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==1]
         self.neg_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==0]
-        self.opts = [str(delta), f'stop-words-{delta}', f'topk-{delta}', f'desired-{delta}', f'masking-{delta}', f'stop-words-masking-{delta}', 'stop-words-0.5', 'topk-0.5', f'stop-words-topk-{delta}', 'stop-words-topk-0.5', f'stop-words-topk-masking-{delta}']
-        #self.opts = [str(delta), f'topk-{delta}', '0.5', 'topk-0.5', 'topk-0.5', 'masking-{delta}', f'topk-masking-{delta}']
+        #self.opts = [str(delta), f'stop-words-{delta}', f'topk-{delta}', f'desired-{delta}', f'masking-{delta}', f'stop-words-masking-{delta}', 'stop-words-0.5', 'topk-0.5', f'stop-words-topk-{delta}', 'stop-words-topk-0.5', f'stop-words-topk-masking-{delta}']
+        self.opts = [str(delta), f'topk-{delta}', '0.5', 'topk-0.5', 'topk-0.5', f'masking-{delta}', f'topk-masking-{delta}']
         
     def set_tokens(self, pos_tokens, neg_tokens):
         self.pos_tokens, self.neg_tokens = pos_tokens, neg_tokens
@@ -139,9 +138,10 @@ class AOPC:
         
     @staticmethod
     def words_distributions(sentences, labels, tokenizer, num_removes = 30):
+        stopwords = get_stopwords()
         c_pos = Counter()
         c_neg = Counter()
-
+        
         for sentence, label in zip(sentences, labels):
             if label == 1:
                 c_pos.update(sentence)
@@ -153,7 +153,7 @@ class AOPC:
         all_words = set(all_words)
 
         for word in all_words:
-            if word.startswith("##") or c_pos[word]+c_neg[word] < 10:
+            if word.startswith("##") or c_pos[word]+c_neg[word] < 10 or word in stopwords:
                 del c_pos[word]
                 del c_neg[word]
                 continue
@@ -206,11 +206,10 @@ class AOPC:
         
         if self.seed==42:
             self.print_tokens(legends, pos_tokens_arr, neg_tokens_arr)
+            os.makedirs(f"{self.seed_path}tokens", exist_ok=True)
             for l in legends:
-                os.makedirs(os.path.dirname(f"{self.seed_path}tokens/{l}_pos_tokens.pickle"), exist_ok=True)
-                pickle.dump(pos_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_pos_tokens.pickle", "wb" ))
-                os.makedirs(os.path.dirname(f"{self.seed_path}tokens/{l}_neg_tokens.pickle"), exist_ok=True)
-                pickle.dump(neg_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_neg_tokens.pickle", "wb" ))
+                pickle.dump(pos_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_pos_tokens.pickle", "wb"))
+                pickle.dump(neg_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_neg_tokens.pickle", "wb"))
                 
         return pos_df, neg_df, xlabel, ylabel, hue, legends, self.title + f' {hue}', plotter, 'normal'
         
@@ -234,11 +233,10 @@ class AOPC:
         
         if self.seed==42:
             self.print_tokens(legends, pos_tokens_arr, neg_tokens_arr)
+            os.makedirs(f"{self.seed_path}tokens", exist_ok=True)
             for l in legends:
-                os.makedirs(os.path.dirname(f"{self.seed_path}tokens/{l}_pos_tokens.pickle"), exist_ok=True)
-                pickle.dump(pos_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_pos_tokens.pickle", "wb" ))
-                os.makedirs(os.path.dirname(f"{self.seed_path}tokens/{l}_neg_tokens.pickle"), exist_ok=True)
-                pickle.dump(neg_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_neg_tokens.pickle", "wb" ))
+                pickle.dump(pos_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_pos_tokens.pickle", "wb"))
+                pickle.dump(neg_tokens_arr[legends.index(l)], open(f"{self.seed_path}tokens/{l}_neg_tokens.pickle", "wb"))
             
         return pos_df, neg_df, xlabel, ylabel, hue, legends, self.title + f' {hue}', plotter, normalizer
         
@@ -274,7 +272,7 @@ class AOPC:
         return self.compare_aopcs(zip(aggregations, alphas), get_scores_fn, legends, 'aggregation', normalizer='probabilistic α=0.95')
         
     def compare_percents(self, **kwargs):
-        percents = [10, 25, 50, 75, 100]
+        percents = [5, 10, 25, 50, 75, 100]
         get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{self.delta}/percents/scores-{percent}.xlsx", alpha = self.alpha)
         return self.compare_aopcs(percents, get_scores_fn, percents, 'percent', normalizer=100)
 
@@ -305,8 +303,8 @@ class AOPC:
             if c in skip:
                 continue
             elif c in from_img:
-                pos_df = pd.read_csv(f'{self.path}/{c}_pos_aopc.csv', index_col=0)
-                neg_df = pd.read_csv(f'{self.path}/{c}_neg_aopc.csv', index_col=0)
+                pos_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_pos_aopc.csv', index_col=0)
+                neg_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_neg_aopc.csv', index_col=0)
                 legends = list(pos_df.iloc[:, -1].unique())
                 xlabel, ylabel, hue = pos_df.columns
                 normalizer = normalizers[c]
@@ -332,8 +330,8 @@ class AOPC:
                     self.seed_path = self.path+f'{seed}/{self.opt_prefix}'
                     cur_pos, cur_neg, xlabel, ylabel, hue, legends, c_title, plotter, normalizer = compares[c](**kwargs)
                     pos_df, neg_df = pd.concat([pos_df, cur_pos]), pd.concat([neg_df, cur_neg])
-                pos_df.to_csv(f'{self.path}/{c}_pos_aopc.csv')
-                neg_df.to_csv(f'{self.path}/{c}_neg_aopc.csv')
+                pos_df.to_csv(f'{self.path}/{self.opt_prefix}{c}_pos_aopc.csv')
+                neg_df.to_csv(f'{self.path}/{self.opt_prefix}{c}_neg_aopc.csv')
                 
                 if normalizer:
                     pos_normalizer = pos_df[pos_df[hue]==str(normalizer)].iloc[-1, 1]
