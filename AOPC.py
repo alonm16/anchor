@@ -73,8 +73,8 @@ class AOPC:
         self.pos_tokens, self.neg_tokens = None, None
         self.pos_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==1]
         self.neg_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==0]
-        #self.opts = [str(delta), f'stop-words-{delta}', f'topk-{delta}', f'desired-{delta}', f'masking-{delta}', f'stop-words-masking-{delta}', 'stop-words-0.5', 'topk-0.5', f'stop-words-topk-{delta}', 'stop-words-topk-0.5', f'stop-words-topk-masking-{delta}']
-        self.opts = [str(delta), f'topk-{delta}', '0.5', 'topk-0.5', 'topk-0.5', f'masking-{delta}', f'topk-masking-{delta}']
+        #self.opts = [str(delta), f'stop-words-{delta}', f'topk-{delta}', f'desired-{delta}', f'masking-{delta}', f'stop-words-masking-{delta}', 'stop-words-0.5', 'topk-0.5', f'stop-words-topk-{delta}', 'stop-words-topk-0.5', f'stop-words-topk-masking-{delta}', f'stop-words-topk-masking-0.5']
+        self.opts = [str(delta), f'topk-{delta}', '0.5', 'topk-0.5', 'topk-0.5', f'masking-{delta}', f'topk-masking-{delta}', f'topk-masking-0.5']
         
     def set_tokens(self, pos_tokens, neg_tokens):
         self.pos_tokens, self.neg_tokens = pos_tokens, neg_tokens
@@ -277,7 +277,7 @@ class AOPC:
         return self.compare_aopcs(percents, get_scores_fn, percents, 'percent', normalizer=100)
 
     def compare_percents_remove(self, **kwargs):
-        percents = [10, 25, 50, 75, 100]
+        percents = [5, 10, 25, 50, 75, 100]
         get_scores_fn = lambda percent: ScoreUtils.get_scores_dict(self.seed_path, trail_path = f"{self.delta}/percents/scores-{percent}.xlsx", alpha = self.alpha)
         return self.compare_aopcs(percents, get_scores_fn, percents, 'percents-remove', plotter=AOPC_Plotter.time_aopc_plot, normalizer=100)
           
