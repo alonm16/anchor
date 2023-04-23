@@ -56,11 +56,10 @@ def get_stopwords():
     stop_words.extend(stopwords.words('english'))
     return stop_words
 
-def get_ignored(anchor_sentences):
+def get_ignored(anchor_sentences, min_value=1):
     stop_words = get_stopwords()
     
     def get_below_occurences(sentences):
-        min_value = 1
         c = Counter()
         for sentence in sentences:
             c.update(tokenizer.tokenize(sentence))

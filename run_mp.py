@@ -28,11 +28,13 @@ def process_compute(seed, anchor_examples, ignored, delta, dataset_name, model_t
     
     nlp = spacy.load('en_core_web_sm')    
     device = torch.device(f'cuda:{i}')
+ 
     explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False, device=device, num_unmask=num_unmask)
     my_utils = TextUtils(anchor_examples, explainer, myUtils.predict_sentences, ignored, optimize = optimize, delta = delta)
     
     anchor_base.AnchorBaseBeam.best_group = bg
-
+    if model_type=='logistic':
+        device = torch.device('cpu')
     model = load_model(f'models/{model_type}/{dataset_name}/traced_{i}.pt').to(device)
     myUtils.model = model
     myUtils.tokenizer = tokenizer
@@ -64,6 +66,7 @@ def run():
 
     examples_max_length = args.examples_max_length
     do_ignore = 'stop-words' in args.optimization
+    min_value = 5
     topk_optimize = 'topk' in args.optimization
     desired_optimize = 'desired' in args.optimization
     num_unmask = 50 if 'masking' in args.optimization else 500
@@ -76,7 +79,7 @@ def run():
     optimization = '-'.join([optimization, str(args.delta)]) if args.optimization!='' else args.delta
     model_type = args.model_type
     model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-    path = f'results/mp/{model_type}/{dataset_name}/{sorting}/{seed}/{optimization}'
+    path = f'results2/mp/{model_type}/{dataset_name}/{sorting}/{seed}/{optimization}'
     
     ds = get_ds(dataset_name)
         
@@ -95,7 +98,7 @@ def run():
         os.makedirs(path)
 
     if do_ignore:
-        ignored = get_ignored(anchor_examples)
+        ignored = get_ignored(anchor_examples, min_value)
     else:
         ignored = []
 

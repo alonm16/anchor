@@ -11,7 +11,6 @@ import copy
 import pandas as pd
 import seaborn as sns
 import os
-import sys
 import simple_colors
 from score import ScoreUtils
 from myUtils import set_seed, get_stopwords
@@ -23,17 +22,16 @@ colors = [simple_colors.red, simple_colors.blue, simple_colors.cyan,
 
 class AOPC_Plotter:
     @staticmethod
-    def aopc_plot(pos_df, neg_df, xlabel, ylabel, hue, legend, title, limit=False, limit_normalizer=None):
-        if limit and 'time (minutes)' == xlabel:
-            pos_limit = pos_df[pos_df[hue]==str(limit_normalizer)]['time (minutes)'].iloc[-1]
-            neg_limit = neg_df[neg_df[hue]==str(limit_normalizer)]['time (minutes)'].iloc[-1]
-            pos_df = pos_df[pos_df['time (minutes)'] <= pos_limit*0.2]
-            neg_df = neg_df[neg_df['time (minutes)'] <= neg_limit*0.2]
-            title += ' limit'
+    def aopc_plot(pos_df, neg_df, xlabel, ylabel, hue, legend, title, limiter):
         fig, axs = plt.subplots(1, 2, figsize=(10, 3))
+        max_x = max(df[xlabel].max() for df in [pos_df, neg_df])
+        max_y = max(df[ylabel].max() for df in [pos_df, neg_df])
+        min_y = min(df[ylabel].min() for df in [pos_df, neg_df])
         for ax, df, type_title in zip(axs, [pos_df, neg_df], ['positive', 'negative']): 
-            sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend=legend, ax=ax, palette=sns.color_palette()).set(title=type_title)
+            sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend=legend, ax=ax, palette=sns.color_palette()).set(title=type_title, xlim=(0, max_x), ylim=(min_y, max_y))
             ax.grid()
+            if limiter:
+                ax.axvline(x = 0.2*max_x, ymin = 0, ymax = max_y, color = 'black', linestyle=':')
         fig.suptitle(title)
         axs[0].legend().remove()
         plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
@@ -105,10 +103,11 @@ class AOPC:
     def _predict_scores(self, sentences):
         pad = max(len(s) for s in sentences)
         input_ids = [[101] +[self.tokenizer.vocab[token] for token in tokens] + [102] + [0]*(pad-len(tokens)) for tokens in sentences]
-        input_ids = torch.tensor(input_ids, device=self.device)
-        attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
-        attention_mask = torch.tensor(attention_mask, device=self.device)
-        outputs = softmax(self.model(input_ids = input_ids, attention_mask=attention_mask)[0])
+        #input_ids = torch.tensor(input_ids, device=self.device)
+        # attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
+        # attention_mask = torch.tensor(attention_mask, device=self.device)
+        # outputs = softmax(self.model(input_ids = input_ids, attention_mask=attention_mask)[0])
+        outputs = softmax(self.model(input_ids)[0])
         return outputs.cpu().numpy()
     
     def _aopc_predictions(self, sentences_arr, label):
@@ -302,7 +301,7 @@ class AOPC:
                 continue
             if c in skip:
                 continue
-            elif c in from_img:
+            elif True:#c in from_img:
                 pos_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_pos_aopc.csv', index_col=0)
                 neg_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_neg_aopc.csv', index_col=0)
                 legends = list(pos_df.iloc[:, -1].unique())
@@ -317,11 +316,10 @@ class AOPC:
                 pos_tok_arr = [pickle.load(open(f"{self.path}42/{self.opt_prefix}tokens/{l}_pos_tokens.pickle", "rb")) for l in legends]
                 neg_tok_arr = [pickle.load(open(f"{self.path}42/{self.opt_prefix}tokens/{l}_neg_tokens.pickle", "rb")) for l in legends]
                 self.print_tokens(legends, pos_tok_arr, neg_tok_arr)
-                
+                limiter=False
                 if c in ['percents time', 'aopc time']:
-                    c_title = f'{self.ds_name} dataset {c.split()[0]} evaluation'
-                    plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, True, self.delta)
-                plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title)
+                    limiter=True
+                plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, limiter)
                 
             else:
                 pos_df, neg_df = pd.DataFrame(), pd.DataFrame()
@@ -338,9 +336,11 @@ class AOPC:
                     neg_normalizer = neg_df[neg_df[hue]==str(normalizer)].iloc[-1, 1]
                     pos_df.iloc[:, 1]/=pos_normalizer
                     neg_df.iloc[:, 1]/=neg_normalizer
-                plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title)
+                limiter=False
                 if c in ['percents time', 'aopc time']:
-                    plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, True, normalizer) 
+                    limiter=True
+                plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, limiter)
+
                 
     def time_percent_monitor(self, opts, alpha=0.95):
         """
