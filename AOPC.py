@@ -53,7 +53,7 @@ class AOPC_Plotter:
         fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
 
 class AOPC:
-    def __init__(self, path, tokenizer, delta=0.1, alpha=0.95, num_removes = 30, base_opt=None):
+    def __init__(self, path, tokenizer, delta=0.1, alpha=0.5, num_removes = 30, base_opt=None):
         self.opt_prefix = f'{base_opt}-' if base_opt else ''
         self.model_type, self.ds_name = path.split('/')[-4:-2]
         self.sentences = pickle.load(open(f"{path}42/{self.opt_prefix}{delta}/anchor_examples.pickle", "rb" ))
@@ -103,11 +103,11 @@ class AOPC:
     def _predict_scores(self, sentences):
         pad = max(len(s) for s in sentences)
         input_ids = [[101] +[self.tokenizer.vocab[token] for token in tokens] + [102] + [0]*(pad-len(tokens)) for tokens in sentences]
-        #input_ids = torch.tensor(input_ids, device=self.device)
-        # attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
-        # attention_mask = torch.tensor(attention_mask, device=self.device)
-        # outputs = softmax(self.model(input_ids = input_ids, attention_mask=attention_mask)[0])
-        outputs = softmax(self.model(input_ids)[0])
+        input_ids = torch.tensor(input_ids, device=self.device)
+        attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
+        attention_mask = torch.tensor(attention_mask, device=self.device)
+        outputs = softmax(self.model(input_ids = input_ids, attention_mask=attention_mask)[0])
+        #outputs = softmax(self.model(input_ids)[0])
         return outputs.cpu().numpy()
     
     def _aopc_predictions(self, sentences_arr, label):
@@ -319,6 +319,7 @@ class AOPC:
                 limiter=False
                 if c in ['percents time', 'aopc time']:
                     limiter=True
+                    c_title = self.title + f' {c.split()[0]} evaluation'
                 plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, limiter)
                 
             else:
