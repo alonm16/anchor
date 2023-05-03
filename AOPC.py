@@ -72,7 +72,7 @@ class AOPC:
         self.pos_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==1]
         self.neg_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==0]
         #self.opts = [str(delta), f'stop-words-{delta}', f'topk-{delta}', f'desired-{delta}', f'masking-{delta}', f'stop-words-masking-{delta}', 'stop-words-0.5', 'topk-0.5', f'stop-words-topk-{delta}', 'stop-words-topk-0.5', f'stop-words-topk-masking-{delta}', f'stop-words-topk-masking-0.5']
-        self.opts = [str(delta), f'topk-{delta}', '0.5', 'topk-0.5', 'topk-0.5', f'masking-{delta}', f'topk-masking-{delta}', f'topk-masking-0.5']
+        self.opts = [str(delta), f'topk-{delta}', '0.5', 'topk-0.5', f'masking-{delta}', f'topk-masking-{delta}', f'topk-masking-0.5', f'topk-desired-masking-{delta}', f'topk-desired-masking-0.5']
         
     def set_tokens(self, pos_tokens, neg_tokens):
         self.pos_tokens, self.neg_tokens = pos_tokens, neg_tokens
