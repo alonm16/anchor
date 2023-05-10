@@ -300,14 +300,18 @@ class AOPC:
                 continue
             if c in skip:
                 continue
-            elif True:#c in from_img:
+            elif c in from_img:
                 pos_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_pos_aopc.csv', index_col=0)
                 neg_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_neg_aopc.csv', index_col=0)
                 legends = list(pos_df.iloc[:, -1].unique())
                 xlabel, ylabel, hue = pos_df.columns
                 normalizer = normalizers[c]
-                pos_normalizer = pos_df[pos_df[hue]==normalizer].iloc[-1, 1]
-                neg_normalizer = neg_df[neg_df[hue]==normalizer].iloc[-1, 1]
+                jump = len(pos_df)//len(seeds)//len(legends)
+                jumps = list(range(jump-1, len(pos_df)//len(legends), jump))
+                pos_normalizer = pos_df[pos_df[hue].astype('str')==str(normalizer)].iloc[jumps, 1].mean()
+                jump = len(neg_df)//len(seeds)//len(legends)
+                jumps = list(range(jump-1, len(neg_df)//len(legends), jump))
+                neg_normalizer = neg_df[neg_df[hue].astype('str')==str(normalizer)].iloc[jumps, 1].mean()
                 pos_df.iloc[:, 1]/=pos_normalizer
                 neg_df.iloc[:, 1]/=neg_normalizer
                 c_title = self.title + f' {hue}'
@@ -332,8 +336,12 @@ class AOPC:
                 neg_df.to_csv(f'{self.path}/{self.opt_prefix}{c}_neg_aopc.csv')
                 
                 if normalizer:
-                    pos_normalizer = pos_df[pos_df[hue]==str(normalizer)].iloc[-1, 1]
-                    neg_normalizer = neg_df[neg_df[hue]==str(normalizer)].iloc[-1, 1]
+                    jump = len(pos_df)//len(seeds)//len(legends)
+                    jumps = list(range(jump-1, len(pos_df)//len(legends), jump))
+                    pos_normalizer = pos_df[pos_df[hue].astype('str') ==str(normalizer)].iloc[jumps, 1].mean()
+                    jump = len(neg_df)//len(seeds)//len(legends)
+                    jumps = list(range(jump-1, len(neg_df)//len(legends), jump))
+                    neg_normalizer = neg_df[neg_df[hue].astype('str') ==str(normalizer)].iloc[jumps, 1].mean()
                     pos_df.iloc[:, 1]/=pos_normalizer
                     neg_df.iloc[:, 1]/=neg_normalizer
                 limiter=False
