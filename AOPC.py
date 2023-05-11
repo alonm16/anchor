@@ -105,8 +105,11 @@ class AOPC:
         input_ids = torch.tensor(input_ids, device=self.device)
         attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
         attention_mask = torch.tensor(attention_mask, device=self.device)
-        outputs = softmax(self.model(input_ids = input_ids, attention_mask=attention_mask)[0])
-        #outputs = softmax(self.model(input_ids)[0])
+        outputs = None
+        if self.model_type == 'tinybert':
+            outputs = softmax(self.model(input_ids = input_ids, attention_mask=attention_mask)[0])
+        else:
+            outputs = softmax(self.model(input_ids)[0])
         return outputs.cpu().numpy()
     
     def _aopc_predictions(self, sentences_arr, label):
@@ -151,7 +154,7 @@ class AOPC:
         all_words = set(all_words)
 
         for word in all_words:
-            if word.startswith("##") or c_pos[word]+c_neg[word] < 10 or word in stopwords:
+            if word.startswith("##") or c_pos[word]+c_neg[word] < 10:# or word in stopwords:
                 del c_pos[word]
                 del c_neg[word]
                 continue
