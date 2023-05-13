@@ -154,7 +154,7 @@ class AOPC:
         all_words = set(all_words)
 
         for word in all_words:
-            if word.startswith("##") or c_pos[word]+c_neg[word] < 10:# or word in stopwords:
+            if word.startswith("##") or c_pos[word]+c_neg[word] < 10 or word in stopwords:
                 del c_pos[word]
                 del c_neg[word]
                 continue
@@ -303,7 +303,7 @@ class AOPC:
                 continue
             if c in skip:
                 continue
-            elif c in from_img:
+            elif True:#c in from_img:
                 pos_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_pos_aopc.csv', index_col=0)
                 neg_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_neg_aopc.csv', index_col=0)
                 legends = list(pos_df.iloc[:, -1].unique())
