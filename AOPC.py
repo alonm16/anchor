@@ -70,8 +70,8 @@ class AOPC:
         self.pos_tokens, self.neg_tokens = None, None
         self.pos_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==1]
         self.neg_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==0]
-        #self.opts = [str(delta), f'stop-words-{delta}', f'topk-{delta}', f'desired-{delta}', f'masking-{delta}', f'stop-words-masking-{delta}', 'stop-words-0.5', 'stop-words-topk-0.5', f'stop-words-topk-masking-0.5', f'stop-words-topk-desired-masking-0.5']
-        self.opts = [str(delta),  '0.5', f'topk-{delta}', 'topk-0.5', f'desired-{delta}', f'masking-{delta}', f'topk-masking-{delta}', f'topk-masking-0.5', f'topk-desired-masking-{delta}', f'topk-desired-masking-0.5']
+        self.opts = [str(delta), f'stop-words-{delta}', f'topk-{delta}', f'desired-{delta}', f'masking-{delta}', f'stop-words-masking-{delta}', 'stop-words-0.5', 'stop-words-topk-0.5', f'stop-words-topk-masking-0.5', f'stop-words-topk-desired-masking-0.5']
+        #self.opts = [str(delta),  '0.5', f'topk-{delta}', 'topk-0.5', f'desired-{delta}', f'masking-{delta}', f'topk-masking-{delta}', f'topk-masking-0.5', f'topk-desired-masking-{delta}', f'topk-desired-masking-0.5']
         
     def set_tokens(self, pos_tokens, neg_tokens):
         self.pos_tokens, self.neg_tokens = pos_tokens, neg_tokens
@@ -102,11 +102,11 @@ class AOPC:
     def _predict_scores(self, sentences):
         pad = max(len(s) for s in sentences)
         input_ids = [[101] +[self.tokenizer.vocab[token] for token in tokens] + [102] + [0]*(pad-len(tokens)) for tokens in sentences]
-        input_ids = torch.tensor(input_ids, device=self.device)
         attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
         attention_mask = torch.tensor(attention_mask, device=self.device)
         outputs = None
         if self.model_type == 'tinybert':
+            input_ids = torch.tensor(input_ids, device=self.device)
             outputs = softmax(self.model(input_ids = input_ids, attention_mask=attention_mask)[0])
         else:
             outputs = softmax(self.model(input_ids)[0])
