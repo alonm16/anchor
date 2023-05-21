@@ -9,9 +9,11 @@ from csv import writer
 import time
 from nltk.corpus import stopwords
 from collections import Counter, defaultdict
+from transformers import AutoTokenizer
 
 model = None
 tokenizer = None
+mlm_tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased', use_fast=False)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def set_seed(seed=42):
@@ -23,11 +25,28 @@ def set_seed(seed=42):
     torch.backends.cudnn.benchmark = False
 
 def predict_sentences(sentences):
-    encoded = [[101] +[tokenizer.vocab[token] for token in tokens] + [102]         
-               for tokens in sentences]
-    to_pred = torch.tensor(encoded, device=device)
-    outputs = model(to_pred)[0]
+    # to_pred = tokenizer.batch_encode_plus(sentences, padding=True, return_tensors='pt').to(device)
+    # to_pred = {'input_ids': torch.tensor(to_pred['input_ids'], device=device), 'attention_mask': 
+    # torch.tensor(to_pred['attention_mask'], device = device)}
+    # outputs = model(**to_pred)[0]
+    # return torch.argmax(outputs, dim=1).cpu().numpy()
+    sentences = [tokenizer.tokenize(s) for s in sentences]
+    pad = max(len(s) for s in sentences)
+    input_ids = [[101] +[tokenizer.vocab[token] for token in tokens] + [102] + [0]*(pad-len(tokens)) for tokens in sentences]
+    input_ids = torch.tensor(input_ids, device=device)
+    attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
+    attention_mask = torch.tensor(attention_mask, device=device)
+    inputs = {'input_ids': input_ids, 'attention_mask': attention_mask}
+    outputs = model(**inputs)[0]
     return torch.argmax(outputs, dim=1).cpu().numpy()
+
+
+# def predict_sentences(sentences):
+#     encoded = [[101] +[tokenizer.vocab[token] for token in tokens] + [102]         
+#                for tokens in sentences]
+#     to_pred = torch.tensor(encoded, device=device)
+#     outputs = model(to_pred)[0]
+#     return torch.argmax(outputs, dim=1).cpu().numpy()
     
 def old_predict_sentences(sentences):
     sentences = [tokenizer.tokenize(s) for s in sentences]
@@ -62,7 +81,7 @@ def get_ignored(anchor_sentences, min_value=1):
     def get_below_occurences(sentences):
         c = Counter()
         for sentence in sentences:
-            c.update(tokenizer.tokenize(sentence))
+            c.update(mlm_tokenizer.tokenize(sentence))
         return set(w for w in c if c[w]<=min_value)
 
     return set(stop_words).union(get_below_occurences(anchor_sentences))
@@ -70,7 +89,7 @@ def get_ignored(anchor_sentences, min_value=1):
 def get_occurences(sentences):
     c = Counter()
     for sentence in sentences:
-        c.update(tokenizer.tokenize(sentence))
+        c.update(mlm_tokenizer.tokenize(sentence))
         
     return c
 

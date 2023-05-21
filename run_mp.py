@@ -35,7 +35,11 @@ def process_compute(seed, anchor_examples, ignored, delta, dataset_name, model_t
     anchor_base.AnchorBaseBeam.best_group = bg
     if model_type=='logistic':
         device = torch.device('cpu')
-    model = load_model(f'models/{model_type}/{dataset_name}/traced_{i}.pt').to(device)
+    model = None
+    if model_type == 'deberta':
+        model = load_model(f'models/{model_type}/{dataset_name}/model').to(device)
+    else:   
+        model = load_model(f'models/{model_type}/{dataset_name}/traced_{i}.pt').to(device)
     myUtils.model = model
     myUtils.tokenizer = tokenizer
     myUtils.device = device
@@ -55,7 +59,7 @@ def run():
     sort_functions = {'polarity': sort_polarity, 'confidence': sort_confidence}
     
     parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'corona', "dilemma", 'toy-spam', 'home-spam', 'sport-spam'])
-    parser.add_argument("--model_type", default = 'tinybert', choices = ['tinybert', 'gru', 'svm', 'logistic'])
+    parser.add_argument("--model_type", default = 'tinybert', choices = ['tinybert', 'gru', 'svm', 'logistic', 'deberta'])
     parser.add_argument("--sorting", default='confidence', choices=['polarity', 'confidence'])
     parser.add_argument("--optimization", default='', choices = ['', 'topk', 'stop-words', 'desired', 'masking'], nargs = '+')
     parser.add_argument("--examples_max_length", default=200, type=int)
@@ -79,12 +83,18 @@ def run():
     optimization = '-'.join([optimization, str(args.delta)]) if args.optimization!='' else args.delta
     model_type = args.model_type
     model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-    path = f'results2/mp/{model_type}/{dataset_name}/{sorting}/{seed}/{optimization}'
+    if model_type == 'deberta':
+        model_name = 'microsoft/deberta-v3-small'
+    path = f'results/mp/{model_type}/{dataset_name}/{sorting}/{seed}/{optimization}'
     
     ds = get_ds(dataset_name)
         
     device = torch.device(f'cuda')
-    model = load_model(f'models/{model_type}/{dataset_name}/traced.pt').to(device).eval()
+    model = None
+    if model_type == 'deberta':
+        model = load_model(f'models/{model_type}/{dataset_name}/model').to(device).eval()
+    else:
+        model = load_model(f'models/{model_type}/{dataset_name}/traced.pt').to(device).eval()
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast = False)
     myUtils.model = model
     myUtils.tokenizer = tokenizer
@@ -145,7 +155,7 @@ def run():
             # Create a writer object from csv module
             csv_writer = writer(write_obj)
             # Add contents of list as last row in the csv file
-            csv_writer.writerow([path[len('results/'):], (time.time()-st)/60, do_ignore, topk_optimize, desired_optimize ,examples_max_length])
+            csv_writer.writerow(['/'.join(path.split('/')[1:]), (time.time()-st)/60, do_ignore, topk_optimize, desired_optimize ,examples_max_length])
 
             
 class CustomManager(BaseManager):

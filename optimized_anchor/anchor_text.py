@@ -217,7 +217,7 @@ class AnchorText(object):
     def get_sample_fn(self, text, classifier_fn, onepass=False, use_proba=False):
         # for changed predict_sentences
         processed = self.tg.bert_tokenizer.tokenize(text)
-        true_label = classifier_fn([processed])[0]
+        true_label = classifier_fn([text])[0]
         words = np.array(processed, dtype='|U80')
         positions = [x.idx for x in self.nlp(text)]
         # positions = list(range(len(words)))
@@ -258,7 +258,11 @@ class AnchorText(object):
             labels = []
             if compute_labels:
                 with torch.no_grad():
-                    labels = (classifier_fn(raw_data) == true_label).astype(int)
+                    tokenizer = self.tg.bert_tokenizer
+                    ids = [[tokenizer.vocab[token] for token in tokens] 
+                           for tokens in raw_data]
+                    sentences = tokenizer.batch_decode(ids)
+                    labels = (classifier_fn(sentences) == true_label).astype(int)
             labels = np.array(labels)
             return data, labels
         return words, positions, true_label, sample_fn
