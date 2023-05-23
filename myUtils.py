@@ -25,14 +25,9 @@ def set_seed(seed=42):
     torch.backends.cudnn.benchmark = False
 
 def predict_sentences(sentences):
-    # to_pred = tokenizer.batch_encode_plus(sentences, padding=True, return_tensors='pt').to(device)
-    # to_pred = {'input_ids': torch.tensor(to_pred['input_ids'], device=device), 'attention_mask': 
-    # torch.tensor(to_pred['attention_mask'], device = device)}
-    # outputs = model(**to_pred)[0]
-    # return torch.argmax(outputs, dim=1).cpu().numpy()
     sentences = [tokenizer.tokenize(s) for s in sentences]
     pad = max(len(s) for s in sentences)
-    input_ids = [[101] +[tokenizer.vocab[token] for token in tokens] + [102] + [0]*(pad-len(tokens)) for tokens in sentences]
+    input_ids = [[1] +[tokenizer.vocab[token] for token in tokens] + [2] + [0]*(pad-len(tokens)) for tokens in sentences]
     input_ids = torch.tensor(input_ids, device=device)
     attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
     attention_mask = torch.tensor(attention_mask, device=device)

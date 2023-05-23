@@ -111,9 +111,7 @@ class SentencePerturber:
             # TODO: optimize, process multiple texts, so more [0]
             w, p = self.probs([s], [tokenized_a])[0][0]
             w = [self.tg.ids_to_tokens[w_i] for w_i in w]
-            self.pr[i] =  min(0.5, dict(zip(w, p)).get(words[i], 0.01))
-            
-                
+            self.pr[i] = min(0.5, dict(zip(w, p)).get(words[i], 0.01))                
             
     # TODO: optimize, process multiple texts, and sending sentences as tokens, 
     # the sentence is encoded only once without masks, so only need to copy and change where the mask is
@@ -259,9 +257,9 @@ class AnchorText(object):
             if compute_labels:
                 with torch.no_grad():
                     tokenizer = self.tg.bert_tokenizer
-                    ids = [[tokenizer.vocab[token] for token in tokens] 
+                    ids_list = [[tokenizer.vocab[token] for token in tokens] 
                            for tokens in raw_data]
-                    sentences = tokenizer.batch_decode(ids)
+                    sentences = [tokenizer._decode(ids) for ids in ids_list]
                     labels = (classifier_fn(sentences) == true_label).astype(int)
             labels = np.array(labels)
             return data, labels
