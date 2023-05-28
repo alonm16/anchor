@@ -62,22 +62,27 @@ class AOPC:
         myUtils.model = self.model
         self.title = f"{self.ds_name} dataset"
         self.path = path
-        self.tokenizer = tokenizer
+        self.tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased', use_fast=False)
         self.tokens_method = self._remove_tokens
         self.delta = str(delta)
         self.alpha = alpha
         self.num_removes = num_removes
         self.pos_tokens, self.neg_tokens = None, None
-        self.pos_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==1]
-        self.neg_sentences = [tokenizer.tokenize(s) for i, s in enumerate(self.sentences) if self.labels[i]==0]
+        self.pos_sentences = [s for i, s in enumerate(self.sentences) if self.labels[i]==1]
+        self.neg_sentences = [s for i, s in enumerate(self.sentences) if self.labels[i]==0]
         #self.opts = [str(delta), f'stop-words-{delta}', f'topk-{delta}', f'desired-{delta}', f'masking-{delta}', f'stop-words-masking-{delta}', 'stop-words-0.5', 'stop-words-topk-0.5', f'stop-words-topk-masking-0.5', f'stop-words-topk-desired-masking-0.5']
         self.opts = [str(delta),  '0.5', f'topk-{delta}', 'topk-0.5', f'desired-{delta}', f'masking-{delta}', f'topk-masking-{delta}', f'topk-masking-0.5', f'topk-desired-masking-{delta}', f'topk-desired-masking-0.5']
+        self.model_tokenizer = tokenizer
         
     def set_tokens(self, pos_tokens, neg_tokens):
         self.pos_tokens, self.neg_tokens = pos_tokens, neg_tokens
         
     def _remove_tokens(self, idx, tokens, sentences):
-        return [['[PAD]' if token in tokens[:idx] else token for token in sentence] for sentence in sentences]
+        removed_sentences = [self.tokenizer.tokenize(s) for s in sentences]
+        removed_sentences =  [['[PAD]' if token in tokens[:idx] else token for token in sentence] for sentence in removed_sentences]
+        ids = [[self.tokenizer.vocab[token] for token in tokens] 
+                           for tokens in removed_sentences]
+        return [self.tokenizer.decode(s) for s in ids]
     
     def _replace_tokens(self, idx, tokens, sentences):
         unmasker = pipeline('fill-mask', model='distilbert-base-uncased')
@@ -98,18 +103,45 @@ class AOPC:
             replaced_sentences.append(tokenized_sentence)
         return replaced_sentences      
 
+    # @torch.no_grad()
+    # def _predict_scores(self, sentences):
+    #     pad = max(len(s) for s in sentences)
+    #     sos, eos = 101, 102
+    #     if self.model_type=='deberta':
+    #         sos, eos = 1, 2
+    #     input_ids = [[sos] +[self.tokenizer.vocab[token] for token in tokens] + [eos] + [0]*(pad-len(tokens)) for tokens in sentences]
+    #     attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
+    #     attention_mask = torch.tensor(attention_mask, device=self.device)
+    #     outputs = None
+    #     if self.model_type in ['tinybert', 'deberta']:
+    #         input_ids = torch.tensor(input_ids, device=self.device)
+    #         outputs = softmax(self.model(input_ids = input_ids, attention_mask=attention_mask)[0])
+    #     else:
+    #         outputs = softmax(self.model(input_ids)[0])
+    #     return outputs.cpu().numpy()
+    
     @torch.no_grad()
-    def _predict_scores(self, sentences):
+    def _predict_scores_inner(self, sentences):
         pad = max(len(s) for s in sentences)
-        input_ids = [[101] +[self.tokenizer.vocab[token] for token in tokens] + [102] + [0]*(pad-len(tokens)) for tokens in sentences]
+        sos, eos = 101, 102
+        if self.model_type=='deberta':
+            inputs = self.model_tokenizer(sentences, padding=True, return_tensors ='pt').to(self.device)
+            return softmax(self.model(**inputs)[0])
+            
         attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
         attention_mask = torch.tensor(attention_mask, device=self.device)
         outputs = None
-        if self.model_type == 'tinybert':
+        if self.model_type=='deberta':
             input_ids = torch.tensor(input_ids, device=self.device)
             outputs = softmax(self.model(input_ids = input_ids, attention_mask=attention_mask)[0])
         else:
             outputs = softmax(self.model(input_ids)[0])
+        return outputs
+    
+    @torch.no_grad()
+    def _predict_scores(self, sentences):
+        outputs = [self._predict_scores_inner(sentences[i: i+300]) for i in range(0, len(sentences), 300)]
+        outputs = torch.cat(outputs)
         return outputs.cpu().numpy()
     
     def _aopc_predictions(self, sentences_arr, label):
@@ -145,9 +177,9 @@ class AOPC:
         
         for sentence, label in zip(sentences, labels):
             if label == 1:
-                c_pos.update(sentence)
+                c_pos.update(tokenizer.tokenize(sentence))
             else:
-                c_neg.update(sentence)
+                c_neg.update(tokenizer.tokenize(sentence))
 
         all_words = list(c_pos.keys())
         all_words.extend(c_neg.keys())
