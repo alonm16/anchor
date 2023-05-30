@@ -71,8 +71,10 @@ class AOPC:
         self.pos_sentences = [s for i, s in enumerate(self.sentences) if self.labels[i]==1]
         self.neg_sentences = [s for i, s in enumerate(self.sentences) if self.labels[i]==0]
         self.opts = [str(delta), f'stop-words-{delta}', f'topk-{delta}', f'desired-{delta}', f'masking-{delta}', f'stop-words-masking-{delta}', 'stop-words-0.5', 'stop-words-topk-0.5', f'stop-words-topk-masking-0.5', f'stop-words-topk-desired-masking-0.5']
-        #self.opts = [str(delta),  '0.5', f'topk-{delta}', 'topk-0.5', f'desired-{delta}', f'masking-{delta}', f'topk-masking-{delta}', f'topk-masking-0.5', f'topk-desired-masking-{delta}', f'topk-desired-masking-0.5']
+        if self.opt_prefix != '':
+            self.opts = [str(delta),  '0.5', f'topk-{delta}', 'topk-0.5', f'desired-{delta}', f'masking-{delta}', f'topk-masking-{delta}', f'topk-masking-0.5', f'topk-desired-masking-{delta}', f'topk-desired-masking-0.5']
         self.model_tokenizer = tokenizer
+        self.predictions = pickle.load(open(f"{path}42/{self.opt_prefix}0.1/predictions.pickle", "rb" ))
         
     def set_tokens(self, pos_tokens, neg_tokens):
         self.pos_tokens, self.neg_tokens = pos_tokens, neg_tokens
@@ -393,14 +395,14 @@ class AOPC:
         get_exps = lambda opt: pickle.load(open(f"{self.seed_path}{opt}/exps_list.pickle", "rb"))
         times = pd.read_csv('times.csv', index_col=0)
         pos_percent = sum(self.labels)/len(self.labels)
-        default_res = ScoreUtils.calculate_time_scores(self.tokenizer, self.sentences, get_exps(self.delta), self.labels, [alpha])[alpha]
+        default_res = ScoreUtils.calculate_time_scores(self.tokenizer, self.sentences, get_exps(self.delta), self.predictions, [alpha])[alpha]
         final_top_pos = set(default_res['pos'][100].index[:top])
         final_top_neg = set(default_res['neg'][100].index[:top])
         pos_df = pd.DataFrame(columns = ['time (minutes)', "percents", "optimization"])
         neg_df = pd.DataFrame(columns = pos_df.columns)
 
         for opt in opts:
-            percents_dict = ScoreUtils.calculate_time_scores(self.tokenizer, self.sentences, get_exps(opt), self.labels, [alpha])[alpha]
+            percents_dict = ScoreUtils.calculate_time_scores(self.tokenizer, self.sentences, get_exps(opt), self.predictions, [alpha])[alpha]
             pos_results, neg_results = [], []
             percents = percents_dict['pos'].keys()
             for i in percents:
@@ -431,7 +433,7 @@ class AOPC:
 
         for opt in opts:
             pos_results, neg_results = [], []
-            percents_dict = ScoreUtils.calculate_time_scores(self.tokenizer, self.sentences, get_exps(opt), self.labels, [alpha])[alpha]
+            percents_dict = ScoreUtils.calculate_time_scores(self.tokenizer, self.sentences, get_exps(opt), self.predictions, [alpha])[alpha]
             percents = percents_dict['pos'].keys()
             for i in percents:
                 top_pos = list(percents_dict['pos'][i].index[:top])
