@@ -123,28 +123,19 @@ class AOPC:
     #     return outputs.cpu().numpy()
     
     @torch.no_grad()
-    def _predict_scores_inner(self, sentences):
-        pad = max(len(s) for s in sentences)
-        sos, eos = 101, 102
-        if self.model_type=='deberta':
-            inputs = self.model_tokenizer(sentences, padding=True, return_tensors ='pt').to(self.device)
-            return softmax(self.model(**inputs)[0])
-            
-        attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
-        attention_mask = torch.tensor(attention_mask, device=self.device)
-        outputs = None
-        if self.model_type=='deberta':
-            input_ids = torch.tensor(input_ids, device=self.device)
-            outputs = softmax(self.model(input_ids = input_ids, attention_mask=attention_mask)[0])
-        else:
-            outputs = softmax(self.model(input_ids)[0])
-        return outputs
-    
-    @torch.no_grad()
     def _predict_scores(self, sentences):
-        outputs = [self._predict_scores_inner(sentences[i: i+300]) for i in range(0, len(sentences), 300)]
-        outputs = torch.cat(outputs)
-        return outputs.cpu().numpy()
+        if self.model_type in ['deberta', 'tinybert']:
+            inputs = self.model_tokenizer(sentences, padding=True, return_tensors ='pt').to(self.device)
+            return softmax(self.model(**inputs)[0]).cpu().numpy()
+
+        return softmax(self.model(input_ids)[0])
+    
+    # @torch.no_grad()
+    # def _predict_scores(self, sentences):
+    #     batch = 500
+    #     outputs = [self._predict_scores_inner(sentences[i: i+batch]) for i in range(0, len(sentences), batch)]
+    #     outputs = torch.cat(outputs)
+    #     return outputs.cpu().numpy()
     
     def _aopc_predictions(self, sentences_arr, label):
         return np.array([self._predict_scores(sentences)[:, label] for sentences in sentences_arr])
@@ -328,16 +319,16 @@ class AOPC:
         if not verbose:
             global print
             print = lambda *x: None
-        compares = {'sorts': self.compare_sorts, 'delta': self.compare_deltas, 'alpha': self.compare_alphas, 'optimization': self.compare_optimizations, 'aggregation': self.compare_aggregations, 'percent': self.compare_percents, 'percents-remove': self.compare_percents_remove, 'percents time': self.time_percent, 'aopc time': self.time_aopc}
+        compares = {'sorts': self.compare_sorts, 'delta': self.compare_deltas, 'alpha': self.compare_alphas, 'aggregation': self.compare_aggregations, 'percent': self.compare_percents, 'percents-remove': self.compare_percents_remove, 'optimization': self.compare_optimizations, 'percents time': self.time_percent, 'aopc time': self.time_aopc}
         
-        normalizers =  dict(zip(compares.keys(),['normal', 0.1, 0.95, self.delta, 'probabilistic α=0.95', 100, 100, self.delta, self.delta]))
+        normalizers = dict(zip(compares.keys(),['normal', 0.1, 0.95, 'probabilistic α=0.95', 100, 100, self.delta, self.delta, self.delta]))
         
         for c in compares:
             if only and c not in only:
                 continue
             if c in skip:
                 continue
-            elif True:#c in from_img:
+            elif c in from_img:
                 pos_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_pos_aopc.csv', index_col=0)
                 neg_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_neg_aopc.csv', index_col=0)
                 legends = list(pos_df.iloc[:, -1].unique())

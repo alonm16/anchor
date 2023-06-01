@@ -124,7 +124,6 @@ class ScoreUtils:
         aggs = {'sum': ScoreUtils.calculate_sum, 'avg': ScoreUtils.calculate_avg}
         alphas = [0.95, 0.8, 0.65, 0.5]
         anchor_occurences, pos_occurences, neg_occurences, normal_occurences = ScoreUtils.get_occurences(sentences, exps, labels, tokenizer)
-        
         df_pos, df_neg = [], []
 
         teta_pos = aggs[agg_name](pos_occurences, normal_occurences, min_count, len(sentences))
@@ -198,7 +197,7 @@ class ScoreUtils:
                 df.to_excel(writer, startrow=1, startcol=cur_col)
                 writer.book.worksheets()[0].write(0, cur_col, f'{alpha}-{cur_type}')
                 cur_col+= len(ScoreUtils.columns) + 1
-                
+
     @staticmethod
     def calculate_time_scores(tokenizer, sentences, exps, labels, alphas = [0.95, 0.8, 0.65, 0.5]):
         """ calculates the scores for specific time during the running of anchor """
@@ -214,7 +213,7 @@ class ScoreUtils:
 
             neg_index = int(percent*len(neg_sentences)/100)
             neg_exps = list(filter(lambda e: labels[e.index]==0 and neg_indices.index(e.index)<=neg_index, exps))
-            
+
             sentences = pos_sentences[:pos_index] + neg_sentences[:neg_index]
             
             anchor_occurences, pos_occurences, neg_occurences, normal_occurences = ScoreUtils.get_occurences(sentences, pos_exps+neg_exps, labels, tokenizer)
