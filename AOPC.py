@@ -128,7 +128,11 @@ class AOPC:
             inputs = self.model_tokenizer(sentences, padding=True, return_tensors ='pt').to(self.device)
             return softmax(self.model(**inputs)[0]).cpu().numpy()
 
-        return softmax(self.model(input_ids)[0])
+        t_sentences = [self.model_tokenizer.tokenize(s) for s in sentences]
+        pad = max(len(s) for s in t_sentences)
+        input_ids = [[101] +[self.model_tokenizer.vocab[token] for token in tokens] + [102] + [0]*(pad-len(tokens)) for tokens in t_sentences]
+        res = softmax(self.model(input_ids)[0])
+        return softmax(self.model(input_ids)[0]).cpu().numpy()
     
     # @torch.no_grad()
     # def _predict_scores(self, sentences):
@@ -328,7 +332,7 @@ class AOPC:
                 continue
             if c in skip:
                 continue
-            elif c in from_img:
+            elif True:#c in from_img:
                 pos_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_pos_aopc.csv', index_col=0)
                 neg_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_neg_aopc.csv', index_col=0)
                 legends = list(pos_df.iloc[:, -1].unique())

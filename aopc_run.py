@@ -21,15 +21,13 @@ tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast = False)
 myUtils.tokenizer = tokenizer
 
 #model_type = 'deberta'
-model_type = 'tinybert'
-aopc = AOPC(f'results/mp/{model_type}/toy-spam/{sorting}/', tokenizer)
-aopc.compare_all(verbose=False, skip = ['sorts', 'alpha', 'delta', 'aggregation'])
-for ds_name in ['corona', 'home-spam', 'dilemma']:
+model_type = 'logistic'
+for ds_name in ['toy-spam']:
     path = f'results/mp/{model_type}/{ds_name}/{sorting}/'
 
     aopc = AOPC(path, tokenizer)
-    aopc.compare_all(verbose=False, only = ['percents time', 'aopc time'])
+    aopc.compare_all( only = ['percents time', 'aopc time'])
 
     aopc = AOPC(path, tokenizer, base_opt = 'stop-words')
-    aopc.compare_all(verbose=False, only = ['percents time', 'aopc time'])
+    aopc.compare_all( only = ['percents time', 'aopc time'])
 
