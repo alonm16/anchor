@@ -28,10 +28,10 @@ def process_compute(seed, anchor_examples, ignored, delta, dataset_name, model_t
     
     nlp = spacy.load('en_core_web_sm')    
     device = torch.device(f'cuda:{i}')
-    explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False)
-    my_utils = TextUtils(anchor_examples, explainer, myUtils.old_predict_sentences, ignored, optimize = optimize, delta = delta)
+    explainer = anchor_text.AnchorText(nlp, ['positive', 'negative'], use_unk_distribution=False, device=device)
+    my_utils = TextUtils(anchor_examples, explainer, myUtils.predict_sentences, ignored, optimize = optimize, delta = delta)
 
-    model = load_model(f'models/{model_type}/{dataset_name}/traced_{i}.pt').to(device)
+    model = load_model(f'models/{model_type}/{dataset_name}/model').to(device)
     myUtils.model = model
     myUtils.tokenizer = tokenizer
     myUtils.device = device
@@ -67,7 +67,7 @@ def run():
     seed = args.seed
     model_type = args.model_type
     model_name = 'huawei-noah/TinyBERT_General_4L_312D'
-    path = f'results/mp/{model_type}/{dataset_name}/{sorting}/{seed}/original'
+    path = f'results2/mp/{model_type}/{dataset_name}/{sorting}/{seed}/original'
     
     ds = get_ds(dataset_name)
         
