@@ -28,8 +28,8 @@ class ScoreUtils:
     def get_normal_occurences(sentences, anchor_occurences, tokenizer):
         c = Counter()
         for sentence in sentences:
+            #c.update([x.text for x in tokenizer(sentence)])
             c.update(tokenizer.tokenize(sentence))
-            
         c.subtract(anchor_occurences)
         return c
     
