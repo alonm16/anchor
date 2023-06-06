@@ -1,84 +1,24 @@
 ,time (minutes),percents,optimization
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    0.585685
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    0.589997
-Name: time, dtype: float64",0.7,0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.171370
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.179995
-Name: time, dtype: float64",0.8666666666666667,0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.757055
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.769992
-Name: time, dtype: float64",0.8666666666666667,0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.342740
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.359989
-Name: time, dtype: float64",0.8666666666666667,0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.928425
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.949986
-Name: time, dtype: float64",0.9,0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    3.514110
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    3.539984
-Name: time, dtype: float64",0.9333333333333333,0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.099795
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.129981
-Name: time, dtype: float64",0.9333333333333333,0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.685481
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.719978
-Name: time, dtype: float64",0.9666666666666667,0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.271166
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.309976
-Name: time, dtype: float64",0.9666666666666667,0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.856851
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.899973
-Name: time, dtype: float64",0.9666666666666667,0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    6.442536
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    6.489970
-Name: time, dtype: float64",0.9666666666666667,0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.028221
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.079967
-Name: time, dtype: float64",0.9666666666666667,0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.613906
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.669965
-Name: time, dtype: float64",0.9666666666666667,0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.199591
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.259962
-Name: time, dtype: float64",1.0,0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.785276
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.849959
-Name: time, dtype: float64",0.9666666666666667,0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    9.370961
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    9.439957
-Name: time, dtype: float64",0.9666666666666667,0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1     9.956646
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    10.029954
-Name: time, dtype: float64",1.0,0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    10.542331
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    10.619951
-Name: time, dtype: float64",1.0,0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.128016
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.209948
-Name: time, dtype: float64",1.0,0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.713701
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.799946
-Name: time, dtype: float64",1.0,0.1
+0,0.589997285004143,0.7,0.1
+1,1.179994570008286,0.8666666666666667,0.1
+2,1.769991855012429,0.8666666666666667,0.1
+3,2.359989140016572,0.8666666666666667,0.1
+4,2.9499864250207146,0.9,0.1
+5,3.539983710024858,0.9333333333333333,0.1
+6,4.129980995029,0.9333333333333333,0.1
+7,4.719978280033144,0.9666666666666667,0.1
+8,5.309975565037287,0.9666666666666667,0.1
+9,5.899972850041429,0.9666666666666667,0.1
+10,6.4899701350455725,0.9666666666666667,0.1
+11,7.079967420049716,0.9666666666666667,0.1
+12,7.669964705053858,0.9666666666666667,0.1
+13,8.259961990058,1.0,0.1
+14,8.849959275062144,0.9666666666666667,0.1
+15,9.439956560066287,0.9666666666666667,0.1
+16,10.02995384507043,1.0,0.1
+17,10.619951130074574,1.0,0.1
+18,11.209948415078715,1.0,0.1
+19,11.799945700082858,1.0,0.1
 0,0.1949447464744,0.7,0.5
 1,0.3898894929488,0.7666666666666667,0.5
 2,0.5848342394232,0.7666666666666667,0.5
@@ -99,86 +39,26 @@ Name: time, dtype: float64",1.0,0.1
 17,3.5090054365392,0.9333333333333333,0.5
 18,3.7039501830136006,0.9333333333333333,0.5
 19,3.898894929488,0.9333333333333333,0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.425912
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.427740
-Name: time, dtype: float64",0.7,topk-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.851825
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.855481
-Name: time, dtype: float64",0.8666666666666667,topk-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.277737
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.283221
-Name: time, dtype: float64",0.8333333333333334,topk-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.703650
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.710962
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.129562
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.138702
-Name: time, dtype: float64",0.8666666666666667,topk-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.555475
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.566443
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.981387
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.994183
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.407300
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.421924
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.833212
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.849664
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.259125
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.277404
-Name: time, dtype: float64",0.9666666666666667,topk-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.685037
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.705145
-Name: time, dtype: float64",0.9666666666666667,topk-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.110950
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.132885
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.536862
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.560626
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.962775
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.988366
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.388687
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.416107
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.814600
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.843847
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.240512
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.271588
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.666425
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.699328
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.092337
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.127069
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.518250
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.554809
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
+0,0.4277404474527142,0.7,topk-0.1
+1,0.8554808949054284,0.8666666666666667,topk-0.1
+2,1.2832213423581427,0.8333333333333334,topk-0.1
+3,1.710961789810857,0.9333333333333333,topk-0.1
+4,2.1387022372635713,0.8666666666666667,topk-0.1
+5,2.5664426847162853,0.9333333333333333,topk-0.1
+6,2.9941831321690002,0.9333333333333333,topk-0.1
+7,3.421923579621714,0.9333333333333333,topk-0.1
+8,3.8496640270744287,0.9333333333333333,topk-0.1
+9,4.277404474527143,0.9666666666666667,topk-0.1
+10,4.705144921979857,0.9666666666666667,topk-0.1
+11,5.132885369432571,0.9333333333333333,topk-0.1
+12,5.560625816885286,0.9333333333333333,topk-0.1
+13,5.9883662643380005,0.9333333333333333,topk-0.1
+14,6.416106711790714,0.9333333333333333,topk-0.1
+15,6.843847159243428,0.9333333333333333,topk-0.1
+16,7.2715876066961425,0.9333333333333333,topk-0.1
+17,7.699328054148857,0.9333333333333333,topk-0.1
+18,8.127068501601572,0.9333333333333333,topk-0.1
+19,8.554808949054285,0.9333333333333333,topk-0.1
 0,0.15856623784568571,0.7333333333333333,topk-0.5
 1,0.31713247569137143,0.8333333333333334,topk-0.5
 2,0.4756987135370572,0.8666666666666667,topk-0.5
@@ -199,246 +79,66 @@ Name: time, dtype: float64",0.9333333333333333,topk-0.1
 17,2.854192281222343,0.9333333333333333,topk-0.5
 18,3.012758519068029,0.9333333333333333,topk-0.5
 19,3.171324756913714,0.9333333333333333,topk-0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.345796
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.338140
-Name: time, dtype: float64",0.6,desired-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.691591
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.676280
-Name: time, dtype: float64",0.7,desired-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.037387
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.014420
-Name: time, dtype: float64",0.7,desired-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.383182
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.352561
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.728978
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.690701
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.074774
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.028841
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.420569
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.366981
-Name: time, dtype: float64",0.7,desired-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.766365
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.705121
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.112160
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.043261
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.457956
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.381401
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.803752
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.719541
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.149547
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.057682
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.495343
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.395822
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.841138
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.733962
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.186934
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.072102
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.532729
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.410242
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.878525
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.748382
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.224321
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.086522
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.570116
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.424663
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.915912
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.762803
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    0.503599
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    0.491082
-Name: time, dtype: float64",0.6333333333333333,masking-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.007198
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    0.982164
-Name: time, dtype: float64",0.7333333333333333,masking-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.510797
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.473247
-Name: time, dtype: float64",0.7666666666666667,masking-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.014396
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.964329
-Name: time, dtype: float64",0.8333333333333334,masking-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.517994
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.455411
-Name: time, dtype: float64",0.8,masking-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.021593
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.946493
-Name: time, dtype: float64",0.8333333333333334,masking-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.525192
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.437576
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.028791
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.928658
-Name: time, dtype: float64",0.8333333333333334,masking-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.53239
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.41974
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.035989
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.910822
-Name: time, dtype: float64",0.9,masking-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.539588
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.401904
-Name: time, dtype: float64",0.9,masking-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.043187
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.892987
-Name: time, dtype: float64",0.9,masking-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.546785
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.384069
-Name: time, dtype: float64",0.9,masking-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.050384
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.875151
-Name: time, dtype: float64",0.9,masking-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.553983
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.366233
-Name: time, dtype: float64",0.9,masking-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.057582
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.857316
-Name: time, dtype: float64",0.9,masking-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.561181
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.348398
-Name: time, dtype: float64",0.9,masking-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    9.06478
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.83948
-Name: time, dtype: float64",0.9,masking-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    9.568379
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    9.330562
-Name: time, dtype: float64",0.9,masking-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    10.071978
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1     9.821644
-Name: time, dtype: float64",0.9,masking-0.1
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.341394
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.346190
-Name: time, dtype: float64",0.6333333333333333,topk-masking-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.682787
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.692380
-Name: time, dtype: float64",0.7333333333333333,topk-masking-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.024181
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.038570
-Name: time, dtype: float64",0.8,topk-masking-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.365575
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.384760
-Name: time, dtype: float64",0.8,topk-masking-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.706968
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.730950
-Name: time, dtype: float64",0.8333333333333334,topk-masking-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.048362
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.077140
-Name: time, dtype: float64",0.8333333333333334,topk-masking-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.389756
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.423330
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.73115
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.76952
-Name: time, dtype: float64",0.9,topk-masking-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.072543
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.115710
-Name: time, dtype: float64",0.9333333333333333,topk-masking-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.413937
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.461900
-Name: time, dtype: float64",0.9333333333333333,topk-masking-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.755331
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.808090
-Name: time, dtype: float64",0.9333333333333333,topk-masking-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.096724
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.154280
-Name: time, dtype: float64",0.9333333333333333,topk-masking-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.438118
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.500470
-Name: time, dtype: float64",0.9333333333333333,topk-masking-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.779512
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.846660
-Name: time, dtype: float64",0.9333333333333333,topk-masking-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.120905
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.192850
-Name: time, dtype: float64",0.9333333333333333,topk-masking-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.462299
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.539040
-Name: time, dtype: float64",0.9333333333333333,topk-masking-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.803693
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.885230
-Name: time, dtype: float64",0.9333333333333333,topk-masking-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.145087
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.231420
-Name: time, dtype: float64",0.9333333333333333,topk-masking-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.48648
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.57761
-Name: time, dtype: float64",0.9333333333333333,topk-masking-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.827874
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.923800
-Name: time, dtype: float64",0.9333333333333333,topk-masking-0.1
+0,0.33814013390285713,0.6,desired-0.1
+1,0.6762802678057143,0.7,desired-0.1
+2,1.0144204017085716,0.7,desired-0.1
+3,1.3525605356114285,0.7333333333333333,desired-0.1
+4,1.690700669514286,0.7333333333333333,desired-0.1
+5,2.0288408034171432,0.7333333333333333,desired-0.1
+6,2.36698093732,0.7,desired-0.1
+7,2.705121071222857,0.7333333333333333,desired-0.1
+8,3.0432612051257144,0.7333333333333333,desired-0.1
+9,3.381401339028572,0.7333333333333333,desired-0.1
+10,3.719541472931429,0.7666666666666667,desired-0.1
+11,4.0576816068342865,0.7333333333333333,desired-0.1
+12,4.395821740737143,0.7333333333333333,desired-0.1
+13,4.73396187464,0.7333333333333333,desired-0.1
+14,5.072102008542857,0.7666666666666667,desired-0.1
+15,5.410242142445714,0.7666666666666667,desired-0.1
+16,5.748382276348572,0.7666666666666667,desired-0.1
+17,6.086522410251429,0.7666666666666667,desired-0.1
+18,6.424662544154286,0.7666666666666667,desired-0.1
+19,6.762802678057144,0.7666666666666667,desired-0.1
+0,0.4910822245062857,0.6333333333333333,masking-0.1
+1,0.9821644490125714,0.7333333333333333,masking-0.1
+2,1.473246673518857,0.7666666666666667,masking-0.1
+3,1.9643288980251428,0.8333333333333334,masking-0.1
+4,2.4554111225314283,0.8,masking-0.1
+5,2.946493347037714,0.8333333333333334,masking-0.1
+6,3.437575571544,0.8666666666666667,masking-0.1
+7,3.9286577960502855,0.8333333333333334,masking-0.1
+8,4.419740020556571,0.8666666666666667,masking-0.1
+9,4.910822245062857,0.9,masking-0.1
+10,5.401904469569143,0.9,masking-0.1
+11,5.892986694075428,0.9,masking-0.1
+12,6.384068918581713,0.9,masking-0.1
+13,6.875151143088,0.9,masking-0.1
+14,7.366233367594285,0.9,masking-0.1
+15,7.857315592100571,0.9,masking-0.1
+16,8.348397816606855,0.9,masking-0.1
+17,8.839480041113141,0.9,masking-0.1
+18,9.330562265619427,0.9,masking-0.1
+19,9.821644490125713,0.9,masking-0.1
+0,0.34618998391328576,0.6333333333333333,topk-masking-0.1
+1,0.6923799678265715,0.7333333333333333,topk-masking-0.1
+2,1.0385699517398572,0.8,topk-masking-0.1
+3,1.384759935653143,0.8,topk-masking-0.1
+4,1.7309499195664286,0.8333333333333334,topk-masking-0.1
+5,2.0771399034797144,0.8333333333333334,topk-masking-0.1
+6,2.4233298873930003,0.8666666666666667,topk-masking-0.1
+7,2.769519871306286,0.9,topk-masking-0.1
+8,3.1157098552195714,0.9333333333333333,topk-masking-0.1
+9,3.4618998391328573,0.9333333333333333,topk-masking-0.1
+10,3.808089823046143,0.9333333333333333,topk-masking-0.1
+11,4.154279806959429,0.9333333333333333,topk-masking-0.1
+12,4.500469790872715,0.9333333333333333,topk-masking-0.1
+13,4.8466597747860005,0.9333333333333333,topk-masking-0.1
+14,5.192849758699286,0.9333333333333333,topk-masking-0.1
+15,5.539039742612572,0.9333333333333333,topk-masking-0.1
+16,5.885229726525857,0.9333333333333333,topk-masking-0.1
+17,6.231419710439143,0.9333333333333333,topk-masking-0.1
+18,6.577609694352429,0.9333333333333333,topk-masking-0.1
+19,6.9237996782657145,0.9333333333333333,topk-masking-0.1
 0,0.13375132342757146,0.7,topk-masking-0.5
 1,0.2675026468551429,0.7666666666666667,topk-masking-0.5
 2,0.4012539702827143,0.7666666666666667,topk-masking-0.5
@@ -459,86 +159,26 @@ Name: time, dtype: float64",0.9333333333333333,topk-masking-0.1
 17,2.407523821696286,0.8333333333333334,topk-masking-0.5
 18,2.541275145123857,0.8333333333333334,topk-masking-0.5
 19,2.6750264685514287,0.8333333333333334,topk-masking-0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.232005
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.228132
-Name: time, dtype: float64",0.7,topk-desired-masking-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.464009
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.456264
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.696014
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.684396
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.928019
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.912528
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.160024
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.140660
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.392028
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.368791
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.624033
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.596923
-Name: time, dtype: float64",0.9,topk-desired-masking-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.856038
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.825055
-Name: time, dtype: float64",0.9,topk-desired-masking-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.088042
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.053187
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.320047
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.281319
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.552052
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.509451
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.784057
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.737583
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.016061
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.965715
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.248066
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.193847
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.480071
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.421979
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.712076
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.650111
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.944080
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.878243
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.176085
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.106374
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.408090
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.334506
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.640094
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.562638
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
+0,0.22813191657027146,0.7,topk-desired-masking-0.1
+1,0.4562638331405429,0.8333333333333334,topk-desired-masking-0.1
+2,0.6843957497108144,0.8333333333333334,topk-desired-masking-0.1
+3,0.9125276662810858,0.8666666666666667,topk-desired-masking-0.1
+4,1.1406595828513573,0.8666666666666667,topk-desired-masking-0.1
+5,1.3687914994216288,0.8666666666666667,topk-desired-masking-0.1
+6,1.5969234159919004,0.9,topk-desired-masking-0.1
+7,1.8250553325621717,0.9,topk-desired-masking-0.1
+8,2.053187249132443,0.8666666666666667,topk-desired-masking-0.1
+9,2.2813191657027145,0.8666666666666667,topk-desired-masking-0.1
+10,2.509451082272986,0.8666666666666667,topk-desired-masking-0.1
+11,2.7375829988432576,0.8666666666666667,topk-desired-masking-0.1
+12,2.9657149154135287,0.8666666666666667,topk-desired-masking-0.1
+13,3.1938468319838007,0.8666666666666667,topk-desired-masking-0.1
+14,3.421978748554072,0.8666666666666667,topk-desired-masking-0.1
+15,3.6501106651243433,0.8666666666666667,topk-desired-masking-0.1
+16,3.878242581694615,0.8666666666666667,topk-desired-masking-0.1
+17,4.106374498264886,0.8666666666666667,topk-desired-masking-0.1
+18,4.3345064148351575,0.8666666666666667,topk-desired-masking-0.1
+19,4.562638331405429,0.8666666666666667,topk-desired-masking-0.1
 0,0.12359193853714284,0.6,topk-desired-masking-0.5
 1,0.24718387707428569,0.6666666666666666,topk-desired-masking-0.5
 2,0.3707758156114286,0.7333333333333333,topk-desired-masking-0.5
@@ -559,86 +199,26 @@ Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
 17,2.2246548936685713,0.8,topk-desired-masking-0.5
 18,2.348246832205714,0.8,topk-desired-masking-0.5
 19,2.471838770742857,0.8,topk-desired-masking-0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    0.585685
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    0.589997
-Name: time, dtype: float64",0.7,0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.171370
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.179995
-Name: time, dtype: float64",0.8,0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.757055
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.769992
-Name: time, dtype: float64",0.8666666666666667,0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.342740
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.359989
-Name: time, dtype: float64",0.9,0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.928425
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.949986
-Name: time, dtype: float64",0.9,0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    3.514110
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    3.539984
-Name: time, dtype: float64",0.9333333333333333,0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.099795
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.129981
-Name: time, dtype: float64",0.9333333333333333,0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.685481
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.719978
-Name: time, dtype: float64",0.9333333333333333,0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.271166
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.309976
-Name: time, dtype: float64",0.9666666666666667,0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.856851
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.899973
-Name: time, dtype: float64",0.9666666666666667,0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    6.442536
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    6.489970
-Name: time, dtype: float64",0.9666666666666667,0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.028221
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.079967
-Name: time, dtype: float64",1.0,0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.613906
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.669965
-Name: time, dtype: float64",1.0,0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.199591
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.259962
-Name: time, dtype: float64",1.0,0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.785276
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.849959
-Name: time, dtype: float64",1.0,0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    9.370961
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    9.439957
-Name: time, dtype: float64",1.0,0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1     9.956646
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    10.029954
-Name: time, dtype: float64",1.0,0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    10.542331
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    10.619951
-Name: time, dtype: float64",1.0,0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.128016
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.209948
-Name: time, dtype: float64",1.0,0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.713701
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.799946
-Name: time, dtype: float64",1.0,0.1
+0,0.589997285004143,0.7,0.1
+1,1.179994570008286,0.8,0.1
+2,1.769991855012429,0.8666666666666667,0.1
+3,2.359989140016572,0.9,0.1
+4,2.9499864250207146,0.9,0.1
+5,3.539983710024858,0.9333333333333333,0.1
+6,4.129980995029,0.9333333333333333,0.1
+7,4.719978280033144,0.9333333333333333,0.1
+8,5.309975565037287,0.9666666666666667,0.1
+9,5.899972850041429,0.9666666666666667,0.1
+10,6.4899701350455725,0.9666666666666667,0.1
+11,7.079967420049716,1.0,0.1
+12,7.669964705053858,1.0,0.1
+13,8.259961990058,1.0,0.1
+14,8.849959275062144,1.0,0.1
+15,9.439956560066287,1.0,0.1
+16,10.02995384507043,1.0,0.1
+17,10.619951130074574,1.0,0.1
+18,11.209948415078715,1.0,0.1
+19,11.799945700082858,1.0,0.1
 0,0.1949447464744,0.6,0.5
 1,0.3898894929488,0.7333333333333333,0.5
 2,0.5848342394232,0.7666666666666667,0.5
@@ -659,86 +239,26 @@ Name: time, dtype: float64",1.0,0.1
 17,3.5090054365392,0.9333333333333333,0.5
 18,3.7039501830136006,0.9333333333333333,0.5
 19,3.898894929488,0.9333333333333333,0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.425912
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.427740
-Name: time, dtype: float64",0.6666666666666666,topk-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.851825
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.855481
-Name: time, dtype: float64",0.8,topk-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.277737
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.283221
-Name: time, dtype: float64",0.8333333333333334,topk-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.703650
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.710962
-Name: time, dtype: float64",0.8333333333333334,topk-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.129562
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.138702
-Name: time, dtype: float64",0.8333333333333334,topk-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.555475
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.566443
-Name: time, dtype: float64",0.8666666666666667,topk-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.981387
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.994183
-Name: time, dtype: float64",0.9,topk-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.407300
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.421924
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.833212
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.849664
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.259125
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.277404
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.685037
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.705145
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.110950
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.132885
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.536862
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.560626
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.962775
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.988366
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.388687
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.416107
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.814600
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.843847
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.240512
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.271588
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.666425
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.699328
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.092337
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.127069
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.518250
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.554809
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
+0,0.4277404474527142,0.6666666666666666,topk-0.1
+1,0.8554808949054284,0.8,topk-0.1
+2,1.2832213423581427,0.8333333333333334,topk-0.1
+3,1.710961789810857,0.8333333333333334,topk-0.1
+4,2.1387022372635713,0.8333333333333334,topk-0.1
+5,2.5664426847162853,0.8666666666666667,topk-0.1
+6,2.9941831321690002,0.9,topk-0.1
+7,3.421923579621714,0.9333333333333333,topk-0.1
+8,3.8496640270744287,0.9333333333333333,topk-0.1
+9,4.277404474527143,0.9333333333333333,topk-0.1
+10,4.705144921979857,0.9333333333333333,topk-0.1
+11,5.132885369432571,0.9333333333333333,topk-0.1
+12,5.560625816885286,0.9333333333333333,topk-0.1
+13,5.9883662643380005,0.9333333333333333,topk-0.1
+14,6.416106711790714,0.9333333333333333,topk-0.1
+15,6.843847159243428,0.9333333333333333,topk-0.1
+16,7.2715876066961425,0.9333333333333333,topk-0.1
+17,7.699328054148857,0.9333333333333333,topk-0.1
+18,8.127068501601572,0.9333333333333333,topk-0.1
+19,8.554808949054285,0.9333333333333333,topk-0.1
 0,0.15856623784568571,0.6666666666666666,topk-0.5
 1,0.31713247569137143,0.7333333333333333,topk-0.5
 2,0.4756987135370572,0.7666666666666667,topk-0.5
@@ -759,246 +279,66 @@ Name: time, dtype: float64",0.9333333333333333,topk-0.1
 17,2.854192281222343,0.9,topk-0.5
 18,3.012758519068029,0.9,topk-0.5
 19,3.171324756913714,0.9,topk-0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.345796
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.338140
-Name: time, dtype: float64",0.6,desired-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.691591
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.676280
-Name: time, dtype: float64",0.6666666666666666,desired-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.037387
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.014420
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.383182
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.352561
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.728978
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.690701
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.074774
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.028841
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.420569
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.366981
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.766365
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.705121
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.112160
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.043261
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.457956
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.381401
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.803752
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.719541
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.149547
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.057682
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.495343
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.395822
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.841138
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.733962
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.186934
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.072102
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.532729
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.410242
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.878525
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.748382
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.224321
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.086522
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.570116
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.424663
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.915912
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.762803
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    0.503599
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    0.491082
-Name: time, dtype: float64",0.6666666666666666,masking-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.007198
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    0.982164
-Name: time, dtype: float64",0.7333333333333333,masking-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.510797
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.473247
-Name: time, dtype: float64",0.7333333333333333,masking-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.014396
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.964329
-Name: time, dtype: float64",0.8,masking-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.517994
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.455411
-Name: time, dtype: float64",0.8,masking-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.021593
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.946493
-Name: time, dtype: float64",0.8333333333333334,masking-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.525192
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.437576
-Name: time, dtype: float64",0.8333333333333334,masking-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.028791
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.928658
-Name: time, dtype: float64",0.8333333333333334,masking-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.53239
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.41974
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.035989
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.910822
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.539588
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.401904
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.043187
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.892987
-Name: time, dtype: float64",0.9,masking-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.546785
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.384069
-Name: time, dtype: float64",0.9,masking-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.050384
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.875151
-Name: time, dtype: float64",0.9,masking-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.553983
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.366233
-Name: time, dtype: float64",0.9,masking-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.057582
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.857316
-Name: time, dtype: float64",0.9,masking-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.561181
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.348398
-Name: time, dtype: float64",0.9,masking-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    9.06478
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.83948
-Name: time, dtype: float64",0.9,masking-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    9.568379
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    9.330562
-Name: time, dtype: float64",0.9,masking-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    10.071978
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1     9.821644
-Name: time, dtype: float64",0.9,masking-0.1
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.341394
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.346190
-Name: time, dtype: float64",0.6666666666666666,topk-masking-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.682787
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.692380
-Name: time, dtype: float64",0.7666666666666667,topk-masking-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.024181
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.038570
-Name: time, dtype: float64",0.7333333333333333,topk-masking-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.365575
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.384760
-Name: time, dtype: float64",0.7666666666666667,topk-masking-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.706968
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.730950
-Name: time, dtype: float64",0.7666666666666667,topk-masking-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.048362
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.077140
-Name: time, dtype: float64",0.8333333333333334,topk-masking-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.389756
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.423330
-Name: time, dtype: float64",0.8333333333333334,topk-masking-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.73115
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.76952
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.072543
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.115710
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.413937
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.461900
-Name: time, dtype: float64",0.9,topk-masking-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.755331
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.808090
-Name: time, dtype: float64",0.9,topk-masking-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.096724
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.154280
-Name: time, dtype: float64",0.9,topk-masking-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.438118
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.500470
-Name: time, dtype: float64",0.9,topk-masking-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.779512
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.846660
-Name: time, dtype: float64",0.9,topk-masking-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.120905
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.192850
-Name: time, dtype: float64",0.9,topk-masking-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.462299
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.539040
-Name: time, dtype: float64",0.9,topk-masking-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.803693
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.885230
-Name: time, dtype: float64",0.9,topk-masking-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.145087
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.231420
-Name: time, dtype: float64",0.9,topk-masking-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.48648
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.57761
-Name: time, dtype: float64",0.9,topk-masking-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.827874
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.923800
-Name: time, dtype: float64",0.9,topk-masking-0.1
+0,0.33814013390285713,0.6,desired-0.1
+1,0.6762802678057143,0.6666666666666666,desired-0.1
+2,1.0144204017085716,0.7333333333333333,desired-0.1
+3,1.3525605356114285,0.7333333333333333,desired-0.1
+4,1.690700669514286,0.7666666666666667,desired-0.1
+5,2.0288408034171432,0.7333333333333333,desired-0.1
+6,2.36698093732,0.7333333333333333,desired-0.1
+7,2.705121071222857,0.7666666666666667,desired-0.1
+8,3.0432612051257144,0.7666666666666667,desired-0.1
+9,3.381401339028572,0.7666666666666667,desired-0.1
+10,3.719541472931429,0.7666666666666667,desired-0.1
+11,4.0576816068342865,0.7666666666666667,desired-0.1
+12,4.395821740737143,0.7666666666666667,desired-0.1
+13,4.73396187464,0.7666666666666667,desired-0.1
+14,5.072102008542857,0.7666666666666667,desired-0.1
+15,5.410242142445714,0.7666666666666667,desired-0.1
+16,5.748382276348572,0.7666666666666667,desired-0.1
+17,6.086522410251429,0.7666666666666667,desired-0.1
+18,6.424662544154286,0.7666666666666667,desired-0.1
+19,6.762802678057144,0.7666666666666667,desired-0.1
+0,0.4910822245062857,0.6666666666666666,masking-0.1
+1,0.9821644490125714,0.7333333333333333,masking-0.1
+2,1.473246673518857,0.7333333333333333,masking-0.1
+3,1.9643288980251428,0.8,masking-0.1
+4,2.4554111225314283,0.8,masking-0.1
+5,2.946493347037714,0.8333333333333334,masking-0.1
+6,3.437575571544,0.8333333333333334,masking-0.1
+7,3.9286577960502855,0.8333333333333334,masking-0.1
+8,4.419740020556571,0.8666666666666667,masking-0.1
+9,4.910822245062857,0.8666666666666667,masking-0.1
+10,5.401904469569143,0.8666666666666667,masking-0.1
+11,5.892986694075428,0.9,masking-0.1
+12,6.384068918581713,0.9,masking-0.1
+13,6.875151143088,0.9,masking-0.1
+14,7.366233367594285,0.9,masking-0.1
+15,7.857315592100571,0.9,masking-0.1
+16,8.348397816606855,0.9,masking-0.1
+17,8.839480041113141,0.9,masking-0.1
+18,9.330562265619427,0.9,masking-0.1
+19,9.821644490125713,0.9,masking-0.1
+0,0.34618998391328576,0.6666666666666666,topk-masking-0.1
+1,0.6923799678265715,0.7666666666666667,topk-masking-0.1
+2,1.0385699517398572,0.7333333333333333,topk-masking-0.1
+3,1.384759935653143,0.7666666666666667,topk-masking-0.1
+4,1.7309499195664286,0.7666666666666667,topk-masking-0.1
+5,2.0771399034797144,0.8333333333333334,topk-masking-0.1
+6,2.4233298873930003,0.8333333333333334,topk-masking-0.1
+7,2.769519871306286,0.8666666666666667,topk-masking-0.1
+8,3.1157098552195714,0.8666666666666667,topk-masking-0.1
+9,3.4618998391328573,0.9,topk-masking-0.1
+10,3.808089823046143,0.9,topk-masking-0.1
+11,4.154279806959429,0.9,topk-masking-0.1
+12,4.500469790872715,0.9,topk-masking-0.1
+13,4.8466597747860005,0.9,topk-masking-0.1
+14,5.192849758699286,0.9,topk-masking-0.1
+15,5.539039742612572,0.9,topk-masking-0.1
+16,5.885229726525857,0.9,topk-masking-0.1
+17,6.231419710439143,0.9,topk-masking-0.1
+18,6.577609694352429,0.9,topk-masking-0.1
+19,6.9237996782657145,0.9,topk-masking-0.1
 0,0.13375132342757146,0.6333333333333333,topk-masking-0.5
 1,0.2675026468551429,0.7,topk-masking-0.5
 2,0.4012539702827143,0.7,topk-masking-0.5
@@ -1019,86 +359,26 @@ Name: time, dtype: float64",0.9,topk-masking-0.1
 17,2.407523821696286,0.8,topk-masking-0.5
 18,2.541275145123857,0.8,topk-masking-0.5
 19,2.6750264685514287,0.8,topk-masking-0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.232005
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.228132
-Name: time, dtype: float64",0.6666666666666666,topk-desired-masking-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.464009
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.456264
-Name: time, dtype: float64",0.7666666666666667,topk-desired-masking-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.696014
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.684396
-Name: time, dtype: float64",0.8,topk-desired-masking-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.928019
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.912528
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.160024
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.140660
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.392028
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.368791
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.624033
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.596923
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.856038
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.825055
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.088042
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.053187
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.320047
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.281319
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.552052
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.509451
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.784057
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.737583
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.016061
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.965715
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.248066
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.193847
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.480071
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.421979
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.712076
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.650111
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.944080
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.878243
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.176085
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.106374
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.408090
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.334506
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.640094
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.562638
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
+0,0.22813191657027146,0.6666666666666666,topk-desired-masking-0.1
+1,0.4562638331405429,0.7666666666666667,topk-desired-masking-0.1
+2,0.6843957497108144,0.8,topk-desired-masking-0.1
+3,0.9125276662810858,0.8333333333333334,topk-desired-masking-0.1
+4,1.1406595828513573,0.8666666666666667,topk-desired-masking-0.1
+5,1.3687914994216288,0.8666666666666667,topk-desired-masking-0.1
+6,1.5969234159919004,0.8666666666666667,topk-desired-masking-0.1
+7,1.8250553325621717,0.8666666666666667,topk-desired-masking-0.1
+8,2.053187249132443,0.8333333333333334,topk-desired-masking-0.1
+9,2.2813191657027145,0.8666666666666667,topk-desired-masking-0.1
+10,2.509451082272986,0.8333333333333334,topk-desired-masking-0.1
+11,2.7375829988432576,0.8333333333333334,topk-desired-masking-0.1
+12,2.9657149154135287,0.8333333333333334,topk-desired-masking-0.1
+13,3.1938468319838007,0.8333333333333334,topk-desired-masking-0.1
+14,3.421978748554072,0.8333333333333334,topk-desired-masking-0.1
+15,3.6501106651243433,0.8333333333333334,topk-desired-masking-0.1
+16,3.878242581694615,0.8333333333333334,topk-desired-masking-0.1
+17,4.106374498264886,0.8333333333333334,topk-desired-masking-0.1
+18,4.3345064148351575,0.8333333333333334,topk-desired-masking-0.1
+19,4.562638331405429,0.8333333333333334,topk-desired-masking-0.1
 0,0.12359193853714284,0.6666666666666666,topk-desired-masking-0.5
 1,0.24718387707428569,0.6666666666666666,topk-desired-masking-0.5
 2,0.3707758156114286,0.7,topk-desired-masking-0.5
@@ -1119,86 +399,26 @@ Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
 17,2.2246548936685713,0.7666666666666667,topk-desired-masking-0.5
 18,2.348246832205714,0.8,topk-desired-masking-0.5
 19,2.471838770742857,0.8,topk-desired-masking-0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    0.585685
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    0.589997
-Name: time, dtype: float64",0.6333333333333333,0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.171370
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.179995
-Name: time, dtype: float64",0.7666666666666667,0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.757055
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.769992
-Name: time, dtype: float64",0.7333333333333333,0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.342740
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.359989
-Name: time, dtype: float64",0.8333333333333334,0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.928425
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.949986
-Name: time, dtype: float64",0.8333333333333334,0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    3.514110
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    3.539984
-Name: time, dtype: float64",0.9,0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.099795
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.129981
-Name: time, dtype: float64",0.9,0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.685481
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.719978
-Name: time, dtype: float64",0.9333333333333333,0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.271166
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.309976
-Name: time, dtype: float64",0.9333333333333333,0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.856851
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.899973
-Name: time, dtype: float64",0.9333333333333333,0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    6.442536
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    6.489970
-Name: time, dtype: float64",0.9666666666666667,0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.028221
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.079967
-Name: time, dtype: float64",0.9666666666666667,0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.613906
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.669965
-Name: time, dtype: float64",0.9666666666666667,0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.199591
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.259962
-Name: time, dtype: float64",1.0,0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.785276
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.849959
-Name: time, dtype: float64",1.0,0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    9.370961
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    9.439957
-Name: time, dtype: float64",1.0,0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1     9.956646
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    10.029954
-Name: time, dtype: float64",1.0,0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    10.542331
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    10.619951
-Name: time, dtype: float64",1.0,0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.128016
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.209948
-Name: time, dtype: float64",1.0,0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.713701
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.799946
-Name: time, dtype: float64",1.0,0.1
+0,0.589997285004143,0.6333333333333333,0.1
+1,1.179994570008286,0.7666666666666667,0.1
+2,1.769991855012429,0.7333333333333333,0.1
+3,2.359989140016572,0.8333333333333334,0.1
+4,2.9499864250207146,0.8333333333333334,0.1
+5,3.539983710024858,0.9,0.1
+6,4.129980995029,0.9,0.1
+7,4.719978280033144,0.9333333333333333,0.1
+8,5.309975565037287,0.9333333333333333,0.1
+9,5.899972850041429,0.9333333333333333,0.1
+10,6.4899701350455725,0.9666666666666667,0.1
+11,7.079967420049716,0.9666666666666667,0.1
+12,7.669964705053858,0.9666666666666667,0.1
+13,8.259961990058,1.0,0.1
+14,8.849959275062144,1.0,0.1
+15,9.439956560066287,1.0,0.1
+16,10.02995384507043,1.0,0.1
+17,10.619951130074574,1.0,0.1
+18,11.209948415078715,1.0,0.1
+19,11.799945700082858,1.0,0.1
 0,0.1949447464744,0.6666666666666666,0.5
 1,0.3898894929488,0.7,0.5
 2,0.5848342394232,0.8,0.5
@@ -1219,86 +439,26 @@ Name: time, dtype: float64",1.0,0.1
 17,3.5090054365392,0.8666666666666667,0.5
 18,3.7039501830136006,0.8666666666666667,0.5
 19,3.898894929488,0.8666666666666667,0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.425912
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.427740
-Name: time, dtype: float64",0.6666666666666666,topk-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.851825
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.855481
-Name: time, dtype: float64",0.8,topk-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.277737
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.283221
-Name: time, dtype: float64",0.7666666666666667,topk-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.703650
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.710962
-Name: time, dtype: float64",0.8333333333333334,topk-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.129562
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.138702
-Name: time, dtype: float64",0.8333333333333334,topk-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.555475
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.566443
-Name: time, dtype: float64",0.8666666666666667,topk-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.981387
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.994183
-Name: time, dtype: float64",0.9,topk-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.407300
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.421924
-Name: time, dtype: float64",0.9,topk-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.833212
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.849664
-Name: time, dtype: float64",0.9,topk-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.259125
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.277404
-Name: time, dtype: float64",0.9,topk-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.685037
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.705145
-Name: time, dtype: float64",0.9,topk-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.110950
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.132885
-Name: time, dtype: float64",0.9,topk-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.536862
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.560626
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.962775
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.988366
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.388687
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.416107
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.814600
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.843847
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.240512
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.271588
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.666425
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.699328
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.092337
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.127069
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.518250
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.554809
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
+0,0.4277404474527142,0.6666666666666666,topk-0.1
+1,0.8554808949054284,0.8,topk-0.1
+2,1.2832213423581427,0.7666666666666667,topk-0.1
+3,1.710961789810857,0.8333333333333334,topk-0.1
+4,2.1387022372635713,0.8333333333333334,topk-0.1
+5,2.5664426847162853,0.8666666666666667,topk-0.1
+6,2.9941831321690002,0.9,topk-0.1
+7,3.421923579621714,0.9,topk-0.1
+8,3.8496640270744287,0.9,topk-0.1
+9,4.277404474527143,0.9,topk-0.1
+10,4.705144921979857,0.9,topk-0.1
+11,5.132885369432571,0.9,topk-0.1
+12,5.560625816885286,0.9333333333333333,topk-0.1
+13,5.9883662643380005,0.9333333333333333,topk-0.1
+14,6.416106711790714,0.9333333333333333,topk-0.1
+15,6.843847159243428,0.9333333333333333,topk-0.1
+16,7.2715876066961425,0.9333333333333333,topk-0.1
+17,7.699328054148857,0.9333333333333333,topk-0.1
+18,8.127068501601572,0.9333333333333333,topk-0.1
+19,8.554808949054285,0.9333333333333333,topk-0.1
 0,0.15856623784568571,0.7333333333333333,topk-0.5
 1,0.31713247569137143,0.7666666666666667,topk-0.5
 2,0.4756987135370572,0.7666666666666667,topk-0.5
@@ -1319,246 +479,66 @@ Name: time, dtype: float64",0.9333333333333333,topk-0.1
 17,2.854192281222343,0.9,topk-0.5
 18,3.012758519068029,0.8666666666666667,topk-0.5
 19,3.171324756913714,0.9,topk-0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.345796
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.338140
-Name: time, dtype: float64",0.6333333333333333,desired-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.691591
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.676280
-Name: time, dtype: float64",0.7,desired-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.037387
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.014420
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.383182
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.352561
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.728978
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.690701
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.074774
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.028841
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.420569
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.366981
-Name: time, dtype: float64",0.8,desired-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.766365
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.705121
-Name: time, dtype: float64",0.8,desired-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.112160
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.043261
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.457956
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.381401
-Name: time, dtype: float64",0.8,desired-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.803752
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.719541
-Name: time, dtype: float64",0.8,desired-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.149547
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.057682
-Name: time, dtype: float64",0.8333333333333334,desired-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.495343
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.395822
-Name: time, dtype: float64",0.8333333333333334,desired-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.841138
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.733962
-Name: time, dtype: float64",0.8,desired-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.186934
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.072102
-Name: time, dtype: float64",0.8333333333333334,desired-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.532729
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.410242
-Name: time, dtype: float64",0.8333333333333334,desired-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.878525
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.748382
-Name: time, dtype: float64",0.8333333333333334,desired-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.224321
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.086522
-Name: time, dtype: float64",0.8333333333333334,desired-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.570116
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.424663
-Name: time, dtype: float64",0.8333333333333334,desired-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.915912
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.762803
-Name: time, dtype: float64",0.8333333333333334,desired-0.1
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    0.503599
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    0.491082
-Name: time, dtype: float64",0.6666666666666666,masking-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.007198
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    0.982164
-Name: time, dtype: float64",0.6666666666666666,masking-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.510797
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.473247
-Name: time, dtype: float64",0.6666666666666666,masking-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.014396
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.964329
-Name: time, dtype: float64",0.7666666666666667,masking-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.517994
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.455411
-Name: time, dtype: float64",0.7666666666666667,masking-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.021593
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.946493
-Name: time, dtype: float64",0.8,masking-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.525192
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.437576
-Name: time, dtype: float64",0.8,masking-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.028791
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.928658
-Name: time, dtype: float64",0.8,masking-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.53239
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.41974
-Name: time, dtype: float64",0.8,masking-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.035989
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.910822
-Name: time, dtype: float64",0.8333333333333334,masking-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.539588
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.401904
-Name: time, dtype: float64",0.8333333333333334,masking-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.043187
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.892987
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.546785
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.384069
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.050384
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.875151
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.553983
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.366233
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.057582
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.857316
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.561181
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.348398
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    9.06478
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.83948
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    9.568379
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    9.330562
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    10.071978
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1     9.821644
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.341394
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.346190
-Name: time, dtype: float64",0.6333333333333333,topk-masking-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.682787
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.692380
-Name: time, dtype: float64",0.7333333333333333,topk-masking-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.024181
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.038570
-Name: time, dtype: float64",0.7,topk-masking-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.365575
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.384760
-Name: time, dtype: float64",0.7666666666666667,topk-masking-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.706968
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.730950
-Name: time, dtype: float64",0.7666666666666667,topk-masking-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.048362
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.077140
-Name: time, dtype: float64",0.7666666666666667,topk-masking-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.389756
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.423330
-Name: time, dtype: float64",0.7666666666666667,topk-masking-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.73115
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.76952
-Name: time, dtype: float64",0.8,topk-masking-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.072543
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.115710
-Name: time, dtype: float64",0.8,topk-masking-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.413937
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.461900
-Name: time, dtype: float64",0.8333333333333334,topk-masking-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.755331
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.808090
-Name: time, dtype: float64",0.8333333333333334,topk-masking-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.096724
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.154280
-Name: time, dtype: float64",0.8333333333333334,topk-masking-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.438118
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.500470
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.779512
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.846660
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.120905
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.192850
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.462299
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.539040
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.803693
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.885230
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.145087
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.231420
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.48648
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.57761
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.827874
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.923800
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
+0,0.33814013390285713,0.6333333333333333,desired-0.1
+1,0.6762802678057143,0.7,desired-0.1
+2,1.0144204017085716,0.7666666666666667,desired-0.1
+3,1.3525605356114285,0.7666666666666667,desired-0.1
+4,1.690700669514286,0.7333333333333333,desired-0.1
+5,2.0288408034171432,0.7666666666666667,desired-0.1
+6,2.36698093732,0.8,desired-0.1
+7,2.705121071222857,0.8,desired-0.1
+8,3.0432612051257144,0.7666666666666667,desired-0.1
+9,3.381401339028572,0.8,desired-0.1
+10,3.719541472931429,0.8,desired-0.1
+11,4.0576816068342865,0.8333333333333334,desired-0.1
+12,4.395821740737143,0.8333333333333334,desired-0.1
+13,4.73396187464,0.8,desired-0.1
+14,5.072102008542857,0.8333333333333334,desired-0.1
+15,5.410242142445714,0.8333333333333334,desired-0.1
+16,5.748382276348572,0.8333333333333334,desired-0.1
+17,6.086522410251429,0.8333333333333334,desired-0.1
+18,6.424662544154286,0.8333333333333334,desired-0.1
+19,6.762802678057144,0.8333333333333334,desired-0.1
+0,0.4910822245062857,0.6666666666666666,masking-0.1
+1,0.9821644490125714,0.6666666666666666,masking-0.1
+2,1.473246673518857,0.6666666666666666,masking-0.1
+3,1.9643288980251428,0.7666666666666667,masking-0.1
+4,2.4554111225314283,0.7666666666666667,masking-0.1
+5,2.946493347037714,0.8,masking-0.1
+6,3.437575571544,0.8,masking-0.1
+7,3.9286577960502855,0.8,masking-0.1
+8,4.419740020556571,0.8,masking-0.1
+9,4.910822245062857,0.8333333333333334,masking-0.1
+10,5.401904469569143,0.8333333333333334,masking-0.1
+11,5.892986694075428,0.8666666666666667,masking-0.1
+12,6.384068918581713,0.8666666666666667,masking-0.1
+13,6.875151143088,0.8666666666666667,masking-0.1
+14,7.366233367594285,0.8666666666666667,masking-0.1
+15,7.857315592100571,0.8666666666666667,masking-0.1
+16,8.348397816606855,0.8666666666666667,masking-0.1
+17,8.839480041113141,0.8666666666666667,masking-0.1
+18,9.330562265619427,0.8666666666666667,masking-0.1
+19,9.821644490125713,0.8666666666666667,masking-0.1
+0,0.34618998391328576,0.6333333333333333,topk-masking-0.1
+1,0.6923799678265715,0.7333333333333333,topk-masking-0.1
+2,1.0385699517398572,0.7,topk-masking-0.1
+3,1.384759935653143,0.7666666666666667,topk-masking-0.1
+4,1.7309499195664286,0.7666666666666667,topk-masking-0.1
+5,2.0771399034797144,0.7666666666666667,topk-masking-0.1
+6,2.4233298873930003,0.7666666666666667,topk-masking-0.1
+7,2.769519871306286,0.8,topk-masking-0.1
+8,3.1157098552195714,0.8,topk-masking-0.1
+9,3.4618998391328573,0.8333333333333334,topk-masking-0.1
+10,3.808089823046143,0.8333333333333334,topk-masking-0.1
+11,4.154279806959429,0.8333333333333334,topk-masking-0.1
+12,4.500469790872715,0.8666666666666667,topk-masking-0.1
+13,4.8466597747860005,0.8666666666666667,topk-masking-0.1
+14,5.192849758699286,0.8666666666666667,topk-masking-0.1
+15,5.539039742612572,0.8666666666666667,topk-masking-0.1
+16,5.885229726525857,0.8666666666666667,topk-masking-0.1
+17,6.231419710439143,0.8666666666666667,topk-masking-0.1
+18,6.577609694352429,0.8666666666666667,topk-masking-0.1
+19,6.9237996782657145,0.8666666666666667,topk-masking-0.1
 0,0.13375132342757146,0.6,topk-masking-0.5
 1,0.2675026468551429,0.6666666666666666,topk-masking-0.5
 2,0.4012539702827143,0.6666666666666666,topk-masking-0.5
@@ -1579,86 +559,26 @@ Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
 17,2.407523821696286,0.7666666666666667,topk-masking-0.5
 18,2.541275145123857,0.7666666666666667,topk-masking-0.5
 19,2.6750264685514287,0.7666666666666667,topk-masking-0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.232005
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.228132
-Name: time, dtype: float64",0.6666666666666666,topk-desired-masking-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.464009
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.456264
-Name: time, dtype: float64",0.7333333333333333,topk-desired-masking-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.696014
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.684396
-Name: time, dtype: float64",0.8,topk-desired-masking-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.928019
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.912528
-Name: time, dtype: float64",0.8,topk-desired-masking-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.160024
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.140660
-Name: time, dtype: float64",0.8,topk-desired-masking-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.392028
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.368791
-Name: time, dtype: float64",0.8,topk-desired-masking-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.624033
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.596923
-Name: time, dtype: float64",0.8,topk-desired-masking-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.856038
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.825055
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.088042
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.053187
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.320047
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.281319
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.552052
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.509451
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.784057
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.737583
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.016061
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.965715
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.248066
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.193847
-Name: time, dtype: float64",0.8,topk-desired-masking-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.480071
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.421979
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.712076
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.650111
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.944080
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.878243
-Name: time, dtype: float64",0.8,topk-desired-masking-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.176085
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.106374
-Name: time, dtype: float64",0.8,topk-desired-masking-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.408090
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.334506
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.640094
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.562638
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
+0,0.22813191657027146,0.6666666666666666,topk-desired-masking-0.1
+1,0.4562638331405429,0.7333333333333333,topk-desired-masking-0.1
+2,0.6843957497108144,0.8,topk-desired-masking-0.1
+3,0.9125276662810858,0.8,topk-desired-masking-0.1
+4,1.1406595828513573,0.8,topk-desired-masking-0.1
+5,1.3687914994216288,0.8,topk-desired-masking-0.1
+6,1.5969234159919004,0.8,topk-desired-masking-0.1
+7,1.8250553325621717,0.8333333333333334,topk-desired-masking-0.1
+8,2.053187249132443,0.8333333333333334,topk-desired-masking-0.1
+9,2.2813191657027145,0.8333333333333334,topk-desired-masking-0.1
+10,2.509451082272986,0.8333333333333334,topk-desired-masking-0.1
+11,2.7375829988432576,0.8333333333333334,topk-desired-masking-0.1
+12,2.9657149154135287,0.8333333333333334,topk-desired-masking-0.1
+13,3.1938468319838007,0.8,topk-desired-masking-0.1
+14,3.421978748554072,0.8333333333333334,topk-desired-masking-0.1
+15,3.6501106651243433,0.8333333333333334,topk-desired-masking-0.1
+16,3.878242581694615,0.8,topk-desired-masking-0.1
+17,4.106374498264886,0.8,topk-desired-masking-0.1
+18,4.3345064148351575,0.8333333333333334,topk-desired-masking-0.1
+19,4.562638331405429,0.8333333333333334,topk-desired-masking-0.1
 0,0.12359193853714284,0.6,topk-desired-masking-0.5
 1,0.24718387707428569,0.7,topk-desired-masking-0.5
 2,0.3707758156114286,0.6666666666666666,topk-desired-masking-0.5
@@ -1679,86 +599,26 @@ Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
 17,2.2246548936685713,0.7666666666666667,topk-desired-masking-0.5
 18,2.348246832205714,0.7666666666666667,topk-desired-masking-0.5
 19,2.471838770742857,0.7666666666666667,topk-desired-masking-0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    0.585685
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    0.589997
-Name: time, dtype: float64",0.6666666666666666,0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.171370
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.179995
-Name: time, dtype: float64",0.8333333333333334,0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.757055
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.769992
-Name: time, dtype: float64",0.8333333333333334,0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.342740
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.359989
-Name: time, dtype: float64",0.8333333333333334,0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.928425
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.949986
-Name: time, dtype: float64",0.8333333333333334,0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    3.514110
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    3.539984
-Name: time, dtype: float64",0.9,0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.099795
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.129981
-Name: time, dtype: float64",0.8666666666666667,0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.685481
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.719978
-Name: time, dtype: float64",0.9333333333333333,0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.271166
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.309976
-Name: time, dtype: float64",0.9333333333333333,0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.856851
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.899973
-Name: time, dtype: float64",0.9333333333333333,0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    6.442536
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    6.489970
-Name: time, dtype: float64",0.9666666666666667,0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.028221
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.079967
-Name: time, dtype: float64",0.9666666666666667,0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.613906
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.669965
-Name: time, dtype: float64",0.9666666666666667,0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.199591
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.259962
-Name: time, dtype: float64",1.0,0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.785276
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.849959
-Name: time, dtype: float64",1.0,0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    9.370961
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    9.439957
-Name: time, dtype: float64",1.0,0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1     9.956646
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    10.029954
-Name: time, dtype: float64",1.0,0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    10.542331
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    10.619951
-Name: time, dtype: float64",1.0,0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.128016
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.209948
-Name: time, dtype: float64",1.0,0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.713701
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.799946
-Name: time, dtype: float64",1.0,0.1
+0,0.589997285004143,0.6666666666666666,0.1
+1,1.179994570008286,0.8333333333333334,0.1
+2,1.769991855012429,0.8333333333333334,0.1
+3,2.359989140016572,0.8333333333333334,0.1
+4,2.9499864250207146,0.8333333333333334,0.1
+5,3.539983710024858,0.9,0.1
+6,4.129980995029,0.8666666666666667,0.1
+7,4.719978280033144,0.9333333333333333,0.1
+8,5.309975565037287,0.9333333333333333,0.1
+9,5.899972850041429,0.9333333333333333,0.1
+10,6.4899701350455725,0.9666666666666667,0.1
+11,7.079967420049716,0.9666666666666667,0.1
+12,7.669964705053858,0.9666666666666667,0.1
+13,8.259961990058,1.0,0.1
+14,8.849959275062144,1.0,0.1
+15,9.439956560066287,1.0,0.1
+16,10.02995384507043,1.0,0.1
+17,10.619951130074574,1.0,0.1
+18,11.209948415078715,1.0,0.1
+19,11.799945700082858,1.0,0.1
 0,0.1949447464744,0.7,0.5
 1,0.3898894929488,0.7666666666666667,0.5
 2,0.5848342394232,0.8333333333333334,0.5
@@ -1779,86 +639,26 @@ Name: time, dtype: float64",1.0,0.1
 17,3.5090054365392,0.9333333333333333,0.5
 18,3.7039501830136006,0.9,0.5
 19,3.898894929488,0.9,0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.425912
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.427740
-Name: time, dtype: float64",0.7333333333333333,topk-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.851825
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.855481
-Name: time, dtype: float64",0.8333333333333334,topk-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.277737
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.283221
-Name: time, dtype: float64",0.8333333333333334,topk-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.703650
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.710962
-Name: time, dtype: float64",0.8333333333333334,topk-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.129562
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.138702
-Name: time, dtype: float64",0.8666666666666667,topk-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.555475
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.566443
-Name: time, dtype: float64",0.8666666666666667,topk-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.981387
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.994183
-Name: time, dtype: float64",0.9,topk-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.407300
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.421924
-Name: time, dtype: float64",0.9,topk-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.833212
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.849664
-Name: time, dtype: float64",0.9,topk-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.259125
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.277404
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.685037
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.705145
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.110950
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.132885
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.536862
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.560626
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.962775
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.988366
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.388687
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.416107
-Name: time, dtype: float64",0.9666666666666667,topk-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.814600
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.843847
-Name: time, dtype: float64",0.9666666666666667,topk-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.240512
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.271588
-Name: time, dtype: float64",0.9666666666666667,topk-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.666425
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.699328
-Name: time, dtype: float64",0.9666666666666667,topk-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.092337
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.127069
-Name: time, dtype: float64",0.9666666666666667,topk-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.518250
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.554809
-Name: time, dtype: float64",0.9666666666666667,topk-0.1
+0,0.4277404474527142,0.7333333333333333,topk-0.1
+1,0.8554808949054284,0.8333333333333334,topk-0.1
+2,1.2832213423581427,0.8333333333333334,topk-0.1
+3,1.710961789810857,0.8333333333333334,topk-0.1
+4,2.1387022372635713,0.8666666666666667,topk-0.1
+5,2.5664426847162853,0.8666666666666667,topk-0.1
+6,2.9941831321690002,0.9,topk-0.1
+7,3.421923579621714,0.9,topk-0.1
+8,3.8496640270744287,0.9,topk-0.1
+9,4.277404474527143,0.9333333333333333,topk-0.1
+10,4.705144921979857,0.9333333333333333,topk-0.1
+11,5.132885369432571,0.9333333333333333,topk-0.1
+12,5.560625816885286,0.9333333333333333,topk-0.1
+13,5.9883662643380005,0.9333333333333333,topk-0.1
+14,6.416106711790714,0.9666666666666667,topk-0.1
+15,6.843847159243428,0.9666666666666667,topk-0.1
+16,7.2715876066961425,0.9666666666666667,topk-0.1
+17,7.699328054148857,0.9666666666666667,topk-0.1
+18,8.127068501601572,0.9666666666666667,topk-0.1
+19,8.554808949054285,0.9666666666666667,topk-0.1
 0,0.15856623784568571,0.7,topk-0.5
 1,0.31713247569137143,0.7666666666666667,topk-0.5
 2,0.4756987135370572,0.8,topk-0.5
@@ -1879,246 +679,66 @@ Name: time, dtype: float64",0.9666666666666667,topk-0.1
 17,2.854192281222343,0.9,topk-0.5
 18,3.012758519068029,0.9,topk-0.5
 19,3.171324756913714,0.9,topk-0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.345796
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.338140
-Name: time, dtype: float64",0.5666666666666667,desired-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.691591
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.676280
-Name: time, dtype: float64",0.6666666666666666,desired-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.037387
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.014420
-Name: time, dtype: float64",0.6666666666666666,desired-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.383182
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.352561
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.728978
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.690701
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.074774
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.028841
-Name: time, dtype: float64",0.8,desired-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.420569
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.366981
-Name: time, dtype: float64",0.8,desired-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.766365
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.705121
-Name: time, dtype: float64",0.8,desired-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.112160
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.043261
-Name: time, dtype: float64",0.8,desired-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.457956
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.381401
-Name: time, dtype: float64",0.8,desired-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.803752
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.719541
-Name: time, dtype: float64",0.8,desired-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.149547
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.057682
-Name: time, dtype: float64",0.8,desired-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.495343
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.395822
-Name: time, dtype: float64",0.8,desired-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.841138
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.733962
-Name: time, dtype: float64",0.8,desired-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.186934
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.072102
-Name: time, dtype: float64",0.8,desired-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.532729
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.410242
-Name: time, dtype: float64",0.8,desired-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.878525
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.748382
-Name: time, dtype: float64",0.8,desired-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.224321
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.086522
-Name: time, dtype: float64",0.8,desired-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.570116
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.424663
-Name: time, dtype: float64",0.8,desired-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.915912
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.762803
-Name: time, dtype: float64",0.8,desired-0.1
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    0.503599
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    0.491082
-Name: time, dtype: float64",0.6333333333333333,masking-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.007198
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    0.982164
-Name: time, dtype: float64",0.7333333333333333,masking-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.510797
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.473247
-Name: time, dtype: float64",0.7333333333333333,masking-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.014396
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.964329
-Name: time, dtype: float64",0.7666666666666667,masking-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.517994
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.455411
-Name: time, dtype: float64",0.8,masking-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.021593
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.946493
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.525192
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.437576
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.028791
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.928658
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.53239
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.41974
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.035989
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.910822
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.539588
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.401904
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.043187
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.892987
-Name: time, dtype: float64",0.9,masking-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.546785
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.384069
-Name: time, dtype: float64",0.9,masking-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.050384
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.875151
-Name: time, dtype: float64",0.9,masking-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.553983
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.366233
-Name: time, dtype: float64",0.9,masking-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.057582
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.857316
-Name: time, dtype: float64",0.9,masking-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.561181
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.348398
-Name: time, dtype: float64",0.9,masking-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    9.06478
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.83948
-Name: time, dtype: float64",0.9,masking-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    9.568379
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    9.330562
-Name: time, dtype: float64",0.9,masking-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    10.071978
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1     9.821644
-Name: time, dtype: float64",0.9,masking-0.1
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.341394
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.346190
-Name: time, dtype: float64",0.7,topk-masking-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.682787
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.692380
-Name: time, dtype: float64",0.7333333333333333,topk-masking-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.024181
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.038570
-Name: time, dtype: float64",0.7666666666666667,topk-masking-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.365575
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.384760
-Name: time, dtype: float64",0.7666666666666667,topk-masking-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.706968
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.730950
-Name: time, dtype: float64",0.8,topk-masking-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.048362
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.077140
-Name: time, dtype: float64",0.8333333333333334,topk-masking-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.389756
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.423330
-Name: time, dtype: float64",0.8333333333333334,topk-masking-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.73115
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.76952
-Name: time, dtype: float64",0.8333333333333334,topk-masking-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.072543
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.115710
-Name: time, dtype: float64",0.8333333333333334,topk-masking-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.413937
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.461900
-Name: time, dtype: float64",0.9,topk-masking-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.755331
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.808090
-Name: time, dtype: float64",0.9,topk-masking-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.096724
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.154280
-Name: time, dtype: float64",0.9,topk-masking-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.438118
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.500470
-Name: time, dtype: float64",0.9,topk-masking-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.779512
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.846660
-Name: time, dtype: float64",0.9,topk-masking-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.120905
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.192850
-Name: time, dtype: float64",0.9,topk-masking-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.462299
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.539040
-Name: time, dtype: float64",0.9,topk-masking-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.803693
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.885230
-Name: time, dtype: float64",0.9,topk-masking-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.145087
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.231420
-Name: time, dtype: float64",0.9,topk-masking-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.48648
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.57761
-Name: time, dtype: float64",0.9,topk-masking-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.827874
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.923800
-Name: time, dtype: float64",0.9,topk-masking-0.1
+0,0.33814013390285713,0.5666666666666667,desired-0.1
+1,0.6762802678057143,0.6666666666666666,desired-0.1
+2,1.0144204017085716,0.6666666666666666,desired-0.1
+3,1.3525605356114285,0.7333333333333333,desired-0.1
+4,1.690700669514286,0.7666666666666667,desired-0.1
+5,2.0288408034171432,0.8,desired-0.1
+6,2.36698093732,0.8,desired-0.1
+7,2.705121071222857,0.8,desired-0.1
+8,3.0432612051257144,0.8,desired-0.1
+9,3.381401339028572,0.8,desired-0.1
+10,3.719541472931429,0.8,desired-0.1
+11,4.0576816068342865,0.8,desired-0.1
+12,4.395821740737143,0.8,desired-0.1
+13,4.73396187464,0.8,desired-0.1
+14,5.072102008542857,0.8,desired-0.1
+15,5.410242142445714,0.8,desired-0.1
+16,5.748382276348572,0.8,desired-0.1
+17,6.086522410251429,0.8,desired-0.1
+18,6.424662544154286,0.8,desired-0.1
+19,6.762802678057144,0.8,desired-0.1
+0,0.4910822245062857,0.6333333333333333,masking-0.1
+1,0.9821644490125714,0.7333333333333333,masking-0.1
+2,1.473246673518857,0.7333333333333333,masking-0.1
+3,1.9643288980251428,0.7666666666666667,masking-0.1
+4,2.4554111225314283,0.8,masking-0.1
+5,2.946493347037714,0.8666666666666667,masking-0.1
+6,3.437575571544,0.8666666666666667,masking-0.1
+7,3.9286577960502855,0.8666666666666667,masking-0.1
+8,4.419740020556571,0.8666666666666667,masking-0.1
+9,4.910822245062857,0.8666666666666667,masking-0.1
+10,5.401904469569143,0.8666666666666667,masking-0.1
+11,5.892986694075428,0.9,masking-0.1
+12,6.384068918581713,0.9,masking-0.1
+13,6.875151143088,0.9,masking-0.1
+14,7.366233367594285,0.9,masking-0.1
+15,7.857315592100571,0.9,masking-0.1
+16,8.348397816606855,0.9,masking-0.1
+17,8.839480041113141,0.9,masking-0.1
+18,9.330562265619427,0.9,masking-0.1
+19,9.821644490125713,0.9,masking-0.1
+0,0.34618998391328576,0.7,topk-masking-0.1
+1,0.6923799678265715,0.7333333333333333,topk-masking-0.1
+2,1.0385699517398572,0.7666666666666667,topk-masking-0.1
+3,1.384759935653143,0.7666666666666667,topk-masking-0.1
+4,1.7309499195664286,0.8,topk-masking-0.1
+5,2.0771399034797144,0.8333333333333334,topk-masking-0.1
+6,2.4233298873930003,0.8333333333333334,topk-masking-0.1
+7,2.769519871306286,0.8333333333333334,topk-masking-0.1
+8,3.1157098552195714,0.8333333333333334,topk-masking-0.1
+9,3.4618998391328573,0.9,topk-masking-0.1
+10,3.808089823046143,0.9,topk-masking-0.1
+11,4.154279806959429,0.9,topk-masking-0.1
+12,4.500469790872715,0.9,topk-masking-0.1
+13,4.8466597747860005,0.9,topk-masking-0.1
+14,5.192849758699286,0.9,topk-masking-0.1
+15,5.539039742612572,0.9,topk-masking-0.1
+16,5.885229726525857,0.9,topk-masking-0.1
+17,6.231419710439143,0.9,topk-masking-0.1
+18,6.577609694352429,0.9,topk-masking-0.1
+19,6.9237996782657145,0.9,topk-masking-0.1
 0,0.13375132342757146,0.6666666666666666,topk-masking-0.5
 1,0.2675026468551429,0.7,topk-masking-0.5
 2,0.4012539702827143,0.6666666666666666,topk-masking-0.5
@@ -2139,86 +759,26 @@ Name: time, dtype: float64",0.9,topk-masking-0.1
 17,2.407523821696286,0.8333333333333334,topk-masking-0.5
 18,2.541275145123857,0.8333333333333334,topk-masking-0.5
 19,2.6750264685514287,0.8333333333333334,topk-masking-0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.232005
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.228132
-Name: time, dtype: float64",0.7,topk-desired-masking-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.464009
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.456264
-Name: time, dtype: float64",0.7666666666666667,topk-desired-masking-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.696014
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.684396
-Name: time, dtype: float64",0.7666666666666667,topk-desired-masking-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.928019
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.912528
-Name: time, dtype: float64",0.8,topk-desired-masking-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.160024
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.140660
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.392028
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.368791
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.624033
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.596923
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.856038
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.825055
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.088042
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.053187
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.320047
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.281319
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.552052
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.509451
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.784057
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.737583
-Name: time, dtype: float64",0.8666666666666667,topk-desired-masking-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.016061
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.965715
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.248066
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.193847
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.480071
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.421979
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.712076
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.650111
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.944080
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.878243
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.176085
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.106374
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.408090
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.334506
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.640094
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.562638
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
+0,0.22813191657027146,0.7,topk-desired-masking-0.1
+1,0.4562638331405429,0.7666666666666667,topk-desired-masking-0.1
+2,0.6843957497108144,0.7666666666666667,topk-desired-masking-0.1
+3,0.9125276662810858,0.8,topk-desired-masking-0.1
+4,1.1406595828513573,0.8333333333333334,topk-desired-masking-0.1
+5,1.3687914994216288,0.8333333333333334,topk-desired-masking-0.1
+6,1.5969234159919004,0.8333333333333334,topk-desired-masking-0.1
+7,1.8250553325621717,0.8666666666666667,topk-desired-masking-0.1
+8,2.053187249132443,0.8666666666666667,topk-desired-masking-0.1
+9,2.2813191657027145,0.8666666666666667,topk-desired-masking-0.1
+10,2.509451082272986,0.8666666666666667,topk-desired-masking-0.1
+11,2.7375829988432576,0.8666666666666667,topk-desired-masking-0.1
+12,2.9657149154135287,0.8333333333333334,topk-desired-masking-0.1
+13,3.1938468319838007,0.8333333333333334,topk-desired-masking-0.1
+14,3.421978748554072,0.8333333333333334,topk-desired-masking-0.1
+15,3.6501106651243433,0.8333333333333334,topk-desired-masking-0.1
+16,3.878242581694615,0.8333333333333334,topk-desired-masking-0.1
+17,4.106374498264886,0.8333333333333334,topk-desired-masking-0.1
+18,4.3345064148351575,0.8333333333333334,topk-desired-masking-0.1
+19,4.562638331405429,0.8333333333333334,topk-desired-masking-0.1
 0,0.12359193853714284,0.6666666666666666,topk-desired-masking-0.5
 1,0.24718387707428569,0.7,topk-desired-masking-0.5
 2,0.3707758156114286,0.7,topk-desired-masking-0.5
@@ -2239,86 +799,26 @@ Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
 17,2.2246548936685713,0.7666666666666667,topk-desired-masking-0.5
 18,2.348246832205714,0.7666666666666667,topk-desired-masking-0.5
 19,2.471838770742857,0.7666666666666667,topk-desired-masking-0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    0.585685
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    0.589997
-Name: time, dtype: float64",0.7,0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.171370
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.179995
-Name: time, dtype: float64",0.7666666666666667,0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.757055
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    1.769992
-Name: time, dtype: float64",0.7666666666666667,0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.342740
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.359989
-Name: time, dtype: float64",0.7666666666666667,0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.928425
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    2.949986
-Name: time, dtype: float64",0.8,0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    3.514110
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    3.539984
-Name: time, dtype: float64",0.8333333333333334,0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.099795
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.129981
-Name: time, dtype: float64",0.8333333333333334,0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.685481
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    4.719978
-Name: time, dtype: float64",0.8666666666666667,0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.271166
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.309976
-Name: time, dtype: float64",0.8666666666666667,0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.856851
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    5.899973
-Name: time, dtype: float64",0.9333333333333333,0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    6.442536
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    6.489970
-Name: time, dtype: float64",0.9333333333333333,0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.028221
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.079967
-Name: time, dtype: float64",0.9666666666666667,0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.613906
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    7.669965
-Name: time, dtype: float64",0.9666666666666667,0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.199591
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.259962
-Name: time, dtype: float64",1.0,0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.785276
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    8.849959
-Name: time, dtype: float64",0.9666666666666667,0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    9.370961
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    9.439957
-Name: time, dtype: float64",1.0,0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1     9.956646
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    10.029954
-Name: time, dtype: float64",1.0,0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    10.542331
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    10.619951
-Name: time, dtype: float64",1.0,0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.128016
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.209948
-Name: time, dtype: float64",1.0,0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.713701
-mp/deberta/toy-spam/confidence/42/stop-words-0.1    11.799946
-Name: time, dtype: float64",1.0,0.1
+0,0.589997285004143,0.7,0.1
+1,1.179994570008286,0.7666666666666667,0.1
+2,1.769991855012429,0.7666666666666667,0.1
+3,2.359989140016572,0.7666666666666667,0.1
+4,2.9499864250207146,0.8,0.1
+5,3.539983710024858,0.8333333333333334,0.1
+6,4.129980995029,0.8333333333333334,0.1
+7,4.719978280033144,0.8666666666666667,0.1
+8,5.309975565037287,0.8666666666666667,0.1
+9,5.899972850041429,0.9333333333333333,0.1
+10,6.4899701350455725,0.9333333333333333,0.1
+11,7.079967420049716,0.9666666666666667,0.1
+12,7.669964705053858,0.9666666666666667,0.1
+13,8.259961990058,1.0,0.1
+14,8.849959275062144,0.9666666666666667,0.1
+15,9.439956560066287,1.0,0.1
+16,10.02995384507043,1.0,0.1
+17,10.619951130074574,1.0,0.1
+18,11.209948415078715,1.0,0.1
+19,11.799945700082858,1.0,0.1
 0,0.1949447464744,0.6333333333333333,0.5
 1,0.3898894929488,0.7333333333333333,0.5
 2,0.5848342394232,0.8,0.5
@@ -2339,86 +839,26 @@ Name: time, dtype: float64",1.0,0.1
 17,3.5090054365392,0.8666666666666667,0.5
 18,3.7039501830136006,0.9,0.5
 19,3.898894929488,0.9,0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.425912
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.427740
-Name: time, dtype: float64",0.7333333333333333,topk-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.851825
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    0.855481
-Name: time, dtype: float64",0.8,topk-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.277737
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.283221
-Name: time, dtype: float64",0.8333333333333334,topk-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.703650
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    1.710962
-Name: time, dtype: float64",0.8333333333333334,topk-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.129562
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.138702
-Name: time, dtype: float64",0.8666666666666667,topk-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.555475
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.566443
-Name: time, dtype: float64",0.8666666666666667,topk-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.981387
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    2.994183
-Name: time, dtype: float64",0.9,topk-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.407300
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.421924
-Name: time, dtype: float64",0.9,topk-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.833212
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    3.849664
-Name: time, dtype: float64",0.9333333333333333,topk-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.259125
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.277404
-Name: time, dtype: float64",0.9,topk-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.685037
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    4.705145
-Name: time, dtype: float64",0.9,topk-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.110950
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.132885
-Name: time, dtype: float64",0.9,topk-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.536862
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.560626
-Name: time, dtype: float64",0.9,topk-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.962775
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    5.988366
-Name: time, dtype: float64",0.9,topk-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.388687
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.416107
-Name: time, dtype: float64",0.9,topk-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.814600
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    6.843847
-Name: time, dtype: float64",0.9,topk-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.240512
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.271588
-Name: time, dtype: float64",0.9,topk-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.666425
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    7.699328
-Name: time, dtype: float64",0.9,topk-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.092337
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.127069
-Name: time, dtype: float64",0.9,topk-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.518250
-mp/deberta/toy-spam/confidence/42/stop-words-topk-0.1    8.554809
-Name: time, dtype: float64",0.9,topk-0.1
+0,0.4277404474527142,0.7333333333333333,topk-0.1
+1,0.8554808949054284,0.8,topk-0.1
+2,1.2832213423581427,0.8333333333333334,topk-0.1
+3,1.710961789810857,0.8333333333333334,topk-0.1
+4,2.1387022372635713,0.8666666666666667,topk-0.1
+5,2.5664426847162853,0.8666666666666667,topk-0.1
+6,2.9941831321690002,0.9,topk-0.1
+7,3.421923579621714,0.9,topk-0.1
+8,3.8496640270744287,0.9333333333333333,topk-0.1
+9,4.277404474527143,0.9,topk-0.1
+10,4.705144921979857,0.9,topk-0.1
+11,5.132885369432571,0.9,topk-0.1
+12,5.560625816885286,0.9,topk-0.1
+13,5.9883662643380005,0.9,topk-0.1
+14,6.416106711790714,0.9,topk-0.1
+15,6.843847159243428,0.9,topk-0.1
+16,7.2715876066961425,0.9,topk-0.1
+17,7.699328054148857,0.9,topk-0.1
+18,8.127068501601572,0.9,topk-0.1
+19,8.554808949054285,0.9,topk-0.1
 0,0.15856623784568571,0.7,topk-0.5
 1,0.31713247569137143,0.7666666666666667,topk-0.5
 2,0.4756987135370572,0.7666666666666667,topk-0.5
@@ -2439,246 +879,66 @@ Name: time, dtype: float64",0.9,topk-0.1
 17,2.854192281222343,0.8333333333333334,topk-0.5
 18,3.012758519068029,0.8333333333333334,topk-0.5
 19,3.171324756913714,0.8333333333333334,topk-0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.345796
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.338140
-Name: time, dtype: float64",0.6333333333333333,desired-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.691591
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    0.676280
-Name: time, dtype: float64",0.7333333333333333,desired-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.037387
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.014420
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.383182
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.352561
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.728978
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    1.690701
-Name: time, dtype: float64",0.7666666666666667,desired-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.074774
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.028841
-Name: time, dtype: float64",0.8,desired-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.420569
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.366981
-Name: time, dtype: float64",0.8666666666666667,desired-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.766365
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    2.705121
-Name: time, dtype: float64",0.8333333333333334,desired-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.112160
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.043261
-Name: time, dtype: float64",0.8333333333333334,desired-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.457956
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.381401
-Name: time, dtype: float64",0.8333333333333334,desired-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.803752
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    3.719541
-Name: time, dtype: float64",0.8333333333333334,desired-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.149547
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.057682
-Name: time, dtype: float64",0.8666666666666667,desired-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.495343
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.395822
-Name: time, dtype: float64",0.8666666666666667,desired-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.841138
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    4.733962
-Name: time, dtype: float64",0.8666666666666667,desired-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.186934
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.072102
-Name: time, dtype: float64",0.8666666666666667,desired-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.532729
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.410242
-Name: time, dtype: float64",0.8666666666666667,desired-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.878525
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    5.748382
-Name: time, dtype: float64",0.8666666666666667,desired-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.224321
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.086522
-Name: time, dtype: float64",0.8666666666666667,desired-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.570116
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.424663
-Name: time, dtype: float64",0.8666666666666667,desired-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.915912
-mp/deberta/toy-spam/confidence/42/stop-words-desired-0.1    6.762803
-Name: time, dtype: float64",0.8666666666666667,desired-0.1
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    0.503599
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    0.491082
-Name: time, dtype: float64",0.6333333333333333,masking-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.007198
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    0.982164
-Name: time, dtype: float64",0.6666666666666666,masking-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.510797
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.473247
-Name: time, dtype: float64",0.7,masking-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.014396
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    1.964329
-Name: time, dtype: float64",0.7333333333333333,masking-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.517994
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.455411
-Name: time, dtype: float64",0.7666666666666667,masking-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.021593
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    2.946493
-Name: time, dtype: float64",0.8,masking-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.525192
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.437576
-Name: time, dtype: float64",0.8,masking-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.028791
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    3.928658
-Name: time, dtype: float64",0.8,masking-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.53239
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.41974
-Name: time, dtype: float64",0.8,masking-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.035989
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    4.910822
-Name: time, dtype: float64",0.8333333333333334,masking-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.539588
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.401904
-Name: time, dtype: float64",0.8333333333333334,masking-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.043187
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    5.892987
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.546785
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.384069
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.050384
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    6.875151
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.553983
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.366233
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.057582
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    7.857316
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.561181
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.348398
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    9.06478
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    8.83948
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    9.568379
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    9.330562
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1    10.071978
-mp/deberta/toy-spam/confidence/42/stop-words-masking-0.1     9.821644
-Name: time, dtype: float64",0.8666666666666667,masking-0.1
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.341394
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.346190
-Name: time, dtype: float64",0.6,topk-masking-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.682787
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    0.692380
-Name: time, dtype: float64",0.7333333333333333,topk-masking-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.024181
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.038570
-Name: time, dtype: float64",0.7333333333333333,topk-masking-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.365575
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.384760
-Name: time, dtype: float64",0.7333333333333333,topk-masking-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.706968
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    1.730950
-Name: time, dtype: float64",0.7666666666666667,topk-masking-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.048362
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.077140
-Name: time, dtype: float64",0.8,topk-masking-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.389756
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.423330
-Name: time, dtype: float64",0.8,topk-masking-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.73115
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    2.76952
-Name: time, dtype: float64",0.8,topk-masking-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.072543
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.115710
-Name: time, dtype: float64",0.8,topk-masking-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.413937
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.461900
-Name: time, dtype: float64",0.8333333333333334,topk-masking-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.755331
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    3.808090
-Name: time, dtype: float64",0.8333333333333334,topk-masking-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.096724
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.154280
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.438118
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.500470
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.779512
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    4.846660
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.120905
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.192850
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.462299
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.539040
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.803693
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    5.885230
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.145087
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.231420
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.48648
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.57761
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.827874
-mp/deberta/toy-spam/confidence/42/stop-words-topk-masking-0.1    6.923800
-Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
+0,0.33814013390285713,0.6333333333333333,desired-0.1
+1,0.6762802678057143,0.7333333333333333,desired-0.1
+2,1.0144204017085716,0.7666666666666667,desired-0.1
+3,1.3525605356114285,0.7666666666666667,desired-0.1
+4,1.690700669514286,0.7666666666666667,desired-0.1
+5,2.0288408034171432,0.8,desired-0.1
+6,2.36698093732,0.8666666666666667,desired-0.1
+7,2.705121071222857,0.8333333333333334,desired-0.1
+8,3.0432612051257144,0.8333333333333334,desired-0.1
+9,3.381401339028572,0.8333333333333334,desired-0.1
+10,3.719541472931429,0.8333333333333334,desired-0.1
+11,4.0576816068342865,0.8666666666666667,desired-0.1
+12,4.395821740737143,0.8666666666666667,desired-0.1
+13,4.73396187464,0.8666666666666667,desired-0.1
+14,5.072102008542857,0.8666666666666667,desired-0.1
+15,5.410242142445714,0.8666666666666667,desired-0.1
+16,5.748382276348572,0.8666666666666667,desired-0.1
+17,6.086522410251429,0.8666666666666667,desired-0.1
+18,6.424662544154286,0.8666666666666667,desired-0.1
+19,6.762802678057144,0.8666666666666667,desired-0.1
+0,0.4910822245062857,0.6333333333333333,masking-0.1
+1,0.9821644490125714,0.6666666666666666,masking-0.1
+2,1.473246673518857,0.7,masking-0.1
+3,1.9643288980251428,0.7333333333333333,masking-0.1
+4,2.4554111225314283,0.7666666666666667,masking-0.1
+5,2.946493347037714,0.8,masking-0.1
+6,3.437575571544,0.8,masking-0.1
+7,3.9286577960502855,0.8,masking-0.1
+8,4.419740020556571,0.8,masking-0.1
+9,4.910822245062857,0.8333333333333334,masking-0.1
+10,5.401904469569143,0.8333333333333334,masking-0.1
+11,5.892986694075428,0.8666666666666667,masking-0.1
+12,6.384068918581713,0.8666666666666667,masking-0.1
+13,6.875151143088,0.8666666666666667,masking-0.1
+14,7.366233367594285,0.8666666666666667,masking-0.1
+15,7.857315592100571,0.8666666666666667,masking-0.1
+16,8.348397816606855,0.8666666666666667,masking-0.1
+17,8.839480041113141,0.8666666666666667,masking-0.1
+18,9.330562265619427,0.8666666666666667,masking-0.1
+19,9.821644490125713,0.8666666666666667,masking-0.1
+0,0.34618998391328576,0.6,topk-masking-0.1
+1,0.6923799678265715,0.7333333333333333,topk-masking-0.1
+2,1.0385699517398572,0.7333333333333333,topk-masking-0.1
+3,1.384759935653143,0.7333333333333333,topk-masking-0.1
+4,1.7309499195664286,0.7666666666666667,topk-masking-0.1
+5,2.0771399034797144,0.8,topk-masking-0.1
+6,2.4233298873930003,0.8,topk-masking-0.1
+7,2.769519871306286,0.8,topk-masking-0.1
+8,3.1157098552195714,0.8,topk-masking-0.1
+9,3.4618998391328573,0.8333333333333334,topk-masking-0.1
+10,3.808089823046143,0.8333333333333334,topk-masking-0.1
+11,4.154279806959429,0.8666666666666667,topk-masking-0.1
+12,4.500469790872715,0.8666666666666667,topk-masking-0.1
+13,4.8466597747860005,0.8666666666666667,topk-masking-0.1
+14,5.192849758699286,0.8666666666666667,topk-masking-0.1
+15,5.539039742612572,0.8666666666666667,topk-masking-0.1
+16,5.885229726525857,0.8666666666666667,topk-masking-0.1
+17,6.231419710439143,0.8666666666666667,topk-masking-0.1
+18,6.577609694352429,0.8666666666666667,topk-masking-0.1
+19,6.9237996782657145,0.8666666666666667,topk-masking-0.1
 0,0.13375132342757146,0.6333333333333333,topk-masking-0.5
 1,0.2675026468551429,0.6666666666666666,topk-masking-0.5
 2,0.4012539702827143,0.6666666666666666,topk-masking-0.5
@@ -2699,86 +959,26 @@ Name: time, dtype: float64",0.8666666666666667,topk-masking-0.1
 17,2.407523821696286,0.7666666666666667,topk-masking-0.5
 18,2.541275145123857,0.7333333333333333,topk-masking-0.5
 19,2.6750264685514287,0.7666666666666667,topk-masking-0.5
-0,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.232005
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.228132
-Name: time, dtype: float64",0.6666666666666666,topk-desired-masking-0.1
-1,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.464009
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.456264
-Name: time, dtype: float64",0.7333333333333333,topk-desired-masking-0.1
-2,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.696014
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.684396
-Name: time, dtype: float64",0.7333333333333333,topk-desired-masking-0.1
-3,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.928019
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    0.912528
-Name: time, dtype: float64",0.7666666666666667,topk-desired-masking-0.1
-4,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.160024
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.140660
-Name: time, dtype: float64",0.8,topk-desired-masking-0.1
-5,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.392028
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.368791
-Name: time, dtype: float64",0.8,topk-desired-masking-0.1
-6,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.624033
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.596923
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-7,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.856038
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    1.825055
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-8,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.088042
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.053187
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-9,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.320047
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.281319
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-10,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.552052
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.509451
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-11,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.784057
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.737583
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-12,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.016061
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    2.965715
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-13,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.248066
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.193847
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-14,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.480071
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.421979
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-15,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.712076
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.650111
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-16,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.944080
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    3.878243
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-17,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.176085
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.106374
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-18,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.408090
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.334506
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
-19,"optimization
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.640094
-mp/deberta/toy-spam/confidence/42/stop-words-topk-desired-masking-0.1    4.562638
-Name: time, dtype: float64",0.8333333333333334,topk-desired-masking-0.1
+0,0.22813191657027146,0.6666666666666666,topk-desired-masking-0.1
+1,0.4562638331405429,0.7333333333333333,topk-desired-masking-0.1
+2,0.6843957497108144,0.7333333333333333,topk-desired-masking-0.1
+3,0.9125276662810858,0.7666666666666667,topk-desired-masking-0.1
+4,1.1406595828513573,0.8,topk-desired-masking-0.1
+5,1.3687914994216288,0.8,topk-desired-masking-0.1
+6,1.5969234159919004,0.8333333333333334,topk-desired-masking-0.1
+7,1.8250553325621717,0.8333333333333334,topk-desired-masking-0.1
+8,2.053187249132443,0.8333333333333334,topk-desired-masking-0.1
+9,2.2813191657027145,0.8333333333333334,topk-desired-masking-0.1
+10,2.509451082272986,0.8333333333333334,topk-desired-masking-0.1
+11,2.7375829988432576,0.8333333333333334,topk-desired-masking-0.1
+12,2.9657149154135287,0.8333333333333334,topk-desired-masking-0.1
+13,3.1938468319838007,0.8333333333333334,topk-desired-masking-0.1
+14,3.421978748554072,0.8333333333333334,topk-desired-masking-0.1
+15,3.6501106651243433,0.8333333333333334,topk-desired-masking-0.1
+16,3.878242581694615,0.8333333333333334,topk-desired-masking-0.1
+17,4.106374498264886,0.8333333333333334,topk-desired-masking-0.1
+18,4.3345064148351575,0.8333333333333334,topk-desired-masking-0.1
+19,4.562638331405429,0.8333333333333334,topk-desired-masking-0.1
 0,0.12359193853714284,0.6333333333333333,topk-desired-masking-0.5
 1,0.24718387707428569,0.6333333333333333,topk-desired-masking-0.5
 2,0.3707758156114286,0.6666666666666666,topk-desired-masking-0.5
