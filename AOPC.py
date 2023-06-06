@@ -56,7 +56,7 @@ class AOPC:
         self.opt_prefix = f'{base_opt}-' if base_opt else ''
         self.model_type, self.ds_name = path.split('/')[-4:-2]
         self.sentences = pickle.load(open(f"{path}42/{self.opt_prefix}{delta}/anchor_examples.pickle", "rb" ))
-        self.labels = pickle.load(open(f"{path}42/{self.opt_prefix}0.1/labels.pickle", "rb" ))
+        self.labels = pickle.load(open(f"{path}42/{self.opt_prefix}0.1/labels.pickle", "rb"))
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         self.model = load_model(f'models/{self.model_type}/{self.ds_name}/model').to(self.device).eval()
         myUtils.model = self.model
@@ -123,23 +123,23 @@ class AOPC:
     #     return outputs.cpu().numpy()
     
     @torch.no_grad()
-    def _predict_scores(self, sentences):
+    def _predict_scores_inner(self, sentences):
         if self.model_type in ['deberta', 'tinybert']:
             inputs = self.model_tokenizer(sentences, padding=True, return_tensors ='pt').to(self.device)
-            return softmax(self.model(**inputs)[0]).cpu().numpy()
+            return softmax(self.model(**inputs)[0])
 
         t_sentences = [self.model_tokenizer.tokenize(s) for s in sentences]
         pad = max(len(s) for s in t_sentences)
         input_ids = [[101] +[self.model_tokenizer.vocab[token] for token in tokens] + [102] + [0]*(pad-len(tokens)) for tokens in t_sentences]
         res = softmax(self.model(input_ids)[0])
-        return softmax(self.model(input_ids)[0]).cpu().numpy()
+        return softmax(self.model(input_ids)[0])
     
-    # @torch.no_grad()
-    # def _predict_scores(self, sentences):
-    #     batch = 500
-    #     outputs = [self._predict_scores_inner(sentences[i: i+batch]) for i in range(0, len(sentences), batch)]
-    #     outputs = torch.cat(outputs)
-    #     return outputs.cpu().numpy()
+    @torch.no_grad()
+    def _predict_scores(self, sentences):
+        batch = 500
+        outputs = [self._predict_scores_inner(sentences[i: i+batch]) for i in range(0, len(sentences), batch)]
+        outputs = torch.cat(outputs)
+        return outputs.cpu().numpy()
     
     def _aopc_predictions(self, sentences_arr, label):
         return np.array([self._predict_scores(sentences)[:, label] for sentences in sentences_arr])
@@ -332,7 +332,7 @@ class AOPC:
                 continue
             if c in skip:
                 continue
-            elif c in from_img:
+            elif True:#c in from_img:
                 pos_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_pos_aopc.csv', index_col=0)
                 neg_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_neg_aopc.csv', index_col=0)
                 legends = list(pos_df.iloc[:, -1].unique())
