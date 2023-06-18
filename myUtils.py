@@ -215,10 +215,14 @@ class BestGroup:
     def should_calculate(self, anchor, label):
         if not self.filter_anchors:
             return True
+        should = None
         if label == 1:
-            return self.pos_BG.should_calculate(anchor)
+            should = self.pos_BG.should_calculate(anchor)
         else:
-            return self.neg_BG.should_calculate(anchor)
+            should = self.neg_BG.should_calculate(anchor)
+        if not should:
+            self.update_normal(anchor)
+        return should
     
     def desired_confidence_factor(self, anchor, label):
         """ 
