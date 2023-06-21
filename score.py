@@ -1,6 +1,7 @@
 from collections import Counter, defaultdict
 import pandas as pd
 import numpy as np
+import math
 
 class ScoreUtils:
     columns=['name','anchor score','type occurences','total occurences','+%','-%','both', 'normal']
@@ -41,6 +42,35 @@ class ScoreUtils:
         normal_occurences = ScoreUtils.get_normal_occurences(sentences, anchor_occurences, tokenizer)
         return anchor_occurences, pos_occurences, neg_occurences, normal_occurences
 
+    @staticmethod
+    def calculate_homogenity(cur_occurences, opposite_occurences, normal_occurences, min_occurrences=0, ds_size=3400):
+        h, p = dict(), dict()
+        I = ScoreUtils.calculate_root(cur_occurences, normal_occurences, min_occurrences, ds_size)
+        for word, count in cur_occurences.items():
+            p[word] = count**0.5/(count**0.5+opposite_occurences[word]**0.5)
+            h[word] = 0
+            if p[word] > 0:
+                h[word] -= p[word]*math.log(p[word])
+            if p[word]<1:
+                h[word] -= (1-p[word])*math.log(1-p[word])
+        h_max, h_min = max(h.values()), min(h.values())
+        assert(h_max<=1 and h_min>=0)
+        for word, count in cur_occurences.items():
+            factor = 1
+            if h_min != h_max:
+                factor = 1-(h[word]-h_min)/(h_max-h_min)
+            I[word] = factor*I[word]
+        return I
+    
+    @staticmethod
+    def calculate_root(anchor_occurences, normal_occurences, min_occurrences=0, ds_size=3400):
+        sums = dict()
+        sum_occurences = sum(x**0.5 for x in anchor_occurences.values())
+        for word, count in anchor_occurences.items():
+            sums[word] = count**0.5/sum_occurences
+
+        return sums
+    
     @staticmethod
     def calculate_sum(anchor_occurences, normal_occurences, min_occurrences=0, ds_size=3400):
         sums = dict()
@@ -121,13 +151,17 @@ class ScoreUtils:
     
     @staticmethod
     def calculate_agg_score(folder_name, tokenizer, sentences, exps, labels, agg_name, min_count=0):
-        aggs = {'sum': ScoreUtils.calculate_sum, 'avg': ScoreUtils.calculate_avg}
+        aggs = {'sum': ScoreUtils.calculate_sum, 'avg': ScoreUtils.calculate_avg, 'root': ScoreUtils.calculate_root, 'homogenity': ScoreUtils.calculate_homogenity}
         alphas = [0.95, 0.8, 0.65, 0.5]
         anchor_occurences, pos_occurences, neg_occurences, normal_occurences = ScoreUtils.get_occurences(sentences, exps, labels, tokenizer)
         df_pos, df_neg = [], []
-
-        teta_pos = aggs[agg_name](pos_occurences, normal_occurences, min_count, len(sentences))
-        teta_neg = aggs[agg_name](neg_occurences, normal_occurences, min_count, len(sentences))
+        
+        if agg_name == 'homogenity':
+            teta_pos = aggs[agg_name](pos_occurences, neg_occurences, normal_occurences, min_count, len(sentences))
+            teta_neg = aggs[agg_name](neg_occurences, pos_occurences, normal_occurences, min_count, len(sentences))
+        else:
+            teta_pos = aggs[agg_name](pos_occurences, normal_occurences, min_count, len(sentences))
+            teta_neg = aggs[agg_name](neg_occurences, normal_occurences, min_count, len(sentences))
 
         for anchor, score in teta_pos.items():
             pos_percent = round((pos_occurences[anchor])/anchor_occurences[anchor], 2)
