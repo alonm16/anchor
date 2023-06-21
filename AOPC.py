@@ -292,10 +292,12 @@ class AOPC:
         return self.compare_aopcs(optimizations, get_scores_fn, optimizations, 'optimization', normalizer=self.delta)
     
     def compare_aggregations(self, **kwargs):
+        assert('agg_params' in kwargs)
         if 'agg_params' not in kwargs:
             aggregations = ['', '', 'sum_', 'avg_', f'avg_{2e-3}_', f'avg_{3e-3}_', f'avg_{4e-3}_']
             alphas = [0.5, 0.95, None, None, None, None, None]
             legends = ['probabilistic α=0.5', 'probabilistic α=0.95', 'sum', 'avg', 'avg_2e-3', 'avg_3e-3', 'avg_4e-3']
+            
         else:
             aggregations, alphas, legends = kwargs['agg_params']
         get_scores_fn = lambda x: ScoreUtils.get_scores_dict(self.seed_path, trail_path=f"{self.delta}/{x[0]}scores.xlsx", alpha = x[1])
@@ -332,7 +334,7 @@ class AOPC:
                 continue
             if c in skip:
                 continue
-            elif True:#c in from_img:
+            elif c in from_img:
                 pos_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_pos_aopc.csv', index_col=0)
                 neg_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_neg_aopc.csv', index_col=0)
                 legends = list(pos_df.iloc[:, -1].unique())
