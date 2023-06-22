@@ -31,6 +31,8 @@ class AOPC_Plotter:
             ax.grid()
             if limiter:
                 ax.axvline(x = 0.2*max_x, ymin = 0, ymax = max_y, color = 'black', linestyle=':')
+            if 'time aggregation' in title:
+                ax.axhline(y=1, color = 'black', linestyle=':')
         fig.suptitle(title)
         axs[0].legend().remove()
         plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
@@ -292,7 +294,6 @@ class AOPC:
         return self.compare_aopcs(optimizations, get_scores_fn, optimizations, 'optimization', normalizer=self.delta)
     
     def compare_aggregations(self, **kwargs):
-        assert('agg_params' in kwargs)
         if 'agg_params' not in kwargs:
             aggregations = ['', '', 'sum_', 'avg_', f'avg_{2e-3}_', f'avg_{3e-3}_', f'avg_{4e-3}_']
             alphas = [0.5, 0.95, None, None, None, None, None]
@@ -321,13 +322,23 @@ class AOPC:
         opts = kwargs['opts'] if 'opts' in kwargs else self.opts
         return self.time_aopc_monitor(opts, alpha = self.alpha)
     
+    def time_aopc_aggregation(self, **kwargs):
+        if 'agg_params' not in kwargs:
+            aggregations = ['', '', 'sum_', 'avg_', f'avg_{2e-3}_', f'avg_{3e-3}_', f'avg_{4e-3}_']
+            alphas = [0.5, 0.95, None, None, None, None, None]
+            legends = ['probabilistic α=0.5', 'probabilistic α=0.95', 'sum', 'avg', 'avg_2e-3', 'avg_3e-3', 'avg_4e-3']
+            
+        else:
+            aggregations, alphas, legends = kwargs['agg_params']
+        return self.time_aopc_aggregation_monitor(aggregations, alphas, legends)
+    
     def compare_all(self, seeds=[42, 84, 126, 168, 210], from_img=[], skip=[], only=None, verbose= True, **kwargs): 
         if not verbose:
             global print
             print = lambda *x: None
-        compares = {'sorts': self.compare_sorts, 'delta': self.compare_deltas, 'alpha': self.compare_alphas, 'aggregation': self.compare_aggregations, 'percent': self.compare_percents, 'percents-remove': self.compare_percents_remove, 'optimization': self.compare_optimizations, 'percents time': self.time_percent, 'aopc time': self.time_aopc}
+        compares = {'sorts': self.compare_sorts, 'delta': self.compare_deltas, 'alpha': self.compare_alphas, 'aggregation': self.compare_aggregations, 'percent': self.compare_percents, 'percents-remove': self.compare_percents_remove, 'optimization': self.compare_optimizations, 'percents time': self.time_percent, 'aopc time': self.time_aopc, 'aopc time aggregation': self.time_aopc_aggregation}
         
-        normalizers = dict(zip(compares.keys(),['normal', 0.1, 0.95, 'probabilistic α=0.95', 100, 100, self.delta, self.delta, self.delta]))
+        normalizers = dict(zip(compares.keys(),['normal', 0.1, 0.95, 'probabilistic α=0.5', 100, 100, self.delta, self.delta, self.delta, 'probabilistic α=0.5']))
         
         for c in compares:
             if only and c not in only:
@@ -353,9 +364,9 @@ class AOPC:
                 pos_tok_arr = [pickle.load(open(f"{self.path}42/{self.opt_prefix}tokens/{l}_pos_tokens.pickle", "rb")) for l in legends]
                 neg_tok_arr = [pickle.load(open(f"{self.path}42/{self.opt_prefix}tokens/{l}_neg_tokens.pickle", "rb")) for l in legends]
                 self.print_tokens(legends, pos_tok_arr, neg_tok_arr)
-                limiter=False
+                
+                limiter = c in ['percents time', 'aopc time']
                 if c in ['percents time', 'aopc time']:
-                    limiter=True
                     c_title = self.title + f' {c.split()[0]} evaluation'
                 plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, limiter)
                 
@@ -378,9 +389,8 @@ class AOPC:
                     neg_normalizer = neg_df[neg_df[hue].astype('str') ==str(normalizer)].iloc[jumps, 1].mean()
                     pos_df.iloc[:, 1]/=pos_normalizer
                     neg_df.iloc[:, 1]/=neg_normalizer
-                limiter=False
-                if c in ['percents time', 'aopc time']:
-                    limiter=True
+                    
+                limiter = c in ['percents time', 'aopc time']
                 plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, limiter)
 
                 
@@ -414,7 +424,49 @@ class AOPC:
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
             
         return pos_df, neg_df, 'time (minutes)', 'percents', "optimization", opts, f'{self.ds_name} dataset percents evaluation', AOPC_Plotter.aopc_plot, self.delta
+       
+    def time_aopc_aggregation_monitor(self, aggregations, alphas, legends):
+        """
+        compare best topk negative and positive anchors between current result and the
+        end result top scores for different aggregations
+        """
+        top = self.num_removes
+        exps = pickle.load(open(f"{self.seed_path}0.1/exps_list.pickle", "rb"))
+        times = pd.read_csv('times.csv', index_col=0)
+        pos_percent = sum(self.labels)/len(self.labels)
+        pos_df = pd.DataFrame(columns = ['time (minutes)', "AOPC-global", "aggregation"])
+        neg_df = pd.DataFrame(columns = pos_df.columns)
+        pos_tok_arr, neg_tok_arr = [], []
+
+        for agg, alpha, legend in zip(aggregations, alphas, legends):
+            pos_results, neg_results = [], []
+            if agg=='':
+                percents_dict = ScoreUtils.calculate_time_scores(self.tokenizer, self.sentences, exps, self.predictions, [alpha])[alpha]
+            else:
+                splitted_agg = agg.split('_')
+                agg_name = splitted_agg[0]
+                min_count = float(splitted_agg[1]) if (agg_name=='avg' and len(splitted_agg[1])>0) else 0
+                percents_dict = ScoreUtils.calculate_time_aggregation(self.tokenizer, self.sentences, exps, self.predictions, agg_name, min_count)
+            percents = percents_dict['pos'].keys()
+            for i in percents:
+                top_pos = list(percents_dict['pos'][i].index[:top])
+                top_neg = list(percents_dict['neg'][i].index[:top])
+                self.set_tokens(top_pos, top_neg)
+                pos_results.append(2*self._aopc_global(top_pos, self.pos_sentences, 1, [0, top])[1])
+                neg_results.append(2*self._aopc_global(top_neg, self.neg_sentences, 0, [0, top])[1])
+            pos_tok_arr.append(top_pos)
+            neg_tok_arr.append(top_neg)
                 
+            time = times.loc[f'mp/{self.model_type}/{self.ds_name}/confidence/42/{self.opt_prefix}0.1'].time
+            pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(legend, len(pos_results)))), columns = pos_df.columns)])
+            neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(legend, len(neg_results)))), columns = neg_df.columns)])
+
+        if self.seed==42:
+            self.print_tokens(legends, pos_tok_arr, neg_tok_arr)
+                
+        return pos_df, neg_df, 'time (minutes)', 'AOPC-global', "aggregation", legends, f'{self.ds_name} dataset time aggregation', AOPC_Plotter.aopc_plot, 'probabilistic α=0.5'
+    
+
     def time_aopc_monitor(self, opts, alpha=0.95):
         """
         compare best topk negative and positive anchors between current result and the

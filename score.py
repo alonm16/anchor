@@ -88,7 +88,6 @@ class ScoreUtils:
             occurrences = anchor_occurences[word]+normal_occurences[word]
             if anchor_occurences[word] > min_count:
                 avgs[word] = count/occurrences
-
         return avgs
     
     @staticmethod
@@ -150,11 +149,23 @@ class ScoreUtils:
         return pd.DataFrame(data = df, columns = ScoreUtils.columns).set_index('name')
     
     @staticmethod
+    def score_aggregation_df(type_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta):
+        df = []
+        
+        for anchor, score in teta.items():
+            pos_percent = round((pos_occurences[anchor])/anchor_occurences[anchor], 2)
+            neg_percent = 1-pos_percent
+            both = (pos_occurences[anchor])>0 and (neg_occurences[anchor])>0
+            df.append([anchor, score , type_occurences[anchor], anchor_occurences[anchor], pos_percent, neg_percent, both, normal_occurences[anchor]]) 
+
+        df.sort(key=lambda exp: -exp[1])
+        return pd.DataFrame(data = df, columns = ScoreUtils.columns).set_index('name')
+    
+    @staticmethod
     def calculate_agg_score(folder_name, tokenizer, sentences, exps, labels, agg_name, min_count=0):
         aggs = {'sum': ScoreUtils.calculate_sum, 'avg': ScoreUtils.calculate_avg, 'root': ScoreUtils.calculate_root, 'homogenity': ScoreUtils.calculate_homogenity}
-        alphas = [0.95, 0.8, 0.65, 0.5]
+
         anchor_occurences, pos_occurences, neg_occurences, normal_occurences = ScoreUtils.get_occurences(sentences, exps, labels, tokenizer)
-        df_pos, df_neg = [], []
         
         if agg_name == 'homogenity':
             teta_pos = aggs[agg_name](pos_occurences, neg_occurences, normal_occurences, min_count, len(sentences))
@@ -163,22 +174,8 @@ class ScoreUtils:
             teta_pos = aggs[agg_name](pos_occurences, normal_occurences, min_count, len(sentences))
             teta_neg = aggs[agg_name](neg_occurences, normal_occurences, min_count, len(sentences))
 
-        for anchor, score in teta_pos.items():
-            pos_percent = round((pos_occurences[anchor])/anchor_occurences[anchor], 2)
-            neg_percent = 1-pos_percent
-            both = pos_occurences[anchor]>0 and neg_occurences[anchor]>0
-            df_pos.append([anchor, score , pos_occurences[anchor], anchor_occurences[anchor], pos_percent, neg_percent, both, normal_occurences[anchor]]) 
-
-        for anchor, score in teta_neg.items():
-            pos_percent = round((pos_occurences[anchor])/anchor_occurences[anchor], 2)
-            neg_percent = 1-pos_percent
-            both = pos_occurences[anchor]>0 and neg_occurences[anchor]>0
-            df_neg.append([anchor, score, neg_occurences[anchor], anchor_occurences[anchor], pos_percent, neg_percent, both, normal_occurences[anchor]])
-
-        df_pos.sort(key=lambda exp: -exp[1])
-        df_neg.sort(key=lambda exp: -exp[1])
-        df_pos = pd.DataFrame(data = df_pos, columns = ScoreUtils.columns).set_index('name')
-        df_neg = pd.DataFrame(data = df_neg, columns = ScoreUtils.columns).set_index('name')
+        df_neg = ScoreUtils.score_aggregation_df(neg_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta_neg)
+        df_pos = ScoreUtils.score_aggregation_df(pos_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta_pos)
 
         agg_name = agg_name if min_count == 0 else agg_name+f'_{min_count}'
         with pd.ExcelWriter(f'{folder_name}/{agg_name}_scores.xlsx', engine='xlsxwriter') as writer:
@@ -233,6 +230,40 @@ class ScoreUtils:
                 cur_col+= len(ScoreUtils.columns) + 1
 
     @staticmethod
+    def calculate_time_aggregation(tokenizer, sentences, exps, labels, agg_name, min_count=0):
+        """calculates the scores for specific time during the running of anchor of an aggregation"""
+        aggs = {'sum': ScoreUtils.calculate_sum, 'avg': ScoreUtils.calculate_avg, 'root': ScoreUtils.calculate_root, 'homogenity': ScoreUtils.calculate_homogenity}
+        
+        pos_sentences = [s for s, l in zip(sentences, labels) if l==1]
+        pos_indices = [i for i, l in enumerate(labels) if l==1]
+        neg_sentences = [s for s, l in zip(sentences, labels) if l==0]
+        neg_indices = [i for i, l in enumerate(labels) if l==0]
+        
+        results = defaultdict(lambda: defaultdict(dict))
+        for percent in range(5, 105, 5):
+            pos_index = int(percent*len(pos_sentences)/100)
+            pos_exps = list(filter(lambda e: labels[e.index]==1 and pos_indices.index(e.index)<pos_index, exps))
+
+            neg_index = int(percent*len(neg_sentences)/100)
+            neg_exps = list(filter(lambda e: labels[e.index]==0 and neg_indices.index(e.index)<neg_index, exps))
+            
+            sentences = pos_sentences[:pos_index] + neg_sentences[:neg_index]
+            
+            anchor_occurences, pos_occurences, neg_occurences, normal_occurences = ScoreUtils.get_occurences(sentences, pos_exps+neg_exps, labels, tokenizer)
+        
+            if agg_name == 'homogenity':
+                teta_pos = aggs[agg_name](pos_occurences, neg_occurences, normal_occurences, min_count, len(sentences))
+                teta_neg = aggs[agg_name](neg_occurences, pos_occurences, normal_occurences, min_count, len(sentences))
+            else:
+                teta_pos = aggs[agg_name](pos_occurences, normal_occurences, min_count, len(sentences))
+                teta_neg = aggs[agg_name](neg_occurences, normal_occurences, min_count, len(sentences))
+       
+            results['pos'][percent] = ScoreUtils.score_aggregation_df(pos_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta_pos)[[ScoreUtils.columns[1]]]
+            results['neg'][percent] = ScoreUtils.score_aggregation_df(neg_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta_neg)[[ScoreUtils.columns[1]]]
+            
+        return results            
+    
+    @staticmethod
     def calculate_time_scores(tokenizer, sentences, exps, labels, alphas = [0.95, 0.8, 0.65, 0.5]):
         """ calculates the scores for specific time during the running of anchor """
         pos_sentences = [s for s, l in zip(sentences, labels) if l==1]
@@ -243,10 +274,10 @@ class ScoreUtils:
         results = defaultdict(lambda: defaultdict(dict))
         for percent in range(5, 105, 5):
             pos_index = int(percent*len(pos_sentences)/100)
-            pos_exps = list(filter(lambda e: labels[e.index]==1 and pos_indices.index(e.index)<=pos_index, exps))
+            pos_exps = list(filter(lambda e: labels[e.index]==1 and pos_indices.index(e.index)<pos_index, exps))
 
             neg_index = int(percent*len(neg_sentences)/100)
-            neg_exps = list(filter(lambda e: labels[e.index]==0 and neg_indices.index(e.index)<=neg_index, exps))
+            neg_exps = list(filter(lambda e: labels[e.index]==0 and neg_indices.index(e.index)<neg_index, exps))
 
             sentences = pos_sentences[:pos_index] + neg_sentences[:neg_index]
             
