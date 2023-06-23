@@ -368,6 +368,8 @@ class AOPC:
                 limiter = c in ['percents time', 'aopc time']
                 if c in ['percents time', 'aopc time']:
                     c_title = self.title + f' {c.split()[0]} evaluation'
+                if c == 'aopc time aggregation':
+                    c_title = self.title+ ' time aggregation'
                 plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, limiter)
                 
             else:
