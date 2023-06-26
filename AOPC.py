@@ -22,7 +22,7 @@ colors = [simple_colors.red, simple_colors.blue, simple_colors.cyan,
 class AOPC_Plotter:
     @staticmethod
     def aopc_plot(pos_df, neg_df, xlabel, ylabel, hue, legend, title, limiter):
-        fig, axs = plt.subplots(1, 2, figsize=(10, 3))
+        fig, axs = plt.subplots(1, 2, figsize=(7, 3))
         max_x = max(df[xlabel].max() for df in [pos_df, neg_df])
         max_y = max(df[ylabel].max() for df in [pos_df, neg_df])
         min_y = min(df[ylabel].min() for df in [pos_df, neg_df])
@@ -33,22 +33,53 @@ class AOPC_Plotter:
                 ax.axvline(x = 0.2*max_x, ymin = 0, ymax = max_y, color = 'black', linestyle=':')
             if 'time aggregation' in title:
                 ax.axhline(y=1, color = 'black', linestyle=':')
-        fig.suptitle(title)
+        fig.suptitle(title, y=1.0)
         axs[0].legend().remove()
+        axs[1].axes.get_yaxis().get_label().set_visible(False)
         plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
         plt.show()
         fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
         
+    @staticmethod
+    def aopc_plot_2(pos_df, neg_df, xlabel, ylabel, hue, legend, title, limiter):
+        def helper(df, label):
+            df_1 = df[df['optimization'].str.contains('0.1')]
+            df_5 = df[df['optimization'].str.contains('0.5')]
+            shorten = lambda x: 'default' if len(x) < 4 else x[:-4]
+            df_1['optimization'] = df_1['optimization'].apply(shorten)
+            df_5['optimization'] = df_5['optimization'].apply(shorten)
+            fig, axs = plt.subplots(1, 2, figsize=(7, 3))
+            max_x = max(df[xlabel].max() for df in [df_1, df_5])
+            max_y = max(df[ylabel].max() for df in [df_1, df_5])
+            min_y = min(df[ylabel].min() for df in [df_1, df_5])
+            for ax, df, type_title in zip(axs, [df_1, df_5], ['δ=0.1', 'δ=0.5']): 
+                sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, ax=ax, palette=sns.color_palette()).set(title=type_title, xlim=(0, max_x), ylim=(min_y, max_y))
+                ax.grid()
+                if limiter:
+                    ax.axvline(x = 0.2*max_x, ymin = 0, ymax = max_y, color = 'black', linestyle=':')
+                if 'time aggregation' in title:
+                    ax.axhline(y=1, color = 'black', linestyle=':')
+            fig.suptitle(title+ ' ' + label, y=1.0)
+            axs[0].legend().remove()
+            axs[1].axes.get_yaxis().get_label().set_visible(False)
+            plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
+            plt.show()
+            #fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
+        
+        helper(pos_df, 'positive')
+        helper(neg_df, 'negative')
+        
     @staticmethod       
     def time_aopc_plot(pos_df, neg_df, xlabel, ylabel, hue, legend, title, limit=False):
-        fig, axs = plt.subplots(1, 2, figsize=(10, 3))
+        fig, axs = plt.subplots(1, 2, figsize=(7, 3))
         for ax, df, type_title in zip(axs, [pos_df, neg_df], ['positive', 'negative']):
             df = df[df[xlabel].isin([1, 5 ,10, 20 ,30])]
             sns.lineplot(data=df, x=hue, y=ylabel, hue=xlabel, legend=legend, ax = ax, palette=sns.color_palette()).set(title=type_title)
             sns.move_legend(ax, "lower left")
             ax.grid()
-        fig.suptitle(title)
+        fig.suptitle(title, y=1)
         axs[0].legend().remove()
+        axs[1].axes.get_yaxis().get_label().set_visible(False)
         plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
         plt.show()
         fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
@@ -74,7 +105,7 @@ class AOPC:
         self.neg_sentences = [s for i, s in enumerate(self.sentences) if self.labels[i]==0]
         self.opts = [str(delta), f'stop-words-{delta}', f'topk-{delta}', f'desired-{delta}', f'masking-{delta}', f'stop-words-masking-{delta}', 'stop-words-0.5', 'stop-words-topk-0.5', f'stop-words-topk-masking-0.5', f'stop-words-topk-desired-masking-0.5']
         if self.opt_prefix != '':
-            self.opts = [str(delta),  '0.5', f'topk-{delta}', 'topk-0.5', f'desired-{delta}', f'masking-{delta}', f'topk-masking-{delta}', f'topk-masking-0.5', f'topk-desired-masking-{delta}', f'topk-desired-masking-0.5']
+            self.opts = [str(delta),  '0.5', f'topk-{delta}', 'topk-0.5', f'desired-{delta}', 'desired-0.5', f'masking-{delta}', 'masking-0.5', f'topk-desired-masking-{delta}', 'topk-desired-masking-0.5']
         self.model_tokenizer = tokenizer
         self.predictions = pickle.load(open(f"{path}42/{self.opt_prefix}0.1/predictions.pickle", "rb" ))
         
@@ -336,7 +367,7 @@ class AOPC:
         if not verbose:
             global print
             print = lambda *x: None
-        compares = {'sorts': self.compare_sorts, 'delta': self.compare_deltas, 'alpha': self.compare_alphas, 'aggregation': self.compare_aggregations, 'percent': self.compare_percents, 'percents-remove': self.compare_percents_remove, 'optimization': self.compare_optimizations, 'percents time': self.time_percent, 'aopc time': self.time_aopc, 'aopc time aggregation': self.time_aopc_aggregation}
+        compares = {'sorts': self.compare_sorts, 'delta': self.compare_deltas, 'alpha': self.compare_alphas, 'aggregation': self.compare_aggregations, 'percent': self.compare_percents, 'percents-remove': self.compare_percents_remove, 'optimization': self.compare_optimizations, 'percents time': self.time_percent, 'aopc time': self.time_aopc, 'aopc aggregation time': self.time_aopc_aggregation}
         
         normalizers = dict(zip(compares.keys(),['normal', 0.1, 0.95, 'probabilistic α=0.5', 100, 100, self.delta, self.delta, self.delta, 'probabilistic α=0.5']))
         
@@ -366,10 +397,10 @@ class AOPC:
                 self.print_tokens(legends, pos_tok_arr, neg_tok_arr)
                 
                 limiter = c in ['percents time', 'aopc time']
-                if c in ['percents time', 'aopc time']:
-                    c_title = self.title + f' {c.split()[0]} evaluation'
-                if c == 'aopc time aggregation':
-                    c_title = self.title+ ' time aggregation'
+                if c in ['percents time', 'aopc time', 'aopc aggregation time']:
+                    c_title = self.title + f' {c.split()[0]}'
+                    plotter = AOPC_Plotter.aopc_plot_2
+                    
                 plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, limiter)
                 
             else:
@@ -393,6 +424,8 @@ class AOPC:
                     neg_df.iloc[:, 1]/=neg_normalizer
                     
                 limiter = c in ['percents time', 'aopc time']
+                if c in ['percents time', 'aopc time', 'aopc aggregation time']:
+                    plotter = AOPC_Plotter.aopc_plot_2
                 plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, limiter)
 
                 
@@ -425,7 +458,7 @@ class AOPC:
             pos_df = pd.concat([pos_df, pd.DataFrame(list(zip([time*pos_percent*i/100 for i in percents], pos_results, np.repeat(opt, len(pos_results)))), columns = pos_df.columns)])
             neg_df = pd.concat([neg_df, pd.DataFrame(list(zip([time*(1-pos_percent)*i/100 for i in percents], neg_results, np.repeat(opt, len(neg_results)))), columns = neg_df.columns)])
             
-        return pos_df, neg_df, 'time (minutes)', 'percents', "optimization", opts, f'{self.ds_name} dataset percents evaluation', AOPC_Plotter.aopc_plot, self.delta
+        return pos_df, neg_df, 'time (minutes)', 'percents', "optimization", opts, f'{self.ds_name} dataset percents', AOPC_Plotter.aopc_plot, self.delta
        
     def time_aopc_aggregation_monitor(self, aggregations, alphas, legends):
         """
@@ -502,7 +535,7 @@ class AOPC:
         if self.seed==42:
             self.print_tokens(opts, pos_tok_arr, neg_tok_arr)
                 
-        return pos_df, neg_df, 'time (minutes)', 'AOPC-global', "optimization", opts, f'{self.ds_name} dataset aopc evaluation', AOPC_Plotter.aopc_plot, self.delta
+        return pos_df, neg_df, 'time (minutes)', 'AOPC-global', "optimization", opts, f'{self.ds_name} dataset aopc', AOPC_Plotter.aopc_plot, self.delta
     
     @staticmethod
     def print_tokens(legends, pos_tokens_arr, neg_tokens_arr):
