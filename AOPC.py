@@ -42,32 +42,36 @@ class AOPC_Plotter:
         
     @staticmethod
     def aopc_plot_2(pos_df, neg_df, xlabel, ylabel, hue, legend, title, limiter):
-        def helper(df, label):
-            df_1 = df[df['optimization'].str.contains('0.1')]
-            df_5 = df[df['optimization'].str.contains('0.5')]
-            shorten = lambda x: 'default' if len(x) < 4 else x[:-4]
-            df_1['optimization'] = df_1['optimization'].apply(shorten)
-            df_5['optimization'] = df_5['optimization'].apply(shorten)
-            fig, axs = plt.subplots(1, 2, figsize=(7, 3))
-            max_x = max(df[xlabel].max() for df in [df_1, df_5])
-            max_y = max(df[ylabel].max() for df in [df_1, df_5])
-            min_y = min(df[ylabel].min() for df in [df_1, df_5])
-            for ax, df, type_title in zip(axs, [df_1, df_5], ['δ=0.1', 'δ=0.5']): 
-                sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, ax=ax, palette=sns.color_palette()).set(title=type_title, xlim=(0, max_x), ylim=(min_y, max_y))
-                ax.grid()
-                if limiter:
-                    ax.axvline(x = 0.2*max_x, ymin = 0, ymax = max_y, color = 'black', linestyle=':')
-                if 'time aggregation' in title:
-                    ax.axhline(y=1, color = 'black', linestyle=':')
-            fig.suptitle(title+ ' ' + label, y=1.0)
-            axs[0].legend().remove()
-            axs[1].axes.get_yaxis().get_label().set_visible(False)
-            plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0)
-            plt.show()
-            #fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
-        
-        helper(pos_df, 'positive')
-        helper(neg_df, 'negative')
+        change = lambda df, delta: df[df['optimization'].str.contains(delta)]
+        df_1_pos, df_5_pos = change(pos_df, '0.1'), change(pos_df, '0.5')
+        df_1_neg, df_5_neg = change(neg_df, '0.1'), change(neg_df, '0.5')
+        shorten = lambda x: 'default' if len(x) < 4 else x[:-4]
+        dfs = [df_1_pos, df_5_pos, df_1_neg, df_5_neg]
+        for df in dfs:
+            df['optimization'] = df['optimization'].apply(shorten)
+        fig, axs = plt.subplots(1, 4, figsize=(10, 3))
+        max_x = max(df[xlabel].max() for df in dfs)
+        max_y = max(df[ylabel].max() for df in dfs)
+        min_y = min(df[ylabel].min() for df in dfs)
+        for i, df, type_title in zip(range(len(axs)), dfs, ['δ=0.1 positive', 'δ=0.5 positive', 'δ=0.1 negative', 'δ=0.5 negative']): 
+            sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, ax=axs[i], palette=sns.color_palette()).set(title=type_title, xlim=(0, max_x), ylim=(min_y, max_y))
+            axs[i].grid()
+            axs[i].set(xlabel=None)
+            if i<len(axs)-1:
+                axs[i].legend().remove()    
+            if i>0:
+                axs[i].axes.get_yaxis().get_label().set_visible(False)
+                axs[i].set(yticklabels=[])
+            if limiter:
+                axs[i].axvline(x = 0.2*max_x, ymin = 0, ymax = max_y, color='black', linestyle=':')
+            if 'time aggregation' in title:
+                axs[i].axhline(y=1, color = 'black', linestyle=':')
+                                     
+        fig.suptitle(title, y=1.1)
+        fig.supxlabel(xlabel, y=-0.1)
+        plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', borderaxespad=0, fontsize='10')
+        plt.show()
+        fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
         
     @staticmethod       
     def time_aopc_plot(pos_df, neg_df, xlabel, ylabel, hue, legend, title, limit=False):
@@ -367,7 +371,7 @@ class AOPC:
         if not verbose:
             global print
             print = lambda *x: None
-        compares = {'sorts': self.compare_sorts, 'delta': self.compare_deltas, 'alpha': self.compare_alphas, 'aggregation': self.compare_aggregations, 'percent': self.compare_percents, 'percents-remove': self.compare_percents_remove, 'optimization': self.compare_optimizations, 'percents time': self.time_percent, 'aopc time': self.time_aopc, 'aopc aggregation time': self.time_aopc_aggregation}
+        compares = {'sorts': self.compare_sorts, 'delta': self.compare_deltas, 'alpha': self.compare_alphas, 'aggregation': self.compare_aggregations, 'percent': self.compare_percents, 'percents-remove': self.compare_percents_remove, 'optimization': self.compare_optimizations, 'percents time': self.time_percent, 'aopc time': self.time_aopc, 'aggregation-aopc time': self.time_aopc_aggregation}
         
         normalizers = dict(zip(compares.keys(),['normal', 0.1, 0.95, 'probabilistic α=0.5', 100, 100, self.delta, self.delta, self.delta, 'probabilistic α=0.5']))
         
@@ -376,7 +380,7 @@ class AOPC:
                 continue
             if c in skip:
                 continue
-            elif c in from_img:
+            elif True:#c in from_img:
                 pos_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_pos_aopc.csv', index_col=0)
                 neg_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_neg_aopc.csv', index_col=0)
                 legends = list(pos_df.iloc[:, -1].unique())
@@ -397,8 +401,9 @@ class AOPC:
                 self.print_tokens(legends, pos_tok_arr, neg_tok_arr)
                 
                 limiter = c in ['percents time', 'aopc time']
-                if c in ['percents time', 'aopc time', 'aopc aggregation time']:
+                if c in ['percents time', 'aopc time', 'aggregation-aopc time']:
                     c_title = self.title + f' {c.split()[0]}'
+                if c in ['optimization', 'percents time', 'aopc time']:
                     plotter = AOPC_Plotter.aopc_plot_2
                     
                 plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, limiter)
@@ -424,7 +429,7 @@ class AOPC:
                     neg_df.iloc[:, 1]/=neg_normalizer
                     
                 limiter = c in ['percents time', 'aopc time']
-                if c in ['percents time', 'aopc time', 'aopc aggregation time']:
+                if c in ['optimization', 'percents time', 'aopc time']:
                     plotter = AOPC_Plotter.aopc_plot_2
                 plotter(pos_df, neg_df, xlabel, ylabel, hue, legends, c_title, limiter)
 
