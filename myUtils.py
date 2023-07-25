@@ -24,9 +24,15 @@ def set_seed(seed=42):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
+#def predict_sentences(sentences):
+#    inputs = tokenizer(sentences, padding=True, return_tensors ='pt').to(device)
+#    outputs = model(**inputs)[0]
+#    return torch.argmax(outputs, dim=1).cpu().numpy()
+
+# for tiny bert
 def predict_sentences(sentences):
     inputs = tokenizer(sentences, padding=True, return_tensors ='pt').to(device)
-    outputs = model(**inputs)[0]
+    outputs = model(inputs['input_ids'])[0]
     return torch.argmax(outputs, dim=1).cpu().numpy()
 
 # def predict_sentences(sentences):
@@ -142,7 +148,7 @@ class BestGroupInner:
     # better to update when a word is found normal, 
     # and in keep all anchors sorted in case someone out of the best became 
     # better than min because normal decreased the value of the min
-    def __init__(self, occurences, normal_counts, group_size=25):
+    def __init__(self, occurences, normal_counts, tot_normal, group_size=40):
         self.occurences_left = occurences
         self.best = set()
         self.anchor_counts = defaultdict(int)
@@ -151,9 +157,12 @@ class BestGroupInner:
         self.full = False
         self.normal_factor = 0.1
         self.group_size = group_size
+        self.tot_anchors = 1
+        self.tot_normal = tot_normal
     
     def update(self, anchor):
         self.anchor_counts[anchor]+=1
+        self.tot_anchors+=1
         
         if anchor == self.min_name:
             self._update_min(anchor)
@@ -171,6 +180,7 @@ class BestGroupInner:
             self._update_min(anchor) 
             
     def pseudo_score(self, anchor):
+        return self.anchor_counts[anchor] - 0.5*(self.tot_anchors/self.tot_normal[0])*self.normal_counts[anchor]
         return self.anchor_counts[anchor] - self.normal_factor*self.normal_counts[anchor]
             
     def _update_min(self, candid_name):
@@ -191,17 +201,19 @@ class BestGroupInner:
         return should
     
 class BestGroup:
-    def __init__(self, folder_name, occurences, filter_anchors = False, desired_optimize = False ,group_size = 50):
+    def __init__(self, folder_name, occurences, filter_anchors = False, desired_optimize = False ,group_size = 40):
         self.occurences_left = occurences
         self.normal_counts = defaultdict(int)
-        self.pos_BG = BestGroupInner(occurences, self.normal_counts, group_size//2)
-        self.neg_BG = BestGroupInner(occurences, self.normal_counts, group_size//2)
+        self.tot_normal = [1]
+        self.pos_BG = BestGroupInner(occurences, self.normal_counts, self.tot_normal, group_size)
+        self.neg_BG = BestGroupInner(occurences, self.normal_counts, self.tot_normal, group_size)
         self.pos_monitor_writer = writer(open(f'{folder_name}/pos_monitor.csv', 'a+', newline='', encoding='utf8'))
         self.neg_monitor_writer = writer(open(f'{folder_name}/neg_monitor.csv', 'a+', newline='', encoding='utf8'))
         self.time_monitor_writer = writer(open(f'{folder_name}/time_monitor.csv', 'a+', newline=''))
         self.filter_anchors = filter_anchors
         self.desired_optimize = desired_optimize
         self.st = time.time()
+        
         
     def update_anchor(self, anchor, label):
         if label == 1:
@@ -211,6 +223,7 @@ class BestGroup:
     
     def update_normal(self, anchor):
         self.normal_counts[anchor]+=1
+        self.tot_normal[0]+=1
         
     def should_calculate(self, anchor, label):
         if not self.filter_anchors:
