@@ -361,9 +361,9 @@ class AOPC:
         if not verbose:
             global print
             print = lambda *x: None
-        compares = {'delta': self.compare_deltas, 'alpha': self.compare_alphas, 'aggregation': self.compare_aggregations, 'percent': self.compare_percents, 'percents-remove': self.compare_percents_remove, 'optimization': self.compare_optimizations, 'percents time': self.time_percent, 'aopc time': self.time_aopc, 'aggregation-aopc time': self.time_aopc_aggregation}
+        compares = {'delta': self.compare_deltas, 'alpha': self.compare_alphas, 'aggregation': self.compare_aggregations, 'percent': self.compare_percents,  'optimization': self.compare_optimizations, 'percents time': self.time_percent, 'aopc time': self.time_aopc, 'aggregation-aopc time': self.time_aopc_aggregation}
         
-        normalizers = dict(zip(compares.keys(),[0.1, 0.95, '$\mathcal{G}_{\mathsf{pr}}$ α=0.5', 100, 100, self.delta, self.delta, self.delta, '$\mathcal{G}_{\mathsf{pr}}$ α=0.5']))
+        normalizers = dict(zip(compares.keys(),[0.1, 0.95, '$\mathcal{G}_{\mathsf{pr}}$ α=0.5', 100, self.delta, self.delta, self.delta, '$\mathcal{G}_{\mathsf{pr}}$ α=0.5']))
         
         for c in compares:
             if only and c not in only:
@@ -379,7 +379,7 @@ class AOPC:
                 if "# of features removed" in pos_df.columns:
                     pos_df = pos_df[pos_df["# of features removed"]<=20]
                     neg_df = neg_df[neg_df["# of features removed"]<=20]
-                return pos_df, normalizers[c]
+                
                 legends = list(pos_df.iloc[:, -1].unique())
                 xlabel, ylabel, hue = pos_df.columns
                 normalizer = normalizers[c]
