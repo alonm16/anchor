@@ -37,7 +37,8 @@ def process_compute(seed, anchor_examples, ignored, delta, dataset_name, model_t
         device = torch.device('cpu')
     model = None
     if model_type == 'deberta':
-        model = load_model(f'models/{model_type}/{dataset_name}/model').to(device)
+        num_labels = 5 if dataset_name == 'multi-corona' else 2
+        model = load_model(f'models/{model_type}/{dataset_name}/model', num_labels).to(device)
     else:   
         model = load_model(f'models/{model_type}/{dataset_name}/traced_{i}.pt').to(device)
     myUtils.model = model
@@ -58,7 +59,7 @@ def run():
     warnings.simplefilter("ignore")
     sort_functions = {'polarity': sort_polarity, 'confidence': sort_confidence}
     
-    parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'corona', "dilemma", 'toy-spam', 'home-spam', 'sport-spam'])
+    parser.add_argument("--dataset_name", default='sentiment', choices = ['sentiment', 'corona', "dilemma", 'toy-spam', 'home-spam', 'sport-spam', 'multi-corona'])
     parser.add_argument("--model_type", default = 'tinybert', choices = ['tinybert', 'gru', 'svm', 'logistic', 'deberta'])
     parser.add_argument("--sorting", default='confidence', choices=['polarity', 'confidence'])
     parser.add_argument("--optimization", default='', choices = ['', 'topk', 'stop-words', 'desired', 'masking'], nargs = '+')
@@ -92,7 +93,8 @@ def run():
     device = torch.device(f'cuda')
     model = None
     if model_type == 'deberta':
-        model = load_model(f'models/{model_type}/{dataset_name}/model').to(device).eval()
+        num_labels = 5 if dataset_name == 'multi-corona' else 2
+        model = load_model(f'models/{model_type}/{dataset_name}/model', num_labels).to(device).eval()
     else:
         model = load_model(f'models/{model_type}/{dataset_name}/traced.pt').to(device).eval()
     tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast = False)

@@ -74,7 +74,21 @@ def corona_ds(path = f'{ds_dir}/corona_train.csv'):
     df['label'] = df['Sentiment'].map({'Positive': True, 'Extremely Positive': True,'Negative': False, 'Extremely Negative': False}) 
     df['text'] = df['OriginalTweet'].apply(preprocess)
     df = df[['text', 'label']]
-    
+    return prepare_ds(df)
+
+def multi_corona_ds(path = f'{ds_dir}/corona_train.csv'):
+    df = pd.read_csv(path, encoding='latin-1')[['OriginalTweet', 'Sentiment']]
+    #df = df[df['Sentiment']!='Neutral']
+    df['label'] = df['Sentiment'].map({'Positive': 0, 'Extremely Positive': 1,'Negative': 2, 'Extremely Negative': 3, 'Neutral': 4}) 
+    df['text'] = df['OriginalTweet'].apply(preprocess)
+    df = df[['text', 'label']]
+    m = df['label'].value_counts().min()
+    df_0 = df[df['label']==0][:m]
+    df_1 = df[df['label']==1][:m]
+    df_2 = df[df['label']==2][:m]
+    df_3 = df[df['label']==3][:m]
+    df_4 = df[df['label']==4][:m]
+    df = pd.concat([df_0, df_1, df_2, df_3, df_4])
     return prepare_ds(df)
 
 def sentiment_twitt_dataset(path = f'{ds_dir}/sentiment_twitter.csv'):    
@@ -156,7 +170,8 @@ def get_ds(ds_name):
                 "dilemma": dilemma_dataset,
                 "toy-spam": toy_spam_dataset,
                 "sport-spam": sports_spam_dataset,
-                "home-spam": home_dataset
+                "home-spam": home_dataset,
+                "multi-corona": multi_corona_ds
               }
     return ds_dict[ds_name]()
 

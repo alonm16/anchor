@@ -122,7 +122,7 @@ def predicting_sentences(model, tokenizer, device, sentences):
     print(outputs)
     return torch.argmax(outputs, dim=1).cpu().numpy()
     
-def load_model(model_name = 'huawei-noah/TinyBERT_General_4L_312D'):
+def load_model(model_name = 'huawei-noah/TinyBERT_General_4L_312D', num_labels = 2):
     """
     loads model from huggingface
     :param model_name: name for model
@@ -135,7 +135,7 @@ def load_model(model_name = 'huawei-noah/TinyBERT_General_4L_312D'):
     if 'gru' in model_name:
         return load_gru(model_name)
 
-    return AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=2, torchscript = True)
+    return AutoModelForSequenceClassification.from_pretrained(model_name, num_labels=num_labels, torchscript = True)
 
 def load_traced(path):
     return torch.jit.load(path)
