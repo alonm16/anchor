@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 class ScoreUtils:
-    columns=['name','anchor score','type occurences','total occurences','+%','-%','both', 'normal']
+    columns=['name','anchor score','type occurences','total occurences','%', 'normal']
         
     @staticmethod
     def get_scores_dict(folder_name, trail_path = "0.1/scores.xlsx", alpha = 0.95):
@@ -95,7 +95,7 @@ class ScoreUtils:
     def smooth_before(normal_occurences, anchor_occurences_dict):
         for w in normal_occurences:
             normal_occurences[w]+=1
-            for anchor_occurences in anchor_occurences_dict:
+            for anchor_occurences in anchor_occurences_dict.values():
                 anchor_occurences[w]+=1
 
     @staticmethod
@@ -134,17 +134,17 @@ class ScoreUtils:
         return teta1
     
     @staticmethod
-    def score_df(type_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta0, alpha):
+    def score_df(i, occurences_dict, anchor_occurences, normal_occurences, teta0, alpha):
         df = []
+        type_occurences = occurences_dict[i]
         teta = ScoreUtils.calculate_teta1(type_occurences, teta0, alpha)
+        
         ScoreUtils.smooth_after(teta, type_occurences)
         
         for anchor, score in teta.items():
             # substracting 1 because of the smoothing
-            pos_percent = round((pos_occurences[anchor]-1)/anchor_occurences[anchor], 2)
-            neg_percent = 1-pos_percent
-            both = (pos_occurences[anchor]-1)>0 and (neg_occurences[anchor]-1)>0
-            df.append([anchor, score , type_occurences[anchor]-1, anchor_occurences[anchor], pos_percent, neg_percent, both, normal_occurences[anchor]-1]) 
+            pos_percent = round((type_occurences[anchor]-1)/anchor_occurences[anchor], 2)
+            df.append([anchor, score , type_occurences[anchor]-1, anchor_occurences[anchor], pos_percent, normal_occurences[anchor]-1]) 
 
         df.sort(key=lambda exp: -exp[1])
         return pd.DataFrame(data = df, columns = ScoreUtils.columns).set_index('name')
@@ -213,21 +213,21 @@ class ScoreUtils:
         if not labels_dict:
             labels_dict = {'negative': 0, 'positive': 1}
         anchor_occurences, occurences_dict, normal_occurences = ScoreUtils.get_occurences(sentences, exps, labels, tokenizer)
-
+        
         ScoreUtils.smooth_before(normal_occurences, occurences_dict)
         teta0 = ScoreUtils.calculate_teta0(normal_occurences)
 
         for alpha in alphas:
             for i in range(len(occurences_dict)):
                 df = ScoreUtils.score_df(i, occurences_dict, anchor_occurences, normal_occurences, teta0, alpha)
-            dfs.append(df)
+                dfs.append(df)
         
         with pd.ExcelWriter(path, engine='xlsxwriter') as writer:
             types = list(labels_dict.keys())
             cur_label = 0
             cur_col = 0
 
-            for df, alpha in zip(dfs, np.repeat(alphas, len(types)):
+            for df, alpha in zip(dfs, np.repeat(alphas, len(types))):
                 cur_type = types[cur_label]
                 df.to_excel(writer, startrow=1, startcol=cur_col)
                 writer.book.worksheets()[0].write(0, cur_col, f'{alpha}-{cur_type}')

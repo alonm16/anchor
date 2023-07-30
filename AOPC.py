@@ -38,7 +38,7 @@ class AOPC_Plotter:
         axs[1].legend().remove()
         axs[1].axes.get_yaxis().get_label().set_visible(False)
         axs[1].set(yticklabels=[])
-        ncols = 5 if len(legend)<=5 else 4
+        ncols = 6 if len(legend)<=6 else 4
         axs[0].legend(title = hue, loc='upper center', bbox_to_anchor=(1., -0.22),
             fancybox=True, shadow=True, ncol=ncols, fontsize='10')
         plt.show()
@@ -46,6 +46,9 @@ class AOPC_Plotter:
         
     @staticmethod
     def aopc_plot_2(pos_df, neg_df, xlabel, ylabel, hue, legend, title, limiter):
+        modify = lambda x: x.replace('topk-desired-masking', 'all')
+        pos_df[hue] = pos_df[hue].apply(modify)
+        neg_df[hue] = neg_df[hue].apply(modify)
         change = lambda df, delta: df[df['optimization'].str.contains(delta)]
         df_1_pos, df_5_pos = change(pos_df, '0.1'), change(pos_df, '0.5')
         df_1_neg, df_5_neg = change(neg_df, '0.1'), change(neg_df, '0.5')
@@ -58,11 +61,13 @@ class AOPC_Plotter:
         max_y = max(df[ylabel].max() for df in dfs)
         min_y = min(df[ylabel].min() for df in dfs)
         max_x_5 = max(df[xlabel].max() for df in [df_5_pos, df_5_neg])
+        
         for i, df, type_title in zip(range(len(axs)), dfs, ['δ=0.1 positive', 'δ=0.5 positive', 'δ=0.1 negative', 'δ=0.5 negative']): 
             lim = max_x if '1' in type_title else max_x_5
-            sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend = legend, ax=axs[i], palette=sns.color_palette()).set(title=type_title, xlim=(0, lim), ylim=(min_y, max_y))
+            sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend=legend, ax=axs[i], palette=sns.color_palette()).set(xlim=(0, lim), ylim=(min_y, max_y))
             axs[i].grid()
             axs[i].set(xlabel=None)
+            axs[i].set_title(type_title, fontsize = 14)
 
             if i>0:
                 axs[i].legend().remove()
@@ -72,12 +77,14 @@ class AOPC_Plotter:
                 axs[i].axvline(x = 0.2*max_x, ymin = 0, ymax = max_y, color='black', linestyle=':')
             if 'time aggregation' in title:
                 axs[i].axhline(y=1, color = 'black', linestyle=':')
-                                     
-        fig.suptitle(title, y=1.07, fontsize = '15')
-        fig.supxlabel(xlabel, y=-0.03)
-        axs[0].set_ylabel(ylabel, fontsize = '12')
-        axs[0].legend(title = hue, loc='upper center', bbox_to_anchor=(2.3, -0.18),
-            fancybox=True, shadow=True, ncol=4, fontsize='12')
+              
+        fig.suptitle(title, y=1.07, fontsize = '18')
+        fig.supxlabel(xlabel, y=-0.05, fontsize = '16')
+        ncols = 6 if len(legend)//2<=6 else 4
+        axs[0].set_ylabel(ylabel, fontsize = '16')
+        axs[0].legend(title = hue, loc='upper center', bbox_to_anchor=(2.3, -0.19),
+            fancybox=True, shadow=True, ncol=ncols, fontsize='16')
+        plt.setp(axs[0].get_legend().get_title(), fontsize='15')
         plt.show()
         fig.savefig(f'results/graphs/{title}', bbox_inches='tight')
         
@@ -370,7 +377,7 @@ class AOPC:
                 continue
             if c in skip:
                 continue
-            elif c in from_img:
+            elif True:#c in from_img:
                 pos_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_pos_aopc.csv')
                 neg_df = pd.read_csv(f'{self.path}/{self.opt_prefix}{c}_neg_aopc.csv')
                 if 'Unnamed: 0' in pos_df.columns:

@@ -88,7 +88,7 @@ def multi_corona_ds(path = f'{ds_dir}/corona_train.csv'):
     df_2 = df[df['label']==2][:m]
     df_3 = df[df['label']==3][:m]
     df_4 = df[df['label']==4][:m]
-    df = pd.concat([df_0, df_1, df_2, df_3, df_4])
+    df = pd.concat([df_0, df_1, df_2, df_3])
     return prepare_ds(df)
 
 def sentiment_twitt_dataset(path = f'{ds_dir}/sentiment_twitter.csv'):    
