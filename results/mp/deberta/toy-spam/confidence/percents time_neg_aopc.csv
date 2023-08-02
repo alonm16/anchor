@@ -177,7 +177,7 @@ time (minutes),percents,optimization
 2.162146609158857,0.5666666666666667,stop-words-topk-masking-0.5
 2.297280772231286,0.5666666666666667,stop-words-topk-masking-0.5
 2.4324149353037146,0.5666666666666667,stop-words-topk-masking-0.5
-2.5675490983761438,0.5666666666666667,stop-words-topk-masking-0.5
+2.567549098376144,0.5666666666666667,stop-words-topk-masking-0.5
 2.702683261448572,0.5666666666666667,stop-words-topk-masking-0.5
 0.1248697414628571,0.2666666666666666,stop-words-topk-desired-masking-0.5
 0.2497394829257143,0.3666666666666666,stop-words-topk-desired-masking-0.5
@@ -377,7 +377,7 @@ time (minutes),percents,optimization
 2.162146609158857,0.6,stop-words-topk-masking-0.5
 2.297280772231286,0.6,stop-words-topk-masking-0.5
 2.4324149353037146,0.6,stop-words-topk-masking-0.5
-2.5675490983761438,0.6,stop-words-topk-masking-0.5
+2.567549098376144,0.6,stop-words-topk-masking-0.5
 2.702683261448572,0.6,stop-words-topk-masking-0.5
 0.1248697414628571,0.3,stop-words-topk-desired-masking-0.5
 0.2497394829257143,0.3666666666666666,stop-words-topk-desired-masking-0.5
@@ -577,7 +577,7 @@ time (minutes),percents,optimization
 2.162146609158857,0.5666666666666667,stop-words-topk-masking-0.5
 2.297280772231286,0.5666666666666667,stop-words-topk-masking-0.5
 2.4324149353037146,0.5666666666666667,stop-words-topk-masking-0.5
-2.5675490983761438,0.5666666666666667,stop-words-topk-masking-0.5
+2.567549098376144,0.5666666666666667,stop-words-topk-masking-0.5
 2.702683261448572,0.5666666666666667,stop-words-topk-masking-0.5
 0.1248697414628571,0.3333333333333333,stop-words-topk-desired-masking-0.5
 0.2497394829257143,0.4,stop-words-topk-desired-masking-0.5
@@ -777,7 +777,7 @@ time (minutes),percents,optimization
 2.162146609158857,0.6333333333333333,stop-words-topk-masking-0.5
 2.297280772231286,0.6333333333333333,stop-words-topk-masking-0.5
 2.4324149353037146,0.6333333333333333,stop-words-topk-masking-0.5
-2.5675490983761438,0.6333333333333333,stop-words-topk-masking-0.5
+2.567549098376144,0.6333333333333333,stop-words-topk-masking-0.5
 2.702683261448572,0.6333333333333333,stop-words-topk-masking-0.5
 0.1248697414628571,0.3,stop-words-topk-desired-masking-0.5
 0.2497394829257143,0.3666666666666666,stop-words-topk-desired-masking-0.5
@@ -977,7 +977,7 @@ time (minutes),percents,optimization
 2.162146609158857,0.6666666666666666,stop-words-topk-masking-0.5
 2.297280772231286,0.6666666666666666,stop-words-topk-masking-0.5
 2.4324149353037146,0.7,stop-words-topk-masking-0.5
-2.5675490983761438,0.7,stop-words-topk-masking-0.5
+2.567549098376144,0.7,stop-words-topk-masking-0.5
 2.702683261448572,0.7,stop-words-topk-masking-0.5
 0.1248697414628571,0.2666666666666666,stop-words-topk-desired-masking-0.5
 0.2497394829257143,0.3333333333333333,stop-words-topk-desired-masking-0.5
