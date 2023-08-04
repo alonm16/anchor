@@ -4,7 +4,7 @@ import numpy as np
 import math
 
 class ScoreUtils:
-    columns=['name','anchor score','type occurences','total occurences','%', 'normal']
+    columns=['name','anchor score','type occurences','total occurences','+%','-%','both', 'normal']
         
     @staticmethod
     def get_scores_dict(folder_name, trail_path = "0.1/scores.xlsx", alpha = 0.95):
@@ -37,11 +37,10 @@ class ScoreUtils:
     @staticmethod
     def get_occurences(sentences, exps, labels, tokenizer):
         anchor_occurences = Counter(map(lambda e: e.names[0], exps))
-        occurences_dict = {}
-        for i in set(labels):
-            occurences_dict[i] = Counter([e.names[0] for e in exps if labels[e.index]==i])
+        pos_occurences = Counter([e.names[0] for e in exps if labels[e.index]==1])
+        neg_occurences = Counter([e.names[0] for e in exps if labels[e.index]==0])
         normal_occurences = ScoreUtils.get_normal_occurences(sentences, anchor_occurences, tokenizer)
-        return anchor_occurences, occurences_dict, normal_occurences
+        return anchor_occurences, pos_occurences, neg_occurences, normal_occurences
 
     @staticmethod
     def calculate_homogenity(cur_occurences, opposite_occurences, normal_occurences, min_occurrences=0, ds_size=3400):
@@ -92,10 +91,10 @@ class ScoreUtils:
         return avgs
     
     @staticmethod
-    def smooth_before(normal_occurences, anchor_occurences_dict):
+    def smooth_before(normal_occurences, anchor_occurences_list):
         for w in normal_occurences:
             normal_occurences[w]+=1
-            for anchor_occurences in anchor_occurences_dict.values():
+            for anchor_occurences in anchor_occurences_list:
                 anchor_occurences[w]+=1
 
     @staticmethod
@@ -134,17 +133,17 @@ class ScoreUtils:
         return teta1
     
     @staticmethod
-    def score_df(i, occurences_dict, anchor_occurences, normal_occurences, teta0, alpha):
+    def score_df(type_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta0, alpha):
         df = []
-        type_occurences = occurences_dict[i]
         teta = ScoreUtils.calculate_teta1(type_occurences, teta0, alpha)
-        
         ScoreUtils.smooth_after(teta, type_occurences)
         
         for anchor, score in teta.items():
             # substracting 1 because of the smoothing
-            pos_percent = round((type_occurences[anchor]-1)/anchor_occurences[anchor], 2)
-            df.append([anchor, score , type_occurences[anchor]-1, anchor_occurences[anchor], pos_percent, normal_occurences[anchor]-1]) 
+            pos_percent = round((pos_occurences[anchor]-1)/anchor_occurences[anchor], 2)
+            neg_percent = 1-pos_percent
+            both = (pos_occurences[anchor]-1)>0 and (neg_occurences[anchor]-1)>0
+            df.append([anchor, score , type_occurences[anchor]-1, anchor_occurences[anchor], pos_percent, neg_percent, both, normal_occurences[anchor]-1]) 
 
         df.sort(key=lambda exp: -exp[1])
         return pd.DataFrame(data = df, columns = ScoreUtils.columns).set_index('name')
@@ -207,32 +206,28 @@ class ScoreUtils:
         ScoreUtils.calculate_scores(path, tokenizer, sentences, pos_exps + neg_exps, labels)
 
     @staticmethod
-    def calculate_scores(path, tokenizer, sentences, exps, labels, labels_dict = None):
+    def calculate_scores(path, tokenizer, sentences, exps, labels):
         alphas = [0.95, 0.8, 0.65, 0.5]
         dfs = []
-        if not labels_dict:
-            labels_dict = {'negative': 0, 'positive': 1}
-        anchor_occurences, occurences_dict, normal_occurences = ScoreUtils.get_occurences(sentences, exps, labels, tokenizer)
-        
-        ScoreUtils.smooth_before(normal_occurences, occurences_dict)
+        anchor_occurences, pos_occurences, neg_occurences, normal_occurences = ScoreUtils.get_occurences(sentences, exps, labels, tokenizer)
+
+        ScoreUtils.smooth_before(normal_occurences, [pos_occurences, neg_occurences])
         teta0 = ScoreUtils.calculate_teta0(normal_occurences)
 
         for alpha in alphas:
-            for i in range(len(occurences_dict)):
-                df = ScoreUtils.score_df(i, occurences_dict, anchor_occurences, normal_occurences, teta0, alpha)
-                dfs.append(df)
+            df_pos = ScoreUtils.score_df(pos_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta0, alpha)
+            df_neg = ScoreUtils.score_df(neg_occurences, pos_occurences, neg_occurences, anchor_occurences, normal_occurences, teta0, alpha) 
+            dfs.extend([df_neg, df_pos])
         
         with pd.ExcelWriter(path, engine='xlsxwriter') as writer:
-            types = list(labels_dict.keys())
-            cur_label = 0
+            cur_type = 'positive'
             cur_col = 0
 
-            for df, alpha in zip(dfs, np.repeat(alphas, len(types))):
-                cur_type = types[cur_label]
+            for df, alpha in zip(dfs, np.repeat(alphas, 2)):
+                cur_type = 'positive' if cur_type=='negative' else 'negative'  
                 df.to_excel(writer, startrow=1, startcol=cur_col)
                 writer.book.worksheets()[0].write(0, cur_col, f'{alpha}-{cur_type}')
                 cur_col+= len(ScoreUtils.columns) + 1
-                cur_label = (cur_label + 1) % (len(types))
 
     @staticmethod
     def calculate_time_aggregation(tokenizer, sentences, exps, labels, agg_name, min_count=0):
