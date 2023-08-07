@@ -10,13 +10,12 @@ import copy
 import pandas as pd
 import seaborn as sns
 import os
-import simple_colors
+from simple_colors import *
 from score import ScoreUtils
 from myUtils import set_seed, get_stopwords
 import myUtils
 from models.utils import *
-colors = [simple_colors.red, simple_colors.blue, simple_colors.cyan, 
-          simple_colors.green, simple_colors.magenta, simple_colors.yellow]*3
+colors = [red, blue, cyan, green, magenta, yellow]*3
 
 class AOPC_Plotter:
     @staticmethod
@@ -26,7 +25,7 @@ class AOPC_Plotter:
         max_y = max(df[ylabel].max() for df in [pos_df, neg_df])
         min_y = min(df[ylabel].min() for df in [pos_df, neg_df])
         for ax, df, type_title in zip(axs, [pos_df, neg_df], ['positive', 'negative']): 
-            sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend=legend, ax=ax, palette=sns.color_palette()).set(title=type_title, xlim=(0, max_x), ylim=(min_y, max_y))
+            sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend=legend, ax=ax, palette=sns.color_palette('colorblind')).set(title=type_title, xlim=(0, max_x), ylim=(min_y, max_y))
             ax.grid()
             ax.set(xlabel=None)
             if limiter:
@@ -68,7 +67,7 @@ class AOPC_Plotter:
         
         for i, df, type_title in zip(range(len(axs)), dfs, ['δ=0.1 positive', 'δ=0.5 positive', 'δ=0.1 negative', 'δ=0.5 negative']): 
             lim = max_x if '1' in type_title else max_x_5
-            sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend=legend, ax=axs[i], palette=sns.color_palette()).set(xlim=(0, lim), ylim=(min_y, max_y))
+            sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend=legend, ax=axs[i], palette=sns.color_palette('colorblind')).set(xlim=(0, lim), ylim=(min_y, max_y))
             axs[i].grid()
             axs[i].set(xlabel=None)
             axs[i].set_title(type_title, fontsize = 14)
@@ -94,16 +93,21 @@ class AOPC_Plotter:
         
     @staticmethod
     def aopc_plot_helper(dfs, xlabel, ylabel, hue, legend, title, datasets):
+        dark = sns.color_palette('dark')
+        colorblind = sns.color_palette('colorblind')
+        colors = [colorblind[9], colorblind[2], dark[7], dark[4], dark[1], colorblind[4], colorblind[1]]
         ax_titles = ['+', '-']*(len(dfs)//2)
         fig, axs = plt.subplots(1, len(dfs), figsize=(18, 2.3))
         max_xs = [df[xlabel].max() for df in dfs]
         max_y = max(df[ylabel].max() for df in dfs)
         min_y = min(df[ylabel].min() for df in dfs)
         
+        real_x = xlabel.replace("# of features removed", 'k').replace('time (minutes)', 'time (min)')
+        
         for i, df, type_title in zip(range(len(axs)), dfs, ax_titles): 
-            sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend=legend, ax=axs[i], palette=sns.color_palette()).set(xlim=(0, max_xs[i]), ylim=(min_y, max_y))
+            sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend=legend, ax=axs[i], palette=sns.color_palette(colors)).set(xlim=(0, max_xs[i]), ylim=(min_y, max_y))
             axs[i].grid()
-            axs[i].set(xlabel=None)
+            axs[i].set_xlabel(real_x, fontsize = 12)
             axs[i].set_title(datasets[i//2] + ' ' + type_title, fontsize = 14)
 
             if i>0:
@@ -116,12 +120,12 @@ class AOPC_Plotter:
             if 'time aggregation' in title:
                 axs[i].axhline(y=1, color = 'black', linestyle=':')
               
-        fig.suptitle(title, y=1.1, fontsize = '18'),
-        fig.supxlabel(xlabel, y=-0.1, fontsize = '16')
+        #fig.suptitle(title, y=1.1, fontsize = '18'),
+        #fig.supxlabel(xlabel, y=-0.1, fontsize = '16')
        
         ncols = 8
-        axs[0].set_ylabel(ylabel.replace("-global",""), fontsize = '16')
-        axs[0].legend(title = hue, loc='upper center', bbox_to_anchor=(4.5, -0.23),
+        axs[0].set_ylabel(ylabel.replace("AOPC-global","$AOPC^k$").replace('percents', '%'), fontsize = '16')
+        axs[0].legend(title = hue, loc='upper center', bbox_to_anchor=(4.5, -0.22),
             fancybox=True, shadow=True, ncol=ncols, fontsize='16')
         plt.setp(axs[0].get_legend().get_title(), fontsize='0')
         plt.show()
@@ -129,14 +133,17 @@ class AOPC_Plotter:
         
     @staticmethod
     def aopc_plot_opt(pos_dfs, neg_dfs, xlabel, ylabel, hue, legend, title, datasets, values = ['0.1', '0.5', 'topk-desired-masking-0.1', 'topk-desired-masking-0.5']):
-        modify = lambda x: x.replace('topk-desired-masking-', 'Optimized ').replace('0.1', '$\delta=0.1$').replace('0.5', '$\delta=0.5$')
-        
+        modify = lambda x: x.replace('topk-desired-masking-', '$Optimized$ ').replace('0.1', '$\delta=0.1$').replace('0.5', '$\delta=0.5$')
+        modify2 = lambda x: x if x!= '$\delta=0.1$' else '$Default$ ($\delta=0.1$)'
+        modify3 = lambda x: x.replace('$\delta=0.1$', '').replace('()','').replace('-','').replace('masking', '$Masking$').replace('topk', '$Filtering$').replace('desired', '$Confidence$')
         dfs = []
         for i in range(len(pos_dfs)):
             dfs.extend([pos_dfs[i], neg_dfs[i]])
         for i in range(len(dfs)):
             dfs[i] = dfs[i][dfs[i][hue].isin(values)]
-            dfs[i][hue] = dfs[i][hue].apply(modify)
+            dfs[i][hue] = dfs[i][hue].apply(modify).apply(modify2)
+            if all('0.1' in x for x in dfs[i][hue]):
+                 dfs[i][hue] =  dfs[i][hue].apply(modify3)
         
         AOPC_Plotter.aopc_plot_helper(dfs, xlabel, ylabel, hue, legend, title, datasets)
         
@@ -145,6 +152,11 @@ class AOPC_Plotter:
         dfs = []
         for i in range(len(pos_dfs)):
             dfs.extend([pos_dfs[i], neg_dfs[i]])
+            
+        modify = lambda x: x.replace('α=0.5', '')
+        for i in range(len(dfs)):
+            dfs[i] = dfs[i][dfs[i][hue]!='$\mathcal{G}_{\mathsf{pr}}$ α=0.95']
+            dfs[i][hue] = dfs[i][hue].apply(modify)
             
         AOPC_Plotter.aopc_plot_helper(dfs, xlabel, ylabel, hue, legend, title, datasets)
         
@@ -201,23 +213,6 @@ class AOPC:
 
             replaced_sentences.append(tokenized_sentence)
         return replaced_sentences      
-
-    # @torch.no_grad()
-    # def _predict_scores(self, sentences):
-    #     pad = max(len(s) for s in sentences)
-    #     sos, eos = 101, 102
-    #     if self.model_type=='deberta':
-    #         sos, eos = 1, 2
-    #     input_ids = [[sos] +[self.tokenizer.vocab[token] for token in tokens] + [eos] + [0]*(pad-len(tokens)) for tokens in sentences]
-    #     attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
-    #     attention_mask = torch.tensor(attention_mask, device=self.device)
-    #     outputs = None
-    #     if self.model_type in ['tinybert', 'deberta']:
-    #         input_ids = torch.tensor(input_ids, device=self.device)
-    #         outputs = softmax(self.model(input_ids = input_ids, attention_mask=attention_mask)[0])
-    #     else:
-    #         outputs = softmax(self.model(input_ids)[0])
-    #     return outputs.cpu().numpy()
     
     @torch.no_grad()
     def _predict_scores_inner(self, sentences):
@@ -406,7 +401,7 @@ class AOPC:
     
     @staticmethod
     def plot_all_aopcs(model_type, opt_prefix = 'stop-words-', c='aopc time', datasets = ['corona', 'toy-spam', 'home-spam', 'dilemma'], seeds=[42, 84, 126, 168, 210], alone = False, **kwargs):
-        title_dict = {'aopc time': 'Optimizations', "aggregation": "Aggregationss", 'percents time': 'Optimizations Percents'}
+        title_dict = {'aopc time': 'Optimizations', "aggregation": "Aggregations", 'percents time': 'Optimizations Percents'}
         normalizer_dict = {'aopc time': '0.1', "aggregation":  '$\mathcal{G}_{\mathsf{pr}}$ α=0.5', 'percents time': '0.1'}
         normalizer = normalizer_dict[c]
         title = title_dict[c]
