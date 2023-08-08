@@ -134,16 +134,15 @@ class AOPC_Plotter:
     @staticmethod
     def aopc_plot_opt(pos_dfs, neg_dfs, xlabel, ylabel, hue, legend, title, datasets, values = ['0.1', '0.5', 'topk-desired-masking-0.1', 'topk-desired-masking-0.5']):
         modify = lambda x: x.replace('topk-desired-masking-', '$Optimized$ ').replace('0.1', '$\delta=0.1$').replace('0.5', '$\delta=0.5$')
-        modify2 = lambda x: x if x!= '$\delta=0.1$' else '$Default$ ($\delta=0.1$)'
-        modify3 = lambda x: x.replace('$\delta=0.1$', '').replace('()','').replace('-','').replace('masking', '$Masking$').replace('topk', '$Filtering$').replace('desired', '$Confidence$')
+        modify2 = lambda x: x.replace('$\delta=0.1$', '').replace('()','').replace('-','').replace('masking', '$Masking$').replace('topk', '$Filtering$').replace('desired', '$Confidence$')
         dfs = []
         for i in range(len(pos_dfs)):
             dfs.extend([pos_dfs[i], neg_dfs[i]])
         for i in range(len(dfs)):
             dfs[i] = dfs[i][dfs[i][hue].isin(values)]
-            dfs[i][hue] = dfs[i][hue].apply(modify).apply(modify2)
+            dfs[i][hue] = dfs[i][hue].apply(modify)
             if all('0.1' in x for x in dfs[i][hue]):
-                 dfs[i][hue] =  dfs[i][hue].apply(modify3)
+                 dfs[i][hue] =  dfs[i][hue].apply(modify2)
         
         AOPC_Plotter.aopc_plot_helper(dfs, xlabel, ylabel, hue, legend, title, datasets)
         
