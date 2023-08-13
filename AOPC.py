@@ -114,8 +114,9 @@ class AOPC_Plotter:
                 axs[i].legend().remove()
                 axs[i].axes.get_yaxis().get_label().set_visible(False)
                 axs[i].set(yticklabels=[])
-
-            axs[i].axvline(x = 0.2*max_xs[i], ymin = 0, ymax = max_y, color='black', linestyle=':')
+            
+            if title!='Aggregations':
+                axs[i].axvline(x = 0.2*max_xs[i], ymin = 0, ymax = max_y, color='black', linestyle=':')
             
             if 'time aggregation' in title:
                 axs[i].axhline(y=1, color = 'black', linestyle=':')
@@ -124,7 +125,7 @@ class AOPC_Plotter:
         #fig.supxlabel(xlabel, y=-0.1, fontsize = '16')
        
         ncols = 8
-        axs[0].set_ylabel(ylabel.replace("AOPC-global","$AOPC^k$").replace('percents', '%'), fontsize = '16')
+        axs[0].set_ylabel(ylabel.replace("AOPC-global","$AOPC^k$").replace('percents', 'ratio'), fontsize = '16')
         axs[0].legend(title = hue, loc='upper center', bbox_to_anchor=(4.5, -0.22),
             fancybox=True, shadow=True, ncol=ncols, fontsize='16')
         plt.setp(axs[0].get_legend().get_title(), fontsize='0')
@@ -133,8 +134,8 @@ class AOPC_Plotter:
         
     @staticmethod
     def aopc_plot_opt(pos_dfs, neg_dfs, xlabel, ylabel, hue, legend, title, datasets, values = ['0.1', '0.5', 'topk-desired-masking-0.1', 'topk-desired-masking-0.5']):
-        modify = lambda x: x.replace('topk-desired-masking-', '$Optimized$ ').replace('0.1', '$\delta=0.1$').replace('0.5', '$\delta=0.5$')
-        modify2 = lambda x: x.replace('$\delta=0.1$', '').replace('()','').replace('-','').replace('masking', '$Masking$').replace('topk', '$Filtering$').replace('desired', '$Confidence$')
+        modify = lambda x: x.replace('topk-desired-masking-', 'Optimized ').replace('0.1', '$\delta=0.1$').replace('0.5', '$\delta=0.5$')
+        modify2 = lambda x: x.replace('$\delta=0.1$', '').replace('()','').replace('-','').replace('masking', 'Masking').replace('topk', 'Filtering').replace('desired', 'Confidence')
         dfs = []
         for i in range(len(pos_dfs)):
             dfs.extend([pos_dfs[i], neg_dfs[i]])
@@ -146,7 +147,7 @@ class AOPC_Plotter:
         
         AOPC_Plotter.aopc_plot_helper(dfs, xlabel, ylabel, hue, legend, title, datasets)
         
-        
+    @staticmethod
     def aopc_plot_agg(pos_dfs, neg_dfs, xlabel, ylabel, hue, legend, title, datasets):
         dfs = []
         for i in range(len(pos_dfs)):
@@ -158,6 +159,42 @@ class AOPC_Plotter:
             dfs[i][hue] = dfs[i][hue].apply(modify)
             
         AOPC_Plotter.aopc_plot_helper(dfs, xlabel, ylabel, hue, legend, title, datasets)
+        
+    @staticmethod
+    def plot_single(dfs, xlabel, ylabel, hue, legend, title, datasets):
+        modify = lambda x: x.replace('topk-desired-masking-', 'Optimized ').replace('0.1', '$\delta=0.1$').replace('0.5', '$\delta=0.5$')
+        modify2 = lambda x: x.replace('$\delta=0.1$', '').replace('()','').replace('-','').replace('masking', 'Masking').replace('topk', 'Filtering').replace('desired', 'Confidence')
+        values = ['0.1', 'topk-desired-masking-0.5']
+        for i in range(len(dfs)):
+            dfs[i] = dfs[i][dfs[i][hue].isin(values)]
+            dfs[i][hue] = dfs[i][hue].apply(modify)
+            if all('0.1' in x for x in dfs[i][hue]):
+                 dfs[i][hue] =  dfs[i][hue].apply(modify2)
+        
+        dark = sns.color_palette('dark')
+        colorblind = sns.color_palette('colorblind')
+        colors = [colorblind[9], colorblind[2], dark[7], dark[4], dark[1], colorblind[4], colorblind[1]]
+        ax_titles = ['-']*len(dfs)
+        fig, ax = plt.subplots(1, len(dfs), figsize=(2, 1.5))
+        max_xs = [df[xlabel].max() for df in dfs]
+        max_y = max(df[ylabel].max() for df in dfs)
+        min_y = min(df[ylabel].min() for df in dfs)
+        
+        real_x = xlabel.replace("# of features removed", 'k').replace('time (minutes)', 'time (min)')
+        
+        for i, df, type_title in zip([0], dfs, ax_titles): 
+            sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend=legend, ax=ax, palette=sns.color_palette(colors)).set(xlim=(0, max_xs[i]), ylim=(min_y, max_y))
+            ax.grid()
+            ax.set_xlabel(real_x, fontsize = 12)
+
+            ax.legend().remove()
+
+            #ax.axvline(x = 0.2*max_xs[i], ymin = 0, ymax = max_y, color='black', linestyle=':')
+            
+        ax.set_ylabel(ylabel.replace("AOPC-global","$AOPC^k$").replace('percents', 'ratio'), fontsize = '12')
+
+        plt.show()
+        fig.savefig(f'results/graphs/single', bbox_inches='tight')
         
 class AOPC:
     def __init__(self, path, tokenizer, delta=0.1, alpha=0.5, num_removes = 20, base_opt=None):
@@ -437,6 +474,43 @@ class AOPC:
     
         else: 
             plotter(pos_dfs, neg_dfs, xlabel, ylabel, hue, legends, title, datasets)
+            
+    @staticmethod
+    def plot_single(model_type, opt_prefix = 'stop-words-', c='aopc time', datasets = ['corona', 'toy-spam', 'home-spam', 'dilemma'], seeds=[42, 84, 126, 168, 210], alone = False, df_type = 'pos', **kwargs):
+        title_dict = {'aopc time': 'Optimizations', "aggregation": "Aggregations", 'percents time': 'Optimizations Percents'}
+        normalizer_dict = {'aopc time': '0.1', "aggregation":  '$\mathcal{G}_{\mathsf{pr}}$ α=0.5', 'percents time': '0.1'}
+        normalizer = normalizer_dict[c]
+        title = title_dict[c]
+        pos_dfs, neg_dfs = [], []
+        plotter = AOPC_Plotter.plot_single
+        
+        for ds in datasets:
+            path = f'results/mp/{model_type}/{ds}/confidence/'
+            pos_df = pd.read_csv(f'{path}/{opt_prefix}{c}_pos_aopc.csv')
+            neg_df = pd.read_csv(f'{path}/{opt_prefix}{c}_neg_aopc.csv')
+            if 'Unnamed: 0' in pos_df.columns:
+                pos_df.drop(columns = ['Unnamed: 0'], inplace = True)
+                neg_df.drop(columns = ['Unnamed: 0'], inplace = True)
+            if "# of features removed" in pos_df.columns:
+                pos_df = pos_df[pos_df["# of features removed"]<=20]
+                neg_df = neg_df[neg_df["# of features removed"]<=20]
+
+            legends = list(pos_df.iloc[:, -1].unique())
+            xlabel, ylabel, hue = pos_df.columns
+ 
+            jump = len(pos_df)//len(seeds)//len(legends)
+            jumps = list(range(jump-1, len(pos_df)//len(legends), jump))
+            pos_normalizer = pos_df[pos_df[hue].astype('str')==str(normalizer)].iloc[jumps, 1].mean()
+            jump = len(neg_df)//len(seeds)//len(legends)
+            jumps = list(range(jump-1, len(neg_df)//len(legends), jump))
+            neg_normalizer = neg_df[neg_df[hue].astype('str')==str(normalizer)].iloc[jumps, 1].mean()
+            pos_df.iloc[:, 1]/=pos_normalizer
+            neg_df.iloc[:, 1]/=neg_normalizer
+            
+            pos_dfs.append(pos_df); neg_dfs.append(neg_df)
+        
+        dfs = pos_dfs if df_type == 'pos' else neg_dfs
+        plotter(dfs, xlabel, ylabel, hue, legends, title, datasets)
     
     def compare_all(self, seeds=[42, 84, 126, 168, 210], from_img=[], skip=[], only=None, verbose= True, **kwargs): 
         if not verbose:
