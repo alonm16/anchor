@@ -240,7 +240,7 @@ class ScoreUtils:
         neg_indices = [i for i, l in enumerate(labels) if l==0]
         
         results = defaultdict(lambda: defaultdict(dict))
-        for percent in range(5, 105, 5):
+        for percent in [0.5, 1, 1.5, 2, 2.5, 3, 4] + list(range(5, 105, 5)):
             pos_index = int(percent*len(pos_sentences)/100)
             pos_exps = list(filter(lambda e: labels[e.index]==1 and pos_indices.index(e.index)<pos_index, exps))
 
@@ -272,7 +272,7 @@ class ScoreUtils:
         neg_indices = [i for i, l in enumerate(labels) if l==0]
         
         results = defaultdict(lambda: defaultdict(dict))
-        for percent in range(5, 105, 5):
+        for percent in [1, 2, 3, 4] + list(range(5, 105, 5)):
             pos_index = int(percent*len(pos_sentences)/100)
             pos_exps = list(filter(lambda e: labels[e.index]==1 and pos_indices.index(e.index)<pos_index, exps))
 

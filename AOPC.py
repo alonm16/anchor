@@ -100,7 +100,7 @@ class AOPC_Plotter:
         fig, axs = plt.subplots(1, len(dfs), figsize=(18, 2.3))
         max_xs = [df[xlabel].max() for df in dfs]
         max_y = max(df[ylabel].max() for df in dfs)
-        min_y = min(df[ylabel].min() for df in dfs)
+        min_y = min(0, min(df[ylabel].min() for df in dfs))#min(df[ylabel].min() for df in dfs)
         
         real_x = xlabel.replace("# of features removed", 'k').replace('time (minutes)', 'time (min)')
         
@@ -136,6 +136,7 @@ class AOPC_Plotter:
     def aopc_plot_opt(pos_dfs, neg_dfs, xlabel, ylabel, hue, legend, title, datasets, values = ['0.1', '0.5', 'topk-desired-masking-0.1', 'topk-desired-masking-0.5']):
         modify = lambda x: x.replace('topk-desired-masking-', 'Optimized ').replace('0.1', '$\delta=0.1$').replace('0.5', '$\delta=0.5$')
         modify2 = lambda x: x.replace('$\delta=0.1$', '').replace('()','').replace('-','').replace('masking', 'Masking').replace('topk', 'Filtering').replace('desired', 'Confidence')
+        modify3 = lambda x: x if len(x) > 1 else 'Default' 
         dfs = []
         for i in range(len(pos_dfs)):
             dfs.extend([pos_dfs[i], neg_dfs[i]])
@@ -143,7 +144,7 @@ class AOPC_Plotter:
             dfs[i] = dfs[i][dfs[i][hue].isin(values)]
             dfs[i][hue] = dfs[i][hue].apply(modify)
             if all('0.1' in x for x in dfs[i][hue]):
-                 dfs[i][hue] =  dfs[i][hue].apply(modify2)
+                 dfs[i][hue] =  dfs[i][hue].apply(modify2).apply(modify3)
         
         AOPC_Plotter.aopc_plot_helper(dfs, xlabel, ylabel, hue, legend, title, datasets)
         
@@ -164,25 +165,26 @@ class AOPC_Plotter:
     def plot_single(dfs, xlabel, ylabel, hue, legend, title, datasets):
         modify = lambda x: x.replace('topk-desired-masking-', 'Optimized ').replace('0.1', '$\delta=0.1$').replace('0.5', '$\delta=0.5$')
         modify2 = lambda x: x.replace('$\delta=0.1$', '').replace('()','').replace('-','').replace('masking', 'Masking').replace('topk', 'Filtering').replace('desired', 'Confidence')
-        values = ['0.1', 'topk-desired-masking-0.5']
+        values = ['$\mathcal{G}_{\mathsf{sq}}$', 'topk-desired-masking-0.5', '$\mathcal{G}_{\mathsf{av}}$']
         for i in range(len(dfs)):
             dfs[i] = dfs[i][dfs[i][hue].isin(values)]
             dfs[i][hue] = dfs[i][hue].apply(modify)
             if all('0.1' in x for x in dfs[i][hue]):
                  dfs[i][hue] =  dfs[i][hue].apply(modify2)
-        
+
         dark = sns.color_palette('dark')
         colorblind = sns.color_palette('colorblind')
-        colors = [colorblind[9], colorblind[2], dark[7], dark[4], dark[1], colorblind[4], colorblind[1]]
+        colors = [dark[7], dark[9], dark[3], colorblind[2], dark[4], dark[1], colorblind[4], colorblind[1]]
         ax_titles = ['-']*len(dfs)
         fig, ax = plt.subplots(1, len(dfs), figsize=(2, 1.5))
         max_xs = [df[xlabel].max() for df in dfs]
         max_y = max(df[ylabel].max() for df in dfs)
-        min_y = min(df[ylabel].min() for df in dfs)
+        min_y = 0#min(df[ylabel].min() for df in dfs)
         
         real_x = xlabel.replace("# of features removed", 'k').replace('time (minutes)', 'time (min)')
         
         for i, df, type_title in zip([0], dfs, ax_titles): 
+            df[xlabel] = 60*df[xlabel]
             sns.lineplot(data=df, x=xlabel, y=ylabel, hue=hue, legend=legend, ax=ax, palette=sns.color_palette(colors)).set(xlim=(0, max_xs[i]), ylim=(min_y, max_y))
             ax.grid()
             ax.set_xlabel(real_x, fontsize = 12)
@@ -191,10 +193,16 @@ class AOPC_Plotter:
 
             #ax.axvline(x = 0.2*max_xs[i], ymin = 0, ymax = max_y, color='black', linestyle=':')
             
-        ax.set_ylabel(ylabel.replace("AOPC-global","$AOPC^k$").replace('percents', 'ratio'), fontsize = '12')
-
+        ax.set_ylabel(ylabel.replace("AOPC-global","AOPC$^k$").replace('percents', 'ratio'), fontsize = '12')
+        #ax.set_xlabel('time(sec)')
+        ax.set_xlabel('')
+        #ax.set_ylim(0, 1.2)
+        ax.set_xlim(0, 60)
+        #ax.legend(title ='', loc='upper right', bbox_to_anchor=(1.6, 1.05),
+        #    fancybox=True, shadow=True, ncol=1, fontsize='10')
+        plt.yticks(np.arange(0, 1.6, 0.2))
         plt.show()
-        fig.savefig(f'results/graphs/single', bbox_inches='tight')
+        fig.savefig(f'results/graphs/intro', bbox_inches='tight')
         
 class AOPC:
     def __init__(self, path, tokenizer, delta=0.1, alpha=0.5, num_removes = 20, base_opt=None):
@@ -432,7 +440,7 @@ class AOPC:
             alphas = [None, None, 0.5, 0.95, None, None]
             
         else:
-            aggregations, alphas, legends = kwargs['agg_params']
+            legends, aggregations, alphas= kwargs['agg_params']
         return self.time_aopc_aggregation_monitor(aggregations, alphas, legends)
     
     @staticmethod
@@ -503,7 +511,8 @@ class AOPC:
             pos_normalizer = pos_df[pos_df[hue].astype('str')==str(normalizer)].iloc[jumps, 1].mean()
             jump = len(neg_df)//len(seeds)//len(legends)
             jumps = list(range(jump-1, len(neg_df)//len(legends), jump))
-            neg_normalizer = neg_df[neg_df[hue].astype('str')==str(normalizer)].iloc[jumps, 1].mean()
+            #neg_normalizer = neg_df[neg_df[hue].astype('str')==str(normalizer)].iloc[jumps, 1].mean()
+            neg_normalizer =1
             pos_df.iloc[:, 1]/=pos_normalizer
             neg_df.iloc[:, 1]/=neg_normalizer
             
