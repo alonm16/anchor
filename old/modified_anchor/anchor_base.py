@@ -18,11 +18,7 @@ def matrix_subset(matrix, n_samples):
 
 
 class AnchorBaseBeam(object):
-    # TODO: added static members
-    words = None
-    ignored = None
-    best_group = None
-    
+   
     def __init__(self):
         pass
     
@@ -134,13 +130,7 @@ class AnchorBaseBeam(object):
         data = state['data'][:current_idx]
         labels = state['labels'][:current_idx]
         if len(previous_best) == 0:
-            # TODO added if not in ignored
-            if topk_optimize:
-                tuples = [(x, ) for x in all_features if (AnchorBaseBeam.words[x] not in AnchorBaseBeam.ignored) and AnchorBaseBeam.best_group.should_calculate(AnchorBaseBeam.words[x])]  
-            elif optimize:
-                tuples = [(x, ) for x in all_features if (AnchorBaseBeam.words[x] not in AnchorBaseBeam.ignored)]
-            else:
-                tuples = [(x, ) for x in all_features]
+            tuples = [(x, ) for x in all_features]
                           
             for x in tuples:
                 pres = data[:, x[0]].nonzero()[0]
@@ -294,8 +284,6 @@ class AnchorBaseBeam(object):
                     verbose=False, epsilon_stop=0.05, min_samples_start=0,
                     max_anchor_size=None, verbose_every=1,
                     stop_on_first=False, coverage_samples=10000):
-        # TODO topk optimization
-        AnchorBaseBeam.best_group.cur_type = true_label
         
         anchor = {'feature': [], 'mean': [], 'precision': [],
                   'coverage': [], 'examples': [], 'all_precision': 0}
@@ -409,12 +397,6 @@ class AnchorBaseBeam(object):
 
                 #Todo
                 final_tuples.append(t)
-                
-                #TODO for topk optimization
-                if mean >= desired_confidence:
-                    AnchorBaseBeam.best_group.update_anchor(AnchorBaseBeam.words[t[0]])
-                else: 
-                    AnchorBaseBeam.best_group.update_normal(AnchorBaseBeam.words[t[0]])
             
                 if verbose:
                     print('%s mean = %.2f lb = %.2f ub = %.2f coverage: %.2f n: %d' % (t, mean, lb, ub, coverage, state['t_nsamples'][t]))

@@ -9,9 +9,11 @@ from csv import writer
 import time
 from nltk.corpus import stopwords
 from collections import Counter, defaultdict
+from transformers import AutoTokenizer
 
 model = None
 tokenizer = None
+mlm_tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased', use_fast=False)
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def set_seed(seed=42):
@@ -22,20 +24,42 @@ def set_seed(seed=42):
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = False
 
+#def predict_sentences(sentences):
+#    inputs = tokenizer(sentences, padding=True, return_tensors ='pt').to(device)
+#    outputs = model(**inputs)[0]
+#    return torch.argmax(outputs, dim=1).cpu().numpy()
+
+# for tiny bert
 def predict_sentences(sentences):
-    encoded = [[101] +[tokenizer.vocab[token] for token in tokens] + [102]         
-               for tokens in sentences]
-    to_pred = torch.tensor(encoded, device=device)
-    outputs = model(to_pred)[0]
+    inputs = tokenizer(sentences, padding=True, return_tensors ='pt').to(device)
+    outputs = model(inputs['input_ids'])[0]
     return torch.argmax(outputs, dim=1).cpu().numpy()
 
+# def predict_sentences(sentences):
+#     encoded = [[101] +[tokenizer.vocab[token] for token in tokens] + [102]         
+#                for tokens in sentences]
+#     to_pred = torch.tensor(encoded, device=device)
+#     outputs = model(to_pred)[0]
+#     return torch.argmax(outputs, dim=1).cpu().numpy()
+    
+def old_predict_sentences(sentences):
+    sentences = [tokenizer.tokenize(s) for s in sentences]
+    pad = max(len(s) for s in sentences)
+    input_ids = [[101] +[tokenizer.vocab[token] for token in tokens] + [102] + [0]*(pad-len(tokens)) for tokens in sentences]
+    input_ids = torch.tensor(input_ids, device=device)
+    attention_mask = [[1]*(len(tokens)+2)+[0]*(pad-len(tokens)) for tokens in sentences]
+    attention_mask = torch.tensor(attention_mask, device=device)
+    outputs = model(input_ids)[0]
+    return torch.argmax(outputs, dim=1).cpu().numpy()
+
+@torch.no_grad()
 def predict_scores(sentences):
     softmax = torch.nn.Softmax()
     encoded = [[101] +[tokenizer.vocab[token] for token in tokens] + [102]         
                for tokens in sentences]
     to_pred = torch.tensor(encoded, device=device)
     outputs = softmax(model(to_pred)[0])
-    return outputs.detach().cpu().numpy()
+    return outputs.cpu().numpy()
 
 def get_stopwords():
     stop_words = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '.', 
@@ -45,14 +69,13 @@ def get_stopwords():
     stop_words.extend(stopwords.words('english'))
     return stop_words
 
-def get_ignored(anchor_sentences):
+def get_ignored(anchor_sentences, min_value=1):
     stop_words = get_stopwords()
     
     def get_below_occurences(sentences):
-        min_value = 1
         c = Counter()
         for sentence in sentences:
-            c.update(tokenizer.tokenize(sentence))
+            c.update(mlm_tokenizer.tokenize(sentence))
         return set(w for w in c if c[w]<=min_value)
 
     return set(stop_words).union(get_below_occurences(anchor_sentences))
@@ -60,7 +83,7 @@ def get_ignored(anchor_sentences):
 def get_occurences(sentences):
     c = Counter()
     for sentence in sentences:
-        c.update(tokenizer.tokenize(sentence))
+        c.update(mlm_tokenizer.tokenize(sentence))
         
     return c
 
@@ -125,7 +148,7 @@ class BestGroupInner:
     # better to update when a word is found normal, 
     # and in keep all anchors sorted in case someone out of the best became 
     # better than min because normal decreased the value of the min
-    def __init__(self, occurences, normal_counts, group_size=25):
+    def __init__(self, occurences, normal_counts, tot_normal, group_size=40):
         self.occurences_left = occurences
         self.best = set()
         self.anchor_counts = defaultdict(int)
@@ -134,9 +157,12 @@ class BestGroupInner:
         self.full = False
         self.normal_factor = 0.1
         self.group_size = group_size
+        self.tot_anchors = 1
+        self.tot_normal = tot_normal
     
     def update(self, anchor):
         self.anchor_counts[anchor]+=1
+        self.tot_anchors+=1
         
         if anchor == self.min_name:
             self._update_min(anchor)
@@ -154,6 +180,7 @@ class BestGroupInner:
             self._update_min(anchor) 
             
     def pseudo_score(self, anchor):
+        return self.anchor_counts[anchor] - 0.5*(self.tot_anchors/self.tot_normal[0])*self.normal_counts[anchor]
         return self.anchor_counts[anchor] - self.normal_factor*self.normal_counts[anchor]
             
     def _update_min(self, candid_name):
@@ -174,12 +201,12 @@ class BestGroupInner:
         return should
     
 class BestGroup:
-    def __init__(self, folder_name, occurences, filter_anchors = False, desired_optimize = False ,group_size = 50):
+    def __init__(self, folder_name, occurences, filter_anchors = False, desired_optimize = False ,group_size = 40):
         self.occurences_left = occurences
         self.normal_counts = defaultdict(int)
-        self.pos_BG = BestGroupInner(occurences, self.normal_counts, group_size//2)
-        self.neg_BG = BestGroupInner(occurences, self.normal_counts, group_size//2)
-        self.cur_type = None
+        self.tot_normal = [1]
+        self.pos_BG = BestGroupInner(occurences, self.normal_counts, self.tot_normal, group_size)
+        self.neg_BG = BestGroupInner(occurences, self.normal_counts, self.tot_normal, group_size)
         self.pos_monitor_writer = writer(open(f'{folder_name}/pos_monitor.csv', 'a+', newline='', encoding='utf8'))
         self.neg_monitor_writer = writer(open(f'{folder_name}/neg_monitor.csv', 'a+', newline='', encoding='utf8'))
         self.time_monitor_writer = writer(open(f'{folder_name}/time_monitor.csv', 'a+', newline=''))
@@ -187,24 +214,30 @@ class BestGroup:
         self.desired_optimize = desired_optimize
         self.st = time.time()
         
-    def update_anchor(self, anchor):
-        if self.cur_type == 1:
+        
+    def update_anchor(self, anchor, label):
+        if label == 1:
             self.pos_BG.update(anchor)
         else:
             self.neg_BG.update(anchor)
     
     def update_normal(self, anchor):
         self.normal_counts[anchor]+=1
+        self.tot_normal[0]+=1
         
-    def should_calculate(self, anchor):
+    def should_calculate(self, anchor, label):
         if not self.filter_anchors:
             return True
-        if self.cur_type == 1:
-            return self.pos_BG.should_calculate(anchor)
+        should = None
+        if label == 1:
+            should = self.pos_BG.should_calculate(anchor)
         else:
-            return self.neg_BG.should_calculate(anchor)
+            should = self.neg_BG.should_calculate(anchor)
+        if not should:
+            self.update_normal(anchor)
+        return should
     
-    def desired_confidence_factor(self, anchor):
+    def desired_confidence_factor(self, anchor, label):
         """ 
         NOT RELATED TO TOPK OPTIMIZATION
         substract this factor from the desired confidence so if a word occured a lot as anchor, we need to calculate less
@@ -216,7 +249,7 @@ class BestGroup:
             return 0
         all_occurences = self.occurences_left[anchor] + self.normal_counts[anchor] + self.pos_BG.anchor_counts[anchor] + self.neg_BG.anchor_counts[anchor]
         pseudo_score = 0
-        if self.cur_type == 1:
+        if label == 1:
             pseudo_score = self.pos_BG.pseudo_score(anchor)
         else:
             pseudo_score = self.neg_BG.pseudo_score(anchor)

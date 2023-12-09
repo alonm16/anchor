@@ -14,10 +14,31 @@ models/gru/
 **/exps.pickle
 **/extended_exps.pickle
 **/profile_list.pickle
+**/traced_*
 profile-*
 jupyter-lab.sh
 py-sbatch.sh
 nohup.out
+results/mp/*/*/confidence/*/*5/anchor_examples*
+results/mp/*/*/confidence/*/*2/anchor_examples*
+results/mp/*/*/confidence/84/*/anchor_examples*
+results/mp/*/*/confidence/126/*/anchor_examples*
+results/mp/*/*/confidence/168/*/anchor_examples*
+results/mp/*/*/confidence/210/*/anchor_examples*
+results/mp/*/*/confidence/84/*/predictions*
+results/mp/*/*/confidence/126/*/predictions*
+results/mp/*/*/confidence/168/*/predictions*
+results/mp/*/*/confidence/210/*/predictions*
+results/mp/*/*/confidence/84/*/predictions*
+results/mp/*/*/confidence/126/*/*monitor*
+results/mp/*/*/confidence/168/*/*monitor*
+results/mp/*/*/confidence/210/*/*monitor*
+results/mp/*/*/confidence/*/*5/*monitor*
+results/mp/*/*/confidence/*/*2/predictions*
+results/mp/*/*/confidence/*/*5/*monitor*
+results/mp/*/*/confidence/*/*2/*monitor*
+results/mp/*/*/confidence/*/*/*sum*
+results/graphs/
 
 # Created by https://www.gitignore.io/api/python,pycharm,windows,osx,linux
 

@@ -123,7 +123,7 @@ class AnchorBaseBeam(object):
         return sorted_means[-top_n:]
 
     @staticmethod
-    def make_tuples(previous_best, state):
+    def make_tuples(previous_best, state, true_label):
         # alters state, computes support for new tuples
         normalize_tuple = lambda x: tuple(sorted(set(x)))  # noqa
         all_features = range(state['n_features'])
@@ -134,7 +134,7 @@ class AnchorBaseBeam(object):
         if len(previous_best) == 0:
             # TODO added if not in ignored
             if optimize:
-                tuples = [(x, ) for x in all_features if (AnchorBaseBeam.words[x] not in AnchorBaseBeam.ignored) and AnchorBaseBeam.best_group.should_calculate(AnchorBaseBeam.words[x]) and (not AnchorBaseBeam.words[x].startswith("##"))]
+                tuples = [(x, ) for x in all_features if (AnchorBaseBeam.words[x] not in AnchorBaseBeam.ignored) and AnchorBaseBeam.best_group.should_calculate(AnchorBaseBeam.words[x], true_label) and (not AnchorBaseBeam.words[x].startswith("##"))]
             else:
                 tuples = [(x, ) for x in all_features]
                           
@@ -259,7 +259,7 @@ class AnchorBaseBeam(object):
                     max_anchor_size=None, verbose_every=1,
                     stop_on_first=False, coverage_samples=10000):
         # TODO topk optimization
-        AnchorBaseBeam.best_group.cur_type = true_label
+        #AnchorBaseBeam.best_group.cur_type = true_label
         
         anchor = {'feature': [], 'mean': [], 'precision': [],
                   'coverage': [], 'examples': [], 'all_precision': 0}
@@ -312,7 +312,7 @@ class AnchorBaseBeam(object):
         while current_size <= max_anchor_size:
 
             tuples = AnchorBaseBeam.make_tuples(
-                best_of_size[current_size - 1], state)
+                best_of_size[current_size - 1], state, true_label)
             #TODO
             # tuples = [x for x in tuples
             #           if state['t_coverage'][x] > best_coverage]
@@ -357,7 +357,7 @@ class AnchorBaseBeam(object):
                     print(i, mean, lb, ub)
                     
                 # TODO confidence optimization
-                anchor_desired_confidence = desired_confidence - AnchorBaseBeam.best_group.desired_confidence_factor(AnchorBaseBeam.words[t[0]])
+                anchor_desired_confidence = desired_confidence - AnchorBaseBeam.best_group.desired_confidence_factor(AnchorBaseBeam.words[t[0]], true_label)
                 
                 while ((mean >= anchor_desired_confidence and
                        lb < anchor_desired_confidence - epsilon_stop) or
@@ -388,7 +388,7 @@ class AnchorBaseBeam(object):
                 if mean >= anchor_desired_confidence:
                     # TODO add as anchor
                     final_tuples.append(t)
-                    AnchorBaseBeam.best_group.update_anchor(AnchorBaseBeam.words[t[0]])
+                    AnchorBaseBeam.best_group.update_anchor(AnchorBaseBeam.words[t[0]], true_label)
                 else: 
                     AnchorBaseBeam.best_group.update_normal(AnchorBaseBeam.words[t[0]])
                 

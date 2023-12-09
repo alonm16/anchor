@@ -1,4 +1,3 @@
-from . import utils
 from . import anchor_base
 from . import anchor_explanation
 import numpy as np
@@ -8,7 +7,7 @@ import string
 import sys
 from io import open
 import numpy as np
-from transformers import AutoTokenizer, AutoModelForMaskedLM
+from transformers import AutoTokenizer, AutoModelForMaskedLM, DistilBertForMaskedLM
 import torch
 from numba import jit, njit, float32
 from numpy.random import default_rng
@@ -29,14 +28,16 @@ def exp_normalize(x):
     return y / y.sum()
 
 class TextGenerator(object):
-    def __init__(self, url=None):
+    def __init__(self, url=None, num_unmask = 500, device = None):
         self.url = url
         if url is None:
-            self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+            self.device = device if device else torch.device("cuda" if torch.cuda.is_available() else "cpu")
             self.bert_tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased', use_fast=False)
             if optimize:
-                self.bert = torch.jit.load('models/mlm_models/distil_mlm.pt').to(self.device)
+                trail_path = f'_{device.index}' if (device and device.index) else ''
+                self.bert = torch.jit.load(f'models/mlm_models/distil_mlm{trail_path}.pt').to(self.device)
                 self.ids_to_tokens = dict(self.bert_tokenizer.ids_to_tokens)
+                self.num_unmask = num_unmask
             else:
                 self.bert = DistilBertForMaskedLM.from_pretrained('distilbert-base-cased', torchscript=True)
                 self.bert.to(self.device)
@@ -56,14 +57,15 @@ class TextGenerator(object):
         to_pred = torch.tensor(encoded_array, device=self.device)
         with torch.no_grad():
             outputs = model(to_pred)[0]
+
         rets = []  
         
         for j in range(len(encoded_array)):
             ret = []  
 
             if optimize:
-                #### try change to 100!!!!!!!!!!!!!!!!!!!
-                v_array, top_preds_array = torch.topk(outputs[j, masked_array[j]], 500)
+                # optimize: change num of unmask options
+                v_array, top_preds_array = torch.topk(outputs[j, masked_array[j]], self.num_unmask)
                 top_preds_array = top_preds_array.tolist()
                 v_array = v_array.cpu().numpy()
 
@@ -109,9 +111,7 @@ class SentencePerturber:
             # TODO: optimize, process multiple texts, so more [0]
             w, p = self.probs([s], [tokenized_a])[0][0]
             w = [self.tg.ids_to_tokens[w_i] for w_i in w]
-            self.pr[i] =  min(0.5, dict(zip(w, p)).get(words[i], 0.01))
-            
-                
+            self.pr[i] = min(0.5, dict(zip(w, p)).get(words[i], 0.01))                
             
     # TODO: optimize, process multiple texts, and sending sentences as tokens, 
     # the sentence is encoded only once without masks, so only need to copy and change where the mask is
@@ -186,7 +186,7 @@ class SentencePerturber:
 class AnchorText(object):
     """bla"""
     
-    def __init__(self, nlp, class_names, use_unk_distribution=True, mask_string='UNK'):
+    def __init__(self, nlp, class_names, use_unk_distribution=True, mask_string='UNK', num_unmask = 500, device = None):
         """
         Args:
             nlp: spacy object
@@ -203,7 +203,7 @@ class AnchorText(object):
         self.tg = None
         self.mask_string = mask_string
         if not self.use_unk_distribution:
-            self.tg = TextGenerator()
+            self.tg = TextGenerator(num_unmask = num_unmask, device = device)
             
     @staticmethod       
     def set_optimize(should_optimize):
@@ -215,7 +215,7 @@ class AnchorText(object):
     def get_sample_fn(self, text, classifier_fn, onepass=False, use_proba=False):
         # for changed predict_sentences
         processed = self.tg.bert_tokenizer.tokenize(text)
-        true_label = classifier_fn([processed])[0]
+        true_label = classifier_fn([text])[0]
         words = np.array(processed, dtype='|U80')
         positions = [x.idx for x in self.nlp(text)]
         # positions = list(range(len(words)))
@@ -256,7 +256,11 @@ class AnchorText(object):
             labels = []
             if compute_labels:
                 with torch.no_grad():
-                    labels = (classifier_fn(raw_data) == true_label).astype(int)
+                    tokenizer = self.tg.bert_tokenizer
+                    ids_list = [[tokenizer.vocab[token] for token in tokens] 
+                           for tokens in raw_data]
+                    sentences = [tokenizer._decode(ids) for ids in ids_list]
+                    labels = (classifier_fn(sentences) == true_label).astype(int)
             labels = np.array(labels)
             return data, labels
         return words, positions, true_label, sample_fn
