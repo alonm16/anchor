@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 import math
 
+# Implementing the aggregation functions described in chapters 2&3 of the paper
 class ScoreUtils:
     columns=['name','anchor score','type occurences','total occurences','+%','-%','both', 'normal']
         
