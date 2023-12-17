@@ -17,6 +17,8 @@ import myUtils
 from models.utils import *
 colors = [red, blue, cyan, green, magenta, yellow]*3
 
+# Implementing the AOPCK graphs described in chapter 2 and shown in chapter 5 of the paper
+
 class AOPC_Plotter:
     @staticmethod
     def aopc_plot(pos_df, neg_df, xlabel, ylabel, hue, legend, title, limiter):
