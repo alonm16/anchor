@@ -61,6 +61,7 @@ def predict_scores(sentences):
     outputs = softmax(model(to_pred)[0])
     return outputs.cpu().numpy()
 
+# Used for removing stop-words as described in section 4.3 in the paper
 def get_stopwords():
     stop_words = ['!', '"', '#', '$', '%', '&', "'", '(', ')', '*', '+', ',', '.', 
                   '/', ':', ';', '<', '=', '>', '?', '@', '[', '\\', ']', '^', '_', 
@@ -199,7 +200,8 @@ class BestGroupInner:
         self.occurences_left[anchor]-=1
 
         return should
-    
+
+# Used for the Incremental Evaluation and Accelerating Anchor optimizations described in chapter 4
 class BestGroup:
     def __init__(self, folder_name, occurences, filter_anchors = False, desired_optimize = False ,group_size = 40):
         self.occurences_left = occurences

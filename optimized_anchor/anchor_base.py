@@ -16,7 +16,7 @@ def matrix_subset(matrix, n_samples):
 
 
 class AnchorBaseBeam(object):
-    # TODO: added static members
+    # Added static members
     words = None
     ignored = None
     best_group = None
@@ -132,7 +132,7 @@ class AnchorBaseBeam(object):
         data = state['data'][:current_idx]
         labels = state['labels'][:current_idx]
         if len(previous_best) == 0:
-            # TODO added if not in ignored
+            # Added if not in ignored, decided using stop-words and Incremental Evaluation optimizations in chapter 4 in the paper
             if optimize:
                 tuples = [(x, ) for x in all_features if (AnchorBaseBeam.words[x] not in AnchorBaseBeam.ignored) and AnchorBaseBeam.best_group.should_calculate(AnchorBaseBeam.words[x], true_label) and (not AnchorBaseBeam.words[x].startswith("##"))]
             else:
@@ -140,12 +140,10 @@ class AnchorBaseBeam(object):
                           
             for x in tuples:
                 pres = data[:, x[0]].nonzero()[0]
-                # NEW
                 state['t_idx'][x] = set(pres)
                 state['t_nsamples'][x] = float(len(pres))
                 state['t_positives'][x] = float(labels[pres].sum())
                 state['t_order'][x].append(x[0])
-                # NEW
                 state['t_coverage_idx'][x] = set(
                     coverage_data[:, x[0]].nonzero()[0])
                 state['t_coverage'][x] = (
@@ -189,9 +187,8 @@ class AnchorBaseBeam(object):
             # idxs = range(state['data'].shape[0], state['data'].shape[0] + n)
             idxs = range(current_idx, current_idx + n)
             
-            # TODO: optimize, erase raw_data
+            # Optimize, erase raw_data
             
-
             state['t_idx'][t].update(idxs)
             state['t_nsamples'][t] += n
             state['t_positives'][t] += labels.sum()
@@ -258,7 +255,7 @@ class AnchorBaseBeam(object):
                     verbose=False, epsilon_stop=0.05, min_samples_start=0,
                     max_anchor_size=None, verbose_every=1,
                     stop_on_first=False, coverage_samples=10000):
-        # TODO topk optimization
+        # topk optimization
         #AnchorBaseBeam.best_group.cur_type = true_label
         
         anchor = {'feature': [], 'mean': [], 'precision': [],
@@ -304,7 +301,7 @@ class AnchorBaseBeam(object):
         best_tuple = ()
         t = 1
 
-        #TODO
+        # modified
         final_tuples = []
 
         if max_anchor_size is None:
@@ -313,7 +310,7 @@ class AnchorBaseBeam(object):
 
             tuples = AnchorBaseBeam.make_tuples(
                 best_of_size[current_size - 1], state, true_label)
-            #TODO
+            # modified
             # tuples = [x for x in tuples
             #           if state['t_coverage'][x] > best_coverage]
             if len(tuples) == 0:
@@ -323,8 +320,8 @@ class AnchorBaseBeam(object):
             initial_stats = AnchorBaseBeam.get_initial_statistics(tuples,
                                                                   state)
 
-            # TODO changed to len(sample_fns) instead of min(beam_size, len(tuples)
-            # TODO change back if need only 1 anchor
+            # changed to len(sample_fns) instead of min(beam_size, len(tuples)
+            #  change back if need only 1 anchor
             # print tuples, beam_size
             chosen_tuples = AnchorBaseBeam.lucb(
                 sample_fns, initial_stats, epsilon, delta, batch_size,
@@ -356,7 +353,7 @@ class AnchorBaseBeam(object):
                 if verbose:
                     print(i, mean, lb, ub)
                     
-                # TODO confidence optimization
+                # Confidence optimization as described in section 4.2
                 anchor_desired_confidence = desired_confidence - AnchorBaseBeam.best_group.desired_confidence_factor(AnchorBaseBeam.words[t[0]], true_label)
                 
                 while ((mean >= anchor_desired_confidence and
@@ -384,9 +381,9 @@ class AnchorBaseBeam(object):
                 #         mean, beta / state['t_nsamples'][t])
 
                 
-                #TODO for topk optimization
+                #Incremental Evaluation optimization as described in section 4.1
                 if mean >= anchor_desired_confidence:
-                    # TODO add as anchor
+                    # Add as anchor
                     final_tuples.append(t)
                     AnchorBaseBeam.best_group.update_anchor(AnchorBaseBeam.words[t[0]], true_label)
                 else: 
@@ -404,11 +401,11 @@ class AnchorBaseBeam(object):
                         best_tuple = t
                         if best_coverage == 1 or stop_on_first:
                             stop_this = True
-            #TODO commented this
+            #commented this
             # if stop_this:
             #     break
             current_size += 1
-        # TODO and this
+        # And this
         """
         if best_tuple == ():
             # Could not find an anchor, will now choose the highest precision
@@ -430,7 +427,7 @@ class AnchorBaseBeam(object):
             best_tuple = tuples[chosen_tuples[0]]
         # return best_tuple, state
         """
-        # TODO topk optimization
+        # Incremental Evaluation optimization
         AnchorBaseBeam.best_group.monitor()
         anchors = [AnchorBaseBeam.get_anchor_from_tuple(best_tuple, state) for best_tuple in final_tuples]
 
